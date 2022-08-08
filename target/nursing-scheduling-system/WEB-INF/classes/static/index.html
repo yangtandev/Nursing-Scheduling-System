@@ -1,0 +1,156 @@
+<html lang="en">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Nursing scheduling system</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/webjars/font-awesome/css/all.css" />
+</head>
+<body>
+<div class="container">
+    <h1>Nursing scheduling system</h1>
+
+    <div style="margin-bottom: .5rem">
+        <button id="refreshButton" type="button" class="btn btn-secondary">
+            <span class="fas fa-refresh"></span> Refresh
+        </button>
+        <button id="solveButton" type="button" class="btn btn-success">
+            <span class="fas fa-play"></span> Solve
+        </button>
+        <button id="stopSolvingButton" type="button" class="btn btn-danger">
+            <span class="fas fa-stop"></span> Stop solving
+        </button>
+        <!--    <button type="button" class="float-right btn btn-warning"><span class="fas fa-stop"></span> Terminate</button>-->
+
+    </div>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="byShiftPanel" role="tabpanel" aria-labelledby="byShiftTab">
+            <table class="table table-borderless table-striped timeTableSolution" id="timeTableByShift">
+                <!-- Filled in by app.js -->
+            </table>
+        </div>
+        <div class="tab-pane fade" id="byName" role="tabpanel" aria-labelledby="byNameTab">
+            <table class="table table-borderless table-striped timeTableSolution" id="timeTableByName">
+                <!-- Filled in by app.js -->
+            </table>
+        </div>
+        <div class="tab-pane fade" id="byStaffGroup" role="tabpanel" aria-labelledby="byStaffGroupTab">
+            <table class="table table-borderless table-striped timeTableSolution" id="timeTableByStaffGroup">
+                <!-- Filled in by app.js -->
+            </table>
+        </div>
+    </div>
+    <div>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#staffDialog">
+            <span class="fas fa-plus"></span> Add staff member
+        </button>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#timeslotDialog">
+            <span class="fas fa-plus"></span> Add timeslot
+        </button>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#shiftDialog">
+            <span class="fas fa-plus"></span> Add shift
+        </button>
+    </div>
+
+    <h2 style="margin-top: 2rem">Unassigned staff</h2>
+    <div id="unassignedStaffs" class="card-columns"></div>
+</div>
+
+
+<div class="modal fade" id="staffDialog" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Add a staff member</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-staffGroup">
+                    <label for="staff_cardID">Card ID</label>
+                    <input type="text" class="form-control" id="staff_cardID" required value="0000">
+                </div>
+                <div class="form-staffGroup">
+                    <label for="staff_name">Name</label>
+                    <input type="text" class="form-control" id="staff_name" required value="XXX">
+                </div>
+                <div class="form-staffGroup">
+                    <label for="staff_staffGroup">StaffGroup</label>
+                    <input type="text" class="form-control" id="staff_staffGroup" required value="A">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="addStaffSubmitButton">Submit new staff member</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="timeslotDialog" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Add a timeslot</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-staffGroup">
+                    <label for="timeslot_dayOfWeek">Day of week</label>
+                    <select class="form-control" id="timeslot_dayOfWeek" required>
+                        <option>Monday</option>
+                        <option>Tuesday</option>
+                        <option selected="selected">Wednesday</option>
+                        <option>Thursday</option>
+                        <option>Friday</option>
+                        <option>Saturday</option>
+                        <option>Sunday</option>
+                    </select>
+                </div>
+                <div class="form-staffGroup">
+                    <label for="timeslot_startTime">Start time</label>
+                    <input type="time" class="form-control" id="timeslot_startTime" required value="08:00"/>
+                </div>
+                <div class="form-staffGroup">
+                    <label for="timeslot_endTime">End time</label>
+                    <input type="time" class="form-control" id="timeslot_endTime" required value="16:00">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="addTimeslotSubmitButton">Submit new timeslot</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="shiftDialog" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Add a shift</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-staffGroup">
+                    <label for="shift_name">Type</label>
+                    <input type="text" class="form-control" id="shift_name" required value="XX">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="addShiftSubmitButton">Submit new shift</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/webjars/jquery/jquery.min.js"></script>
+<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+<script src="/webjars/momentjs/min/moment.min.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
