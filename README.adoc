@@ -1,0 +1,51 @@
+# Nursing-scheduling-system
+
+[[run]]
+== Run the application
+
+. Git clone the optaplanner-quickstarts repo and navigate to this directory:
++
+[source, shell]
+----
+$ git clone https://github.com/yangtandev/Nursing-scheduling-system.git
+...
+$ cd Nursing-scheduling-system
+----
+
+. Start the application with Maven:
++
+[source, shell]
+----
+$ mvn spring-boot:run
+----
+
+. Visit http://localhost:8080 in your browser.
+
+. Click on the *Solve* button.
+
+Then try _live coding_:
+
+. Make some changes in the source code.
+. Refresh your browser (F5).
+
+Notice that those changes are immediately in effect.
+
+
+[[package]]
+== Run the packaged application
+
+When you're done iterating in `spring-boot:run` mode,
+package the application to run as a war file.
+
+. Compile it with Maven:
++
+[source, shell]
+----
+$ mvn clean package -DskipTests
+----
+. Get it:
++
+[source, shell]
+----
+$ ./target/nursing-scheduling-system.war
+----
