@@ -19,8 +19,6 @@ package com.gini.scheduling.persistence;
 import com.gini.scheduling.domain.Staff;
 import com.gini.scheduling.domain.TimeTable;
 
-import javax.persistence.PersistenceContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,33 +27,32 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class TimeTableRepository {
 
-    // There is only one time table, so there is only timeTableId (= problemId).
-    public static final Long SINGLETON_TIME_TABLE_ID = 1L;
+	// There is only one time table, so there is only timeTableId (= problemId).
+	public static final Long SINGLETON_TIME_TABLE_ID = 1L;
 
-    @Autowired
-    private TimeslotRepository timeslotRepository;
-    @Autowired
-    private ShiftRepository shiftRepository;
-    @Autowired
-    private StaffRepository staffRepository;
+	@Autowired
+	private ScheduleRepository scheduleRepository;
+	@Autowired
+	private ShiftRepository shiftRepository;
+	@Autowired
+	private StaffRepository staffRepository;
 
-    public TimeTable findById(Long id) {
-        if (!SINGLETON_TIME_TABLE_ID.equals(id)) {
-            throw new IllegalStateException("There is no timeTable with id (" + id + ").");
-        }
-        // Occurs in a single transaction, so each initialized staff references the same timeslot/shift instance
-        // that is contained by the timeTable's timeslotList/shiftList.
-        return new TimeTable(
-                timeslotRepository.findAll(),
-                shiftRepository.findAll(),
-                staffRepository.findAll());
-    }
+	public TimeTable findById(Long id) {
+		if (!SINGLETON_TIME_TABLE_ID.equals(id)) {
+			throw new IllegalStateException("There is no timeTable with id (" + id + ").");
+		}
+		// Occurs in a single transaction, so each initialized staff references the same
+		// schedule/shift instance
+		// that is contained by the timeTable's scheduleList/shiftList.
+		return new TimeTable(scheduleRepository.findAll(), shiftRepository.findAll(), staffRepository.findAll());
+	}
 
-    public void save(TimeTable timeTable) {
-        for (Staff staff : timeTable.getStaffList()) {
-            // TODO this is awfully naive: optimistic locking causes issues if called by the SolverManager
-            staffRepository.save(staff);
-        }
-    }
+	public void save(TimeTable timeTable) {
+		for (Staff staff : timeTable.getStaffList()) {
+			// TODO this is awfully naive: optimistic locking causes issues if called by the
+			// SolverManager
+			staffRepository.save(staff);
+		}
+	}
 
 }

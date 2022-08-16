@@ -3,13 +3,13 @@ com\gini\scheduling\config\DatabaseConfig$1.class
 com\gini\scheduling\domain\Shift.class
 com\gini\scheduling\domain\Staff.class
 com\gini\scheduling\solver\TimeTableConstraintProvider.class
-com\gini\scheduling\persistence\TimeslotRepository.class
 com\gini\scheduling\persistence\StaffRepository.class
 com\gini\scheduling\TimeTableSpringBootApp$DemoData.class
+com\gini\scheduling\domain\Schedule.class
 com\gini\scheduling\persistence\ShiftRepository.class
+com\gini\scheduling\persistence\ScheduleRepository.class
 com\gini\scheduling\persistence\ProblemChangedRepositoryEventListener.class
 com\gini\scheduling\domain\TimeTable.class
 com\gini\scheduling\config\DatabaseConfig.class
-com\gini\scheduling\domain\Timeslot.class
 com\gini\scheduling\TimeTableSpringBootApp.class
 com\gini\scheduling\solver\TimeTableController.class

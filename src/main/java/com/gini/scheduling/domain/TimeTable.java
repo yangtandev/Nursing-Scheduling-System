@@ -29,9 +29,9 @@ import org.optaplanner.core.api.solver.SolverStatus;
 @PlanningSolution
 public class TimeTable {
 
-    @ValueRangeProvider(id = "timeslotRange")
+    @ValueRangeProvider(id = "scheduleRange")
     @ProblemFactCollectionProperty
-    private List<Timeslot> timeslotList;
+    private List<Schedule> scheduleList;
 
     @ValueRangeProvider(id = "shiftRange")
     @ProblemFactCollectionProperty
@@ -49,9 +49,9 @@ public class TimeTable {
     private TimeTable() {
     }
 
-    public TimeTable(List<Timeslot> timeslotList, List<Shift> shiftList,
+    public TimeTable(List<Schedule> scheduleList, List<Shift> shiftList,
             List<Staff> staffList) {
-        this.timeslotList = timeslotList;
+        this.scheduleList = scheduleList;
         this.shiftList = shiftList;
         this.staffList = staffList;
     }
@@ -60,8 +60,8 @@ public class TimeTable {
     // Getters and setters
     // ************************************************************************
 
-    public List<Timeslot> getTimeslotList() {
-        return timeslotList;
+    public List<Schedule> getScheduleList() {
+        return scheduleList;
     }
 
     public List<Shift> getShiftList() {

@@ -31,7 +31,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 @Entity
-@Table(schema = "NSS", uniqueConstraints = @UniqueConstraint(columnNames = { "name" }))
+@Table(name="SGSHIFT",schema = "SG", uniqueConstraints = @UniqueConstraint(columnNames = { "name" }))
 public class Shift {
 
 	@PlanningId

@@ -32,9 +32,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 @Entity
-@Table(schema = "NSS", uniqueConstraints = @UniqueConstraint(columnNames = { "dayOfWeek",
+@Table(name="SGSCHED",schema = "SG", uniqueConstraints = @UniqueConstraint(columnNames = { "dayOfWeek",
 		"startTime", "endTime" }))
-public class Timeslot {
+public class Schedule {
 
 	@PlanningId
 	@Id
@@ -51,18 +51,18 @@ public class Timeslot {
 
 	@UpdateTimestamp
 	@Column(nullable = false)
-	private Timestamp ZTimeslot;
+	private Timestamp ZSchedule;
 
-	public Timeslot() {
+	public Schedule() {
 	}
 
-	public Timeslot(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+	public Schedule(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
 		this.dayOfWeek = dayOfWeek;
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
 
-	public Timeslot(long id, DayOfWeek dayOfWeek, LocalTime startTime) {
+	public Schedule(long id, DayOfWeek dayOfWeek, LocalTime startTime) {
 		this(dayOfWeek, startTime, startTime.plusMinutes(50));
 		this.id = id;
 	}
@@ -92,11 +92,11 @@ public class Timeslot {
 		return endTime;
 	}
 
-	public Timestamp getZTimeslot() {
-		return ZTimeslot;
+	public Timestamp getZSchedule() {
+		return ZSchedule;
 	}
 
-	public void setZTimeslot(Timestamp ZTimeslot) {
-		this.ZTimeslot = ZTimeslot;
+	public void setZSchedule(Timestamp ZSchedule) {
+		this.ZSchedule = ZSchedule;
 	}
 }

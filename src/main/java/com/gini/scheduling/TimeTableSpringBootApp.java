@@ -3,14 +3,10 @@ package com.gini.scheduling;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
 import com.gini.scheduling.domain.Staff;
 import com.gini.scheduling.domain.Shift;
-import com.gini.scheduling.domain.Timeslot;
+import com.gini.scheduling.domain.Schedule;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -18,14 +14,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jndi.JndiTemplate;
-
 import com.gini.scheduling.persistence.StaffRepository;
 import com.gini.scheduling.persistence.ShiftRepository;
-import com.gini.scheduling.persistence.TimeslotRepository;
+import com.gini.scheduling.persistence.ScheduleRepository;
 
 @SpringBootApplication
 public class TimeTableSpringBootApp extends SpringBootServletInitializer {
@@ -43,42 +35,43 @@ public class TimeTableSpringBootApp extends SpringBootServletInitializer {
 	private DemoData demoData;
 
 	@Bean
-	public CommandLineRunner demoData(TimeslotRepository timeslotRepository, ShiftRepository shiftRepository,
+	public CommandLineRunner demoData(ScheduleRepository scheduleRepository, ShiftRepository shiftRepository,
 			StaffRepository staffRepository) {
 		return (args) -> {
 			if (demoData == DemoData.NONE) {
 				return;
 			}
-			if (staffRepository.findAll().isEmpty()) {
-				timeslotRepository.save(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.SATURDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.SATURDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.SATURDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.SATURDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.SUNDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.SUNDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.SUNDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				timeslotRepository.save(new Timeslot(DayOfWeek.SUNDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-
+			if (scheduleRepository.findAll().isEmpty()) {
+				scheduleRepository.save(new Schedule(DayOfWeek.MONDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.MONDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.MONDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.MONDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.TUESDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.TUESDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.TUESDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.TUESDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.WEDNESDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.WEDNESDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.WEDNESDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.WEDNESDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.THURSDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.THURSDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.THURSDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.THURSDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.FRIDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.FRIDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.FRIDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.FRIDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.SATURDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.SATURDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.SATURDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.SATURDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.SUNDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.SUNDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.SUNDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				scheduleRepository.save(new Schedule(DayOfWeek.SUNDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+			}
+			if (shiftRepository.findAll().isEmpty()) {
 				shiftRepository.save(new Shift("D6"));
 				shiftRepository.save(new Shift("A0"));
 				shiftRepository.save(new Shift("55"));
@@ -86,7 +79,8 @@ public class TimeTableSpringBootApp extends SpringBootServletInitializer {
 				shiftRepository.save(new Shift("常日"));
 				shiftRepository.save(new Shift("哺乳"));
 				shiftRepository.save(new Shift("加班"));
-
+			}
+			if (staffRepository.findAll().isEmpty()) {
 				staffRepository.save(new Staff("1111", "Aero", "C"));
 				staffRepository.save(new Staff("2222", "Blaire", "C"));
 				staffRepository.save(new Staff("3333", "Connie", "C"));
@@ -107,7 +101,7 @@ public class TimeTableSpringBootApp extends SpringBootServletInitializer {
 				staffRepository.save(new Staff("7891", "Peter", "A"));
 			}
 			Staff staff = staffRepository.findAll(Sort.by("id")).iterator().next();
-			staff.setTimeslot(timeslotRepository.findAll(Sort.by("id")).iterator().next());
+			staff.setSchedule(scheduleRepository.findAll(Sort.by("id")).iterator().next());
 			staff.setShift(shiftRepository.findAll(Sort.by("id")).iterator().next());
 			staffRepository.save(staff);
 		};

@@ -21,6 +21,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.JoinColumn;
 import javax.persistence.ForeignKey;
@@ -31,6 +32,7 @@ import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.validation.constraints.NotBlank;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.optaplanner.core.api.domain.entity.PlanningEntity;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
@@ -38,7 +40,7 @@ import org.optaplanner.core.api.domain.variable.PlanningVariable;
 
 @PlanningEntity
 @Entity
-@Table(schema = "NSS")
+@Table(name = "SGSTAFF", schema = "SG")
 public class Staff {
 
 	@PlanningId
@@ -57,13 +59,15 @@ public class Staff {
 	@Column(nullable = false)
 	private String staffGroup;
 
-	@PlanningVariable(valueRangeProviderRefs = "timeslotRange")
+	@PlanningVariable(valueRangeProviderRefs = "scheduleRange")
 	@ManyToOne
+//	@JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
 	@JoinColumn(foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
-	private Timeslot timeslot;
+	private Schedule schedule;
 
 	@PlanningVariable(valueRangeProviderRefs = "shiftRange")
 	@ManyToOne
+//	@JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
 	@JoinColumn(foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
 	private Shift shift;
 
@@ -80,11 +84,11 @@ public class Staff {
 		this.staffGroup = staffGroup.trim();
 	}
 
-	public Staff(long id, String cardID, String name, String staffGroup, Shift shift, Timeslot timeslot) {
+	public Staff(long id, String cardID, String name, String staffGroup, Shift shift, Schedule schedule) {
 		this(cardID, name, staffGroup);
 		this.id = id;
 		this.shift = shift;
-		this.timeslot = timeslot;
+		this.schedule = schedule;
 	}
 
 	@Override
@@ -112,12 +116,12 @@ public class Staff {
 		return staffGroup;
 	}
 
-	public Timeslot getTimeslot() {
-		return timeslot;
+	public Schedule getSchedule() {
+		return schedule;
 	}
 
-	public void setTimeslot(Timeslot timeslot) {
-		this.timeslot = timeslot;
+	public void setSchedule(Schedule schedule) {
+		this.schedule = schedule;
 	}
 
 	public Shift getShift() {

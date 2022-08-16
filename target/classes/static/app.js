@@ -17,7 +17,7 @@ function refreshTimeTable() {
 
         const theadByShift = $("<thead>").appendTo(timeTableByShift);
         const headerRowByShift = $("<tr>").appendTo(theadByShift);
-        headerRowByShift.append($("<th>Timeslot</th>"));
+        headerRowByShift.append($("<th>Schedule</th>"));
         $.each(timeTable.shiftList, (index, shift) => {
             headerRowByShift
                     .append($("<th/>")
@@ -28,7 +28,7 @@ function refreshTimeTable() {
         });
         const theadByName = $("<thead>").appendTo(timeTableByName);
         const headerRowByName = $("<tr>").appendTo(theadByName);
-        headerRowByName.append($("<th>Timeslot</th>"));
+        headerRowByName.append($("<th>Schedule</th>"));
         const nameList = [...new Set(timeTable.staffList.map(staff => staff.name))];
         $.each(nameList, (index, name) => {
             headerRowByName
@@ -37,7 +37,7 @@ function refreshTimeTable() {
         });
         const theadByStaffGroup = $("<thead>").appendTo(timeTableByStaffGroup);
         const headerRowByStaffGroup = $("<tr>").appendTo(theadByStaffGroup);
-        headerRowByStaffGroup.append($("<th>Timeslot</th>"));
+        headerRowByStaffGroup.append($("<th>Schedule</th>"));
         const staffGroupList = [...new Set(timeTable.staffList.map(staff => staff.staffGroup))];
         $.each(staffGroupList, (index, staffGroup) => {
             headerRowByStaffGroup
@@ -48,48 +48,48 @@ function refreshTimeTable() {
         const tbodyByShift = $("<tbody>").appendTo(timeTableByShift);
         const tbodyByName = $("<tbody>").appendTo(timeTableByName);
         const tbodyByStaffGroup = $("<tbody>").appendTo(timeTableByStaffGroup);
-        $.each(timeTable.timeslotList, (index, timeslot) => {
+        $.each(timeTable.scheduleList, (index, schedule) => {
             const rowByShift = $("<tr>").appendTo(tbodyByShift);
             rowByShift
                     .append($(`<th class="align-middle"/>`)
                             .append($("<span/>").text(`
-                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
-                    ${moment(timeslot.startTime, "HH:mm:ss").format("HH:mm")}
+                    ${schedule.dayOfWeek.charAt(0) + schedule.dayOfWeek.slice(1).toLowerCase()}
+                    ${moment(schedule.startTime, "HH:mm:ss").format("HH:mm")}
                     -
-                    ${moment(timeslot.endTime, "HH:mm:ss").format("HH:mm")}
+                    ${moment(schedule.endTime, "HH:mm:ss").format("HH:mm")}
                 `)
                                     .append($(`<button type="button" class="ml-2 mb-1 btn btn-light btn-sm p-1"/>`)
                                             .append($(`<small class="fas fa-trash"/>`)
-                                            ).click(() => deleteTimeslot(timeslot)))));
+                                            ).click(() => deleteSchedule(schedule)))));
 
             const rowByName = $("<tr>").appendTo(tbodyByName);
             rowByName
                     .append($(`<th class="align-middle"/>`)
                             .append($("<span/>").text(`
-                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
-                    ${moment(timeslot.startTime, "HH:mm:ss").format("HH:mm")}
+                    ${schedule.dayOfWeek.charAt(0) + schedule.dayOfWeek.slice(1).toLowerCase()}
+                    ${moment(schedule.startTime, "HH:mm:ss").format("HH:mm")}
                     -
-                    ${moment(timeslot.endTime, "HH:mm:ss").format("HH:mm")}
+                    ${moment(schedule.endTime, "HH:mm:ss").format("HH:mm")}
                 `)));
             $.each(timeTable.shiftList, (index, shift) => {
-                rowByShift.append($("<td/>").prop("id", `timeslot${timeslot.id}shift${shift.id}`));
+                rowByShift.append($("<td/>").prop("id", `schedule${schedule.id}shift${shift.id}`));
             });
             const rowByStaffGroup = $("<tr>").appendTo(tbodyByStaffGroup);
             rowByStaffGroup
                     .append($(`<th class="align-middle"/>`)
                             .append($("<span/>").text(`
-                    ${timeslot.dayOfWeek.charAt(0) + timeslot.dayOfWeek.slice(1).toLowerCase()}
-                    ${moment(timeslot.startTime, "HH:mm:ss").format("HH:mm")}
+                    ${schedule.dayOfWeek.charAt(0) + schedule.dayOfWeek.slice(1).toLowerCase()}
+                    ${moment(schedule.startTime, "HH:mm:ss").format("HH:mm")}
                     -
-                    ${moment(timeslot.endTime, "HH:mm:ss").format("HH:mm")}
+                    ${moment(schedule.endTime, "HH:mm:ss").format("HH:mm")}
                 `)));
 
             $.each(nameList, (index, name) => {
-                rowByName.append($("<td/>").prop("id", `timeslot${timeslot.id}name${convertToId(name)}`));
+                rowByName.append($("<td/>").prop("id", `schedule${schedule.id}name${convertToId(name)}`));
             });
 
             $.each(staffGroupList, (index, staffGroup) => {
-                rowByStaffGroup.append($("<td/>").prop("id", `timeslot${timeslot.id}staffGroup${convertToId(staffGroup)}`));
+                rowByStaffGroup.append($("<td/>").prop("id", `schedule${schedule.id}staffGroup${convertToId(staffGroup)}`));
             });
         });
 
@@ -107,12 +107,12 @@ function refreshTimeTable() {
                             .append($(`<small class="fas fa-trash"/>`)
                             ).click(() => deleteStaff(staff))
             );
-            if (staff.timeslot == null || staff.shift == null) {
+            if (staff.schedule == null || staff.shift == null) {
                 unassignedStaffs.append(staffElement);
             } else {
-                $(`#timeslot${staff.timeslot.id}shift${staff.shift.id}`).append(staffElement);
-                $(`#timeslot${staff.timeslot.id}name${convertToId(staff.name)}`).append(staffElementWithoutDelete.clone());
-                $(`#timeslot${staff.timeslot.id}staffGroup${convertToId(staff.staffGroup)}`).append(staffElementWithoutDelete.clone());
+                $(`#schedule${staff.schedule.id}shift${staff.shift.id}`).append(staffElement);
+                $(`#schedule${staff.schedule.id}name${convertToId(staff.name)}`).append(staffElementWithoutDelete.clone());
+                $(`#schedule${staff.schedule.id}staffGroup${convertToId(staff.staffGroup)}`).append(staffElementWithoutDelete.clone());
             }
         });
     });
@@ -185,24 +185,24 @@ function deleteStaff(staff) {
     });
 }
 
-function addTimeslot() {
-    $.post("/timeslots", JSON.stringify({
-        "dayOfWeek": $("#timeslot_dayOfWeek").val().trim().toUpperCase(),
-        "startTime": $("#timeslot_startTime").val().trim(),
-        "endTime": $("#timeslot_endTime").val().trim()
+function addSchedule() {
+    $.post("/schedules", JSON.stringify({
+        "dayOfWeek": $("#schedule_dayOfWeek").val().trim().toUpperCase(),
+        "startTime": $("#schedule_startTime").val().trim(),
+        "endTime": $("#schedule_endTime").val().trim()
     }), function () {
         refreshTimeTable();
     }).fail(function(xhr, ajaxOptions, thrownError) {
-        showError("Adding timeslot failed.", xhr);
+        showError("Adding schedule failed.", xhr);
     });
-    $('#timeslotDialog').modal('toggle');
+    $('#scheduleDialog').modal('toggle');
 }
 
-function deleteTimeslot(timeslot) {
-    $.delete("/timeslots/" + timeslot.id, function () {
+function deleteSchedule(schedule) {
+    $.delete("/schedules/" + schedule.id, function () {
         refreshTimeTable();
     }).fail(function(xhr, ajaxOptions, thrownError) {
-        showError("Deleting timeslot (" + timeslot.name + ") failed.", xhr);
+        showError("Deleting schedule (" + schedule.name + ") failed.", xhr);
     });
 }
 
@@ -285,8 +285,8 @@ $(document).ready( function() {
     $("#addStaffSubmitButton").click(function() {
         addStaff();
     });
-    $("#addTimeslotSubmitButton").click(function() {
-        addTimeslot();
+    $("#addScheduleSubmitButton").click(function() {
+        addSchedule();
     });
     $("#addShiftSubmitButton").click(function() {
         addShift();
