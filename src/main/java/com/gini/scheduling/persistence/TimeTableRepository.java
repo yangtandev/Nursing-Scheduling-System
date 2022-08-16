@@ -18,6 +18,9 @@ package com.gini.scheduling.persistence;
 
 import com.gini.scheduling.domain.Staff;
 import com.gini.scheduling.domain.TimeTable;
+
+import javax.persistence.PersistenceContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

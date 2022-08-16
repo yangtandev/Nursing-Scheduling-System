@@ -21,92 +21,118 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.persistence.Table;
+import javax.persistence.JoinColumn;
+import javax.persistence.ForeignKey;
 
+import java.sql.Timestamp;
+
+import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
+import javax.validation.constraints.NotBlank;
+
+import org.hibernate.annotations.UpdateTimestamp;
 import org.optaplanner.core.api.domain.entity.PlanningEntity;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
 
 @PlanningEntity
 @Entity
+@Table(schema = "NSS")
 public class Staff {
 
-    @PlanningId
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    @NotNull
-    private Long id;
+	@PlanningId
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(nullable = false)
+	private Long id;
 
-    @NotBlank
-    private String cardID;
-    @NotBlank
-    private String name;
-    @NotBlank
-    private String staffGroup;
+	@NotBlank
+	@Column(nullable = false)
+	private String cardID;
+	@NotBlank
+	@Column(nullable = false)
+	private String name;
+	@NotBlank
+	@Column(nullable = false)
+	private String staffGroup;
 
-    @PlanningVariable(valueRangeProviderRefs = "timeslotRange")
-    @ManyToOne
-    private Timeslot timeslot;
+	@PlanningVariable(valueRangeProviderRefs = "timeslotRange")
+	@ManyToOne
+	@JoinColumn(foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+	private Timeslot timeslot;
 
-    @PlanningVariable(valueRangeProviderRefs = "shiftRange")
-    @ManyToOne
-    private Shift shift;
+	@PlanningVariable(valueRangeProviderRefs = "shiftRange")
+	@ManyToOne
+	@JoinColumn(foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+	private Shift shift;
 
-    public Staff() {
-    }
+	@UpdateTimestamp
+	@Column(nullable = false)
+	private Timestamp ZStaff;
 
-    public Staff(String cardID, String name, String staffGroup) {
-        this.cardID = cardID.trim();
-        this.name = name.trim();
-        this.staffGroup = staffGroup.trim();
-    }
+	public Staff() {
+	}
 
-    public Staff(long id, String cardID, String name, String staffGroup, Shift shift, Timeslot timeslot) {
-        this(cardID, name, staffGroup);
-        this.id = id;
-        this.shift = shift;
-        this.timeslot = timeslot;
-    }
+	public Staff(String cardID, String name, String staffGroup) {
+		this.cardID = cardID.trim();
+		this.name = name.trim();
+		this.staffGroup = staffGroup.trim();
+	}
 
-    @Override
-    public String toString() {
-        return cardID + "(" + id + ")";
-    }
+	public Staff(long id, String cardID, String name, String staffGroup, Shift shift, Timeslot timeslot) {
+		this(cardID, name, staffGroup);
+		this.id = id;
+		this.shift = shift;
+		this.timeslot = timeslot;
+	}
 
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
+	@Override
+	public String toString() {
+		return cardID + "(" + id + ")";
+	}
 
-    public Long getId() {
-        return id;
-    }
+	// ************************************************************************
+	// Getters and setters
+	// ************************************************************************
 
-    public String getCardID() {
-        return cardID;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getCardID() {
+		return cardID;
+	}
 
-    public String getStaffGroup() {
-        return staffGroup;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public Timeslot getTimeslot() {
-        return timeslot;
-    }
+	public String getStaffGroup() {
+		return staffGroup;
+	}
 
-    public void setTimeslot(Timeslot timeslot) {
-        this.timeslot = timeslot;
-    }
+	public Timeslot getTimeslot() {
+		return timeslot;
+	}
 
-    public Shift getShift() {
-        return shift;
-    }
+	public void setTimeslot(Timeslot timeslot) {
+		this.timeslot = timeslot;
+	}
 
-    public void setShift(Shift shift) {
-        this.shift = shift;
-    }
+	public Shift getShift() {
+		return shift;
+	}
 
+	public void setShift(Shift shift) {
+		this.shift = shift;
+	}
+
+	public Timestamp getZStaff() {
+		return ZStaff;
+	}
+
+	public void setZStaff(Timestamp ZStaff) {
+		this.ZStaff = ZStaff;
+	}
 }

@@ -16,72 +16,87 @@
 
 package com.gini.scheduling.domain;
 
+import java.sql.Timestamp;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.UpdateTimestamp;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"dayOfWeek", "startTime", "endTime"}))
+@Table(schema = "NSS", uniqueConstraints = @UniqueConstraint(columnNames = { "dayOfWeek",
+		"startTime", "endTime" }))
 public class Timeslot {
 
-    @PlanningId
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    @NotNull
-    private Long id;
+	@PlanningId
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(nullable = false)
+	private Long id;
 
-    @NotNull
-    private DayOfWeek dayOfWeek;
-    @NotNull
-    private LocalTime startTime;
-    @NotNull
-    private LocalTime endTime;
+	@Column(nullable = false)
+	private DayOfWeek dayOfWeek;
+	@Column(nullable = false)
+	private LocalTime startTime;
+	@Column(nullable = false)
+	private LocalTime endTime;
 
-    public Timeslot() {
-    }
+	@UpdateTimestamp
+	@Column(nullable = false)
+	private Timestamp ZTimeslot;
 
-    public Timeslot(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
-        this.dayOfWeek = dayOfWeek;
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
+	public Timeslot() {
+	}
 
-    public Timeslot(long id, DayOfWeek dayOfWeek, LocalTime startTime) {
-        this(dayOfWeek, startTime, startTime.plusMinutes(50));
-        this.id = id;
-    }
+	public Timeslot(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+		this.dayOfWeek = dayOfWeek;
+		this.startTime = startTime;
+		this.endTime = endTime;
+	}
 
-    @Override
-    public String toString() {
-        return dayOfWeek + " " + startTime;
-    }
+	public Timeslot(long id, DayOfWeek dayOfWeek, LocalTime startTime) {
+		this(dayOfWeek, startTime, startTime.plusMinutes(50));
+		this.id = id;
+	}
 
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
+	@Override
+	public String toString() {
+		return dayOfWeek + " " + startTime;
+	}
 
-    public Long getId() {
-        return id;
-    }
+	// ************************************************************************
+	// Getters and setters
+	// ************************************************************************
 
-    public DayOfWeek getDayOfWeek() {
-        return dayOfWeek;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public LocalTime getStartTime() {
-        return startTime;
-    }
+	public DayOfWeek getDayOfWeek() {
+		return dayOfWeek;
+	}
 
-    public LocalTime getEndTime() {
-        return endTime;
-    }
+	public LocalTime getStartTime() {
+		return startTime;
+	}
 
+	public LocalTime getEndTime() {
+		return endTime;
+	}
+
+	public Timestamp getZTimeslot() {
+		return ZTimeslot;
+	}
+
+	public void setZTimeslot(Timestamp ZTimeslot) {
+		this.ZTimeslot = ZTimeslot;
+	}
 }

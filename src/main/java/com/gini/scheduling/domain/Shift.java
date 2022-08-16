@@ -16,56 +16,72 @@
 
 package com.gini.scheduling.domain;
 
+import java.sql.Timestamp;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Column;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.UpdateTimestamp;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
+@Table(schema = "NSS", uniqueConstraints = @UniqueConstraint(columnNames = { "name" }))
 public class Shift {
 
-    @PlanningId
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    @NotNull
-    private Long id;
+	@PlanningId
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(nullable = false)
+	private Long id;
 
-    @NotBlank
-    private String name;
+	@NotBlank
+	@Column(nullable = false)
+	private String name;
 
-    public Shift() {
-    }
+	@UpdateTimestamp
+	@Column(nullable = false)
+	private Timestamp ZShift;
 
-    public Shift(String name) {
-        this.name = name.trim();
-    }
+	public Shift() {
+	}
 
-    public Shift(long id, String name) {
-        this(name);
-        this.id = id;
-    }
+	public Shift(String name) {
+		this.name = name.trim();
+	}
 
-    @Override
-    public String toString() {
-        return name;
-    }
+	public Shift(long id, String name) {
+		this(name);
+		this.id = id;
+	}
 
-    // ************************************************************************
-    // Getters and setters
-    // ************************************************************************
+	@Override
+	public String toString() {
+		return name;
+	}
 
-    public Long getId() {
-        return id;
-    }
+	// ************************************************************************
+	// Getters and setters
+	// ************************************************************************
 
-    public String getName() {
-        return name;
-    }
+	public Long getId() {
+		return id;
+	}
 
+	public String getName() {
+		return name;
+	}
+
+	public Timestamp getZShift() {
+		return ZShift;
+	}
+
+	public void setZShift(Timestamp ZShift) {
+		this.ZShift = ZShift;
+	}
 }
