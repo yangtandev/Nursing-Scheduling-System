@@ -1,23 +1,8 @@
-/*
- * Copyright 2020 Red Hat, Inc. and/or its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.gini.scheduling.domain;
 
 import java.util.List;
 
+import com.gini.scheduling.persistence.StaffRepository;
 import org.optaplanner.core.api.domain.solution.PlanningEntityCollectionProperty;
 import org.optaplanner.core.api.domain.solution.PlanningScore;
 import org.optaplanner.core.api.domain.solution.PlanningSolution;
@@ -28,22 +13,12 @@ import org.optaplanner.core.api.solver.SolverStatus;
 
 @PlanningSolution
 public class TimeTable {
-
-    @ValueRangeProvider(id = "datesRange")
-    @ProblemFactCollectionProperty
-    private List<Dates> datesList;
-
-    @ValueRangeProvider(id = "shiftRange")
-    @ProblemFactCollectionProperty
-    private List<Shift> shiftList;
-
     @ValueRangeProvider(id = "staffRange")
     @ProblemFactCollectionProperty
     private List<Staff> staffList;
-    
-    @ValueRangeProvider(id = "scheduleRange")
+
     @PlanningEntityCollectionProperty
-    private List<Schedule> scheduleList;
+    private List<Shift> shiftList;
 
     @PlanningScore
     private HardSoftScore score;
@@ -54,21 +29,16 @@ public class TimeTable {
     private TimeTable() {
     }
 
-    public TimeTable(List<Dates> datesList, List<Shift> shiftList,
-            List<Staff> staffList,List<Schedule> scheduleList) {
-        this.datesList = datesList;
+    public TimeTable(List<Shift> shiftList,
+                     List<Staff> staffList) {
         this.shiftList = shiftList;
         this.staffList = staffList;
-        this.scheduleList = scheduleList;
+
     }
 
     // ************************************************************************
     // Getters and setters
     // ************************************************************************
-
-    public List<Dates> getDatesList() {
-        return datesList;
-    }
 
     public List<Shift> getShiftList() {
         return shiftList;
@@ -77,9 +47,10 @@ public class TimeTable {
     public List<Staff> getStaffList() {
         return staffList;
     }
-    
-    public List<Schedule> getScheduleList() {
-    	return scheduleList;
+
+
+    public void setScore(HardSoftScore score) {
+        this.score = score;
     }
 
     public HardSoftScore getScore() {
@@ -93,5 +64,6 @@ public class TimeTable {
     public void setSolverStatus(SolverStatus solverStatus) {
         this.solverStatus = solverStatus;
     }
+
 
 }

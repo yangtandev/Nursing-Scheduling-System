@@ -25,25 +25,25 @@
 //import com.gini.scheduling.domain.Staff;
 //import com.gini.scheduling.domain.Shift;
 //import com.gini.scheduling.domain.TimeTable;
-//import com.gini.scheduling.domain.Dates;
+//import com.gini.scheduling.domain.Schedule;
 //
 //class TimeTableConstraintProviderTest {
 //
 //    private static final Shift SHIFT1 = new Shift(1, "Shift1");
 //    private static final Shift SHIFT2 = new Shift(2, "Shift2");
-//    private static final Dates TIMESLOT1 = new Dates(1, DayOfWeek.MONDAY, LocalTime.NOON);
-//    private static final Dates TIMESLOT2 = new Dates(2, DayOfWeek.TUESDAY, LocalTime.NOON);
-//    private static final Dates TIMESLOT3 = new Dates(3, DayOfWeek.TUESDAY, LocalTime.NOON.plusHours(1));
-//    private static final Dates TIMESLOT4 = new Dates(4, DayOfWeek.TUESDAY, LocalTime.NOON.plusHours(3));
+//    private static final Schedule TIMESLOT1 = new Schedule(1, DayOfWeek.MONDAY, LocalTime.NOON);
+//    private static final Schedule TIMESLOT2 = new Schedule(2, DayOfWeek.TUESDAY, LocalTime.NOON);
+//    private static final Schedule TIMESLOT3 = new Schedule(3, DayOfWeek.TUESDAY, LocalTime.NOON.plusHours(1));
+//    private static final Schedule TIMESLOT4 = new Schedule(4, DayOfWeek.TUESDAY, LocalTime.NOON.plusHours(3));
 //
 //    private final ConstraintVerifier<TimeTableConstraintProvider, TimeTable> constraintVerifier =
 //            ConstraintVerifier.build(new TimeTableConstraintProvider(), TimeTable.class, Staff.class);
 //
 //    @Test
 //    void shiftConflict() {
-//        Staff firstStaff = new Staff(1, "CardID1", "Name1", "staffGroup1", SHIFT1, TIMESLOT1);
-//        Staff conflictingStaff = new Staff(2, "CardID2", "Name2", "staffGroup2", SHIFT1, TIMESLOT1);
-//        Staff nonConflictingStaff = new Staff(3, "CardID3", "Name3", "staffGroup3", SHIFT1, TIMESLOT2);
+//        Staff firstStaff = new Staff(1, "CardID1", "Name1", "team1", SHIFT1, TIMESLOT1);
+//        Staff conflictingStaff = new Staff(2, "CardID2", "Name2", "team2", SHIFT1, TIMESLOT1);
+//        Staff nonConflictingStaff = new Staff(3, "CardID3", "Name3", "team3", SHIFT1, TIMESLOT2);
 //        constraintVerifier.verifyThat(TimeTableConstraintProvider::shiftConflict)
 //                .given(firstStaff, conflictingStaff, nonConflictingStaff)
 //                .penalizesBy(1);
@@ -52,21 +52,21 @@
 //    @Test
 //    void nameConflict() {
 //        String conflictingName = "Name1";
-//        Staff firstStaff = new Staff(1, "CardID1", conflictingName, "staffGroup1", SHIFT1, TIMESLOT1);
-//        Staff conflictingStaff = new Staff(2, "CardID2", conflictingName, "staffGroup2", SHIFT2, TIMESLOT1);
-//        Staff nonConflictingStaff = new Staff(3, "CardID3", "Name2", "staffGroup3", SHIFT1, TIMESLOT2);
+//        Staff firstStaff = new Staff(1, "CardID1", conflictingName, "team1", SHIFT1, TIMESLOT1);
+//        Staff conflictingStaff = new Staff(2, "CardID2", conflictingName, "team2", SHIFT2, TIMESLOT1);
+//        Staff nonConflictingStaff = new Staff(3, "CardID3", "Name2", "team3", SHIFT1, TIMESLOT2);
 //        constraintVerifier.verifyThat(TimeTableConstraintProvider::nameConflict)
 //                .given(firstStaff, conflictingStaff, nonConflictingStaff)
 //                .penalizesBy(1);
 //    }
 //
 //    @Test
-//    void staffGroupConflict() {
-//        String conflictingstaffGroup = "staffGroup1";
-//        Staff firstStaff = new Staff(1, "CardID1", "Name1", conflictingstaffGroup, SHIFT1, TIMESLOT1);
-//        Staff conflictingStaff = new Staff(2, "CardID2", "Name2", conflictingstaffGroup, SHIFT2, TIMESLOT1);
-//        Staff nonConflictingStaff = new Staff(3, "CardID3", "Name3", "staffGroup3", SHIFT1, TIMESLOT2);
-//        constraintVerifier.verifyThat(TimeTableConstraintProvider::staffGroupConflict)
+//    void teamConflict() {
+//        String conflictingteam = "team1";
+//        Staff firstStaff = new Staff(1, "CardID1", "Name1", conflictingteam, SHIFT1, TIMESLOT1);
+//        Staff conflictingStaff = new Staff(2, "CardID2", "Name2", conflictingteam, SHIFT2, TIMESLOT1);
+//        Staff nonConflictingStaff = new Staff(3, "CardID3", "Name3", "team3", SHIFT1, TIMESLOT2);
+//        constraintVerifier.verifyThat(TimeTableConstraintProvider::teamConflict)
 //                .given(firstStaff, conflictingStaff, nonConflictingStaff)
 //                .penalizesBy(1);
 //    }
@@ -74,9 +74,9 @@
 //    @Test
 //    void nameShiftStability() {
 //        String name = "Name1";
-//        Staff staffInFirstShift = new Staff(1, "CardID1", name, "staffGroup1", SHIFT1, TIMESLOT1);
-//        Staff staffInSameShift = new Staff(2, "CardID2", name, "staffGroup2", SHIFT1, TIMESLOT1);
-//        Staff staffInDifferentShift = new Staff(3, "CardID3", name, "staffGroup3", SHIFT2, TIMESLOT1);
+//        Staff staffInFirstShift = new Staff(1, "CardID1", name, "team1", SHIFT1, TIMESLOT1);
+//        Staff staffInSameShift = new Staff(2, "CardID2", name, "team2", SHIFT1, TIMESLOT1);
+//        Staff staffInDifferentShift = new Staff(3, "CardID3", name, "team3", SHIFT2, TIMESLOT1);
 //        constraintVerifier.verifyThat(TimeTableConstraintProvider::nameShiftStability)
 //                .given(staffInFirstShift, staffInDifferentShift, staffInSameShift)
 //                .penalizesBy(2);
@@ -85,27 +85,27 @@
 //    @Test
 //    void nameTimeEfficiency() {
 //        String name = "Name1";
-//        Staff singleStaffOnMonday = new Staff(1, "CardID1", name, "staffGroup1", SHIFT1, TIMESLOT1);
-//        Staff firstTuesdayStaff = new Staff(2, "CardID2", name, "staffGroup2", SHIFT1, TIMESLOT2);
-//        Staff secondTuesdayStaff = new Staff(3, "CardID3", name, "staffGroup3", SHIFT1, TIMESLOT3);
-//        Staff thirdTuesdayStaffWithGap = new Staff(4, "CardID4", name, "staffGroup4", SHIFT1, TIMESLOT4);
+//        Staff singleStaffOnMonday = new Staff(1, "CardID1", name, "team1", SHIFT1, TIMESLOT1);
+//        Staff firstTuesdayStaff = new Staff(2, "CardID2", name, "team2", SHIFT1, TIMESLOT2);
+//        Staff secondTuesdayStaff = new Staff(3, "CardID3", name, "team3", SHIFT1, TIMESLOT3);
+//        Staff thirdTuesdayStaffWithGap = new Staff(4, "CardID4", name, "team4", SHIFT1, TIMESLOT4);
 //        constraintVerifier.verifyThat(TimeTableConstraintProvider::nameTimeEfficiency)
 //                .given(singleStaffOnMonday, firstTuesdayStaff, secondTuesdayStaff, thirdTuesdayStaffWithGap)
 //                .rewardsWith(1); // Second tuesday staff immediately follows the first.
 //    }
 //
 //    @Test
-//    void staffGroupCardIDVariety() {
-//        String staffGroup = "staffGroup1";
+//    void teamCardIDVariety() {
+//        String team = "team1";
 //        String repeatedCardID = "CardID1";
-//        Staff mondayStaff = new Staff(1, repeatedCardID, "Name1", staffGroup, SHIFT1, TIMESLOT1);
-//        Staff firstTuesdayStaff = new Staff(2, repeatedCardID, "Name2", staffGroup, SHIFT1, TIMESLOT2);
-//        Staff secondTuesdayStaff = new Staff(3, repeatedCardID, "Name3", staffGroup, SHIFT1, TIMESLOT3);
-//        Staff thirdTuesdayStaffWithDifferentCardID = new Staff(4, "CardID2", "Name4", staffGroup, SHIFT1, TIMESLOT4);
-//        Staff staffInAnotherstaffGroup = new Staff(5, repeatedCardID, "Name5", "staffGroup2", SHIFT1, TIMESLOT1);
-//        constraintVerifier.verifyThat(TimeTableConstraintProvider::staffGroupCardIDVariety)
+//        Staff mondayStaff = new Staff(1, repeatedCardID, "Name1", team, SHIFT1, TIMESLOT1);
+//        Staff firstTuesdayStaff = new Staff(2, repeatedCardID, "Name2", team, SHIFT1, TIMESLOT2);
+//        Staff secondTuesdayStaff = new Staff(3, repeatedCardID, "Name3", team, SHIFT1, TIMESLOT3);
+//        Staff thirdTuesdayStaffWithDifferentCardID = new Staff(4, "CardID2", "Name4", team, SHIFT1, TIMESLOT4);
+//        Staff staffInAnotherteam = new Staff(5, repeatedCardID, "Name5", "team2", SHIFT1, TIMESLOT1);
+//        constraintVerifier.verifyThat(TimeTableConstraintProvider::teamCardIDVariety)
 //                .given(mondayStaff, firstTuesdayStaff, secondTuesdayStaff, thirdTuesdayStaffWithDifferentCardID,
-//                        staffInAnotherstaffGroup)
+//                        staffInAnotherteam)
 //                .penalizesBy(1); // Second tuesday staff immediately follows the first.
 //    }
 //

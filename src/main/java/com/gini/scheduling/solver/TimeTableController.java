@@ -1,45 +1,30 @@
-/*
- * Copyright 2020 Red Hat, Inc. and/or its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.gini.scheduling.solver;
 
+import com.gini.scheduling.domain.TimeTable;
+import com.gini.scheduling.persistence.TimeTableRepository;
 import org.optaplanner.core.api.score.ScoreManager;
 import org.optaplanner.core.api.solver.SolverManager;
 import org.optaplanner.core.api.solver.SolverStatus;
+import org.optaplanner.core.config.solver.SolverConfig;
+import org.optaplanner.core.config.solver.SolverManagerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gini.scheduling.domain.TimeTable;
-import com.gini.scheduling.persistence.TimeTableRepository;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/timeTable")
+@RequestMapping("/api")
 public class TimeTableController {
-
     @Autowired
     private TimeTableRepository timeTableRepository;
-    @Autowired
-    private SolverManager<TimeTable, Long> solverManager;
-    @Autowired
+    @Autowired(required = false)
+    private SolverManager<TimeTable, String> solverManager;
+    @Autowired(required = false)
     private ScoreManager<TimeTable> scoreManager;
 
-    // To try, GET http://localhost:8080/timeTable
     @GetMapping()
     public TimeTable getTimeTable() {
         // Get the solver status before loading the solution
@@ -66,5 +51,4 @@ public class TimeTableController {
     public void stopSolving() {
         solverManager.terminateEarly(TimeTableRepository.SINGLETON_TIME_TABLE_ID);
     }
-
 }

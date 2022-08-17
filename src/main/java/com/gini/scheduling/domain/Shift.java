@@ -1,87 +1,99 @@
-/*
- * Copyright 2020 Red Hat, Inc. and/or its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.gini.scheduling.domain;
 
 import java.sql.Timestamp;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Column;
-import javax.persistence.UniqueConstraint;
+import java.time.LocalDate;
+import java.util.UUID;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
+import com.gini.scheduling.persistence.StaffRepository;
+import com.gini.scheduling.utils.UUIDGenerator;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.optaplanner.core.api.domain.entity.PlanningEntity;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
+import org.optaplanner.core.api.domain.variable.PlanningVariable;
 
+@PlanningEntity
 @Entity
-@Table(name = "SGSHIFT", schema = "SG", uniqueConstraints = @UniqueConstraint(columnNames = { "name" }))
+@Table(name = "SGSHIFT", schema = "SG")
 public class Shift {
+    @PlanningId
+    @Id
+    @Column(nullable = false, columnDefinition = "char(100) default")
+    private String id = UUIDGenerator.generateUUID22();
 
-	@PlanningId
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(nullable = false)
-	private Long id;
+    @NotBlank
+    @Column(nullable = false, columnDefinition = "char(100) default")
+    private String name;
+    @Column(nullable = false, columnDefinition = "date default '9999-12-31'")
+    private LocalDate date;
 
-	@NotBlank
-	@Column(length = 100, nullable = false)
-	private String name;
+    @Column(nullable = false, columnDefinition = "integer default")
+    private int week;
 
-	@UpdateTimestamp
-	@Column(nullable = false)
-	private Timestamp zsgshift;
+    @PlanningVariable(valueRangeProviderRefs = "staffRange")
+    @ManyToOne
+    @JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+    private Staff staff;
+    @UpdateTimestamp
+    @Column(nullable = false, columnDefinition = "timestamp default current timestamp")
+    private Timestamp zsgshift;
 
-	public Shift() {
-	}
+    public Shift() {
+    }
 
-	public Shift(String name) {
-		this.name = name.trim();
-	}
+    public Shift(String name, LocalDate date, int week, Staff staff) {
+        this.name = name.trim();
+        this.date = date;
+        this.week = week;
+        this.staff = staff;
+    }
 
-	public Shift(long id, String name) {
-		this(name);
-		this.id = id;
-	}
+    @Override
+    public String toString() {
+        return id;
+    }
 
-	@Override
-	public String toString() {
-		return name;
-	}
+    // ************************************************************************
+    // Getters and setters
+    // ************************************************************************
+    public String getId() {
+        return id;
+    }
 
-	// ************************************************************************
-	// Getters and setters
-	// ************************************************************************
+    public String getName() {
+        return name;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public LocalDate getDate() {
+        return date;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
 
-	public Timestamp getzsgshift() {
-		return zsgshift;
-	}
+    public int getWeek() {
+        return week;
+    }
 
-	public void setzsgshift(Timestamp zsgshift) {
-		this.zsgshift = zsgshift;
-	}
+    public void setWeek(int week) {
+        this.week = week;
+    }
+
+    public Staff getStaff() {
+        return staff;
+    }
+
+
+    public Timestamp getZsgshift() {
+        return zsgshift;
+    }
+
+    public void setZsgshift(Timestamp zsgshift) {
+        this.zsgshift = zsgshift;
+    }
+
+
 }
