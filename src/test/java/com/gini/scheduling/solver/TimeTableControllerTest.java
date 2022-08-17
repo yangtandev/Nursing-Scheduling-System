@@ -50,7 +50,7 @@ public class TimeTableControllerTest {
         } while (timeTable.getSolverStatus() != SolverStatus.NOT_SOLVING || !timeTable.getScore().isFeasible());
         assertFalse(timeTable.getStaffList().isEmpty());
         for (Staff lesson : timeTable.getStaffList()) {
-            assertNotNull(lesson.getSchedule());
+            assertNotNull(lesson.getDates());
             assertNotNull(lesson.getShift());
         }
         assertTrue(timeTable.getScore().isFeasible());

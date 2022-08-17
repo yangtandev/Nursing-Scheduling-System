@@ -32,18 +32,18 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 @Entity
-@Table(name="SGSCHED",schema = "SG", uniqueConstraints = @UniqueConstraint(columnNames = { "dayOfWeek",
+@Table(name="SGDATES",schema = "SG", uniqueConstraints = @UniqueConstraint(columnNames = { "date",
 		"startTime", "endTime" }))
-public class Schedule {
+public class Dates {
 
 	@PlanningId
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false)
 	private Long id;
-
+	
 	@Column(nullable = false)
-	private DayOfWeek dayOfWeek;
+	private DayOfWeek date;
 	@Column(nullable = false)
 	private LocalTime startTime;
 	@Column(nullable = false)
@@ -51,25 +51,25 @@ public class Schedule {
 
 	@UpdateTimestamp
 	@Column(nullable = false)
-	private Timestamp ZSchedule;
+	private Timestamp Zsgdates;
 
-	public Schedule() {
+	public Dates() {
 	}
 
-	public Schedule(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
-		this.dayOfWeek = dayOfWeek;
+	public Dates(DayOfWeek date, LocalTime startTime, LocalTime endTime) {
+		this.date = date;
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
 
-	public Schedule(long id, DayOfWeek dayOfWeek, LocalTime startTime) {
-		this(dayOfWeek, startTime, startTime.plusMinutes(50));
+	public Dates(long id, DayOfWeek date, LocalTime startTime) {
+		this(date, startTime, startTime.plusMinutes(50));
 		this.id = id;
 	}
 
 	@Override
 	public String toString() {
-		return dayOfWeek + " " + startTime;
+		return date + " " + startTime;
 	}
 
 	// ************************************************************************
@@ -81,7 +81,7 @@ public class Schedule {
 	}
 
 	public DayOfWeek getDayOfWeek() {
-		return dayOfWeek;
+		return date;
 	}
 
 	public LocalTime getStartTime() {
@@ -92,11 +92,11 @@ public class Schedule {
 		return endTime;
 	}
 
-	public Timestamp getZSchedule() {
-		return ZSchedule;
+	public Timestamp getZsgdates() {
+		return Zsgdates;
 	}
 
-	public void setZSchedule(Timestamp ZSchedule) {
-		this.ZSchedule = ZSchedule;
+	public void setZsgdates(Timestamp Zsgdates) {
+		this.Zsgdates = Zsgdates;
 	}
 }

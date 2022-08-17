@@ -25,16 +25,16 @@ import org.optaplanner.test.api.score.stream.ConstraintVerifier;
 import com.gini.scheduling.domain.Staff;
 import com.gini.scheduling.domain.Shift;
 import com.gini.scheduling.domain.TimeTable;
-import com.gini.scheduling.domain.Schedule;
+import com.gini.scheduling.domain.Dates;
 
 class TimeTableConstraintProviderTest {
 
     private static final Shift SHIFT1 = new Shift(1, "Shift1");
     private static final Shift SHIFT2 = new Shift(2, "Shift2");
-    private static final Schedule TIMESLOT1 = new Schedule(1, DayOfWeek.MONDAY, LocalTime.NOON);
-    private static final Schedule TIMESLOT2 = new Schedule(2, DayOfWeek.TUESDAY, LocalTime.NOON);
-    private static final Schedule TIMESLOT3 = new Schedule(3, DayOfWeek.TUESDAY, LocalTime.NOON.plusHours(1));
-    private static final Schedule TIMESLOT4 = new Schedule(4, DayOfWeek.TUESDAY, LocalTime.NOON.plusHours(3));
+    private static final Dates TIMESLOT1 = new Dates(1, DayOfWeek.MONDAY, LocalTime.NOON);
+    private static final Dates TIMESLOT2 = new Dates(2, DayOfWeek.TUESDAY, LocalTime.NOON);
+    private static final Dates TIMESLOT3 = new Dates(3, DayOfWeek.TUESDAY, LocalTime.NOON.plusHours(1));
+    private static final Dates TIMESLOT4 = new Dates(4, DayOfWeek.TUESDAY, LocalTime.NOON.plusHours(3));
 
     private final ConstraintVerifier<TimeTableConstraintProvider, TimeTable> constraintVerifier =
             ConstraintVerifier.build(new TimeTableConstraintProvider(), TimeTable.class, Staff.class);

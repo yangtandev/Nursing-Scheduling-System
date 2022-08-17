@@ -31,7 +31,7 @@ public class TimeTableRepository {
 	public static final Long SINGLETON_TIME_TABLE_ID = 1L;
 
 	@Autowired
-	private ScheduleRepository scheduleRepository;
+	private DatesRepository datesRepository;
 	@Autowired
 	private ShiftRepository shiftRepository;
 	@Autowired
@@ -42,9 +42,9 @@ public class TimeTableRepository {
 			throw new IllegalStateException("There is no timeTable with id (" + id + ").");
 		}
 		// Occurs in a single transaction, so each initialized staff references the same
-		// schedule/shift instance
-		// that is contained by the timeTable's scheduleList/shiftList.
-		return new TimeTable(scheduleRepository.findAll(), shiftRepository.findAll(), staffRepository.findAll());
+		// dates/shift instance
+		// that is contained by the timeTable's datesList/shiftList.
+		return new TimeTable(datesRepository.findAll(), shiftRepository.findAll(), staffRepository.findAll());
 	}
 
 	public void save(TimeTable timeTable) {

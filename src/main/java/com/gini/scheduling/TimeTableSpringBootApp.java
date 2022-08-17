@@ -5,7 +5,7 @@ import java.time.LocalTime;
 
 import com.gini.scheduling.domain.Staff;
 import com.gini.scheduling.domain.Shift;
-import com.gini.scheduling.domain.Schedule;
+import com.gini.scheduling.domain.Dates;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Sort;
 import com.gini.scheduling.persistence.StaffRepository;
 import com.gini.scheduling.persistence.ShiftRepository;
-import com.gini.scheduling.persistence.ScheduleRepository;
+import com.gini.scheduling.persistence.DatesRepository;
 
 @SpringBootApplication
 public class TimeTableSpringBootApp extends SpringBootServletInitializer {
@@ -35,41 +35,41 @@ public class TimeTableSpringBootApp extends SpringBootServletInitializer {
 	private DemoData demoData;
 
 	@Bean
-	public CommandLineRunner demoData(ScheduleRepository scheduleRepository, ShiftRepository shiftRepository,
+	public CommandLineRunner demoData(DatesRepository datesRepository, ShiftRepository shiftRepository,
 			StaffRepository staffRepository) {
 		return (args) -> {
 			if (demoData == DemoData.NONE) {
 				return;
 			}
-			if (scheduleRepository.findAll().isEmpty()) {
-				scheduleRepository.save(new Schedule(DayOfWeek.MONDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.MONDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.MONDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.MONDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.TUESDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.TUESDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.TUESDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.TUESDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.WEDNESDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.WEDNESDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.WEDNESDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.WEDNESDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.THURSDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.THURSDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.THURSDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.THURSDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.FRIDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.FRIDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.FRIDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.FRIDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.SATURDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.SATURDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.SATURDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.SATURDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.SUNDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.SUNDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.SUNDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
-				scheduleRepository.save(new Schedule(DayOfWeek.SUNDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+			if (datesRepository.findAll().isEmpty()) {
+				datesRepository.save(new Dates(DayOfWeek.MONDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				datesRepository.save(new Dates(DayOfWeek.MONDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				datesRepository.save(new Dates(DayOfWeek.MONDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				datesRepository.save(new Dates(DayOfWeek.MONDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+				datesRepository.save(new Dates(DayOfWeek.TUESDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				datesRepository.save(new Dates(DayOfWeek.TUESDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				datesRepository.save(new Dates(DayOfWeek.TUESDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				datesRepository.save(new Dates(DayOfWeek.TUESDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+				datesRepository.save(new Dates(DayOfWeek.WEDNESDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				datesRepository.save(new Dates(DayOfWeek.WEDNESDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				datesRepository.save(new Dates(DayOfWeek.WEDNESDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				datesRepository.save(new Dates(DayOfWeek.WEDNESDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+				datesRepository.save(new Dates(DayOfWeek.THURSDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				datesRepository.save(new Dates(DayOfWeek.THURSDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				datesRepository.save(new Dates(DayOfWeek.THURSDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				datesRepository.save(new Dates(DayOfWeek.THURSDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+				datesRepository.save(new Dates(DayOfWeek.FRIDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				datesRepository.save(new Dates(DayOfWeek.FRIDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				datesRepository.save(new Dates(DayOfWeek.FRIDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				datesRepository.save(new Dates(DayOfWeek.FRIDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+				datesRepository.save(new Dates(DayOfWeek.SATURDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				datesRepository.save(new Dates(DayOfWeek.SATURDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				datesRepository.save(new Dates(DayOfWeek.SATURDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				datesRepository.save(new Dates(DayOfWeek.SATURDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
+				datesRepository.save(new Dates(DayOfWeek.SUNDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
+				datesRepository.save(new Dates(DayOfWeek.SUNDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
+				datesRepository.save(new Dates(DayOfWeek.SUNDAY, LocalTime.of(12, 00), LocalTime.of(20, 00)));
+				datesRepository.save(new Dates(DayOfWeek.SUNDAY, LocalTime.of(16, 00), LocalTime.of(00, 00)));
 			}
 			if (shiftRepository.findAll().isEmpty()) {
 				shiftRepository.save(new Shift("D6"));
@@ -99,11 +99,12 @@ public class TimeTableSpringBootApp extends SpringBootServletInitializer {
 				staffRepository.save(new Staff("4567", "Nancy", "A"));
 				staffRepository.save(new Staff("6789", "Oliver", "A"));
 				staffRepository.save(new Staff("7891", "Peter", "A"));
+				Staff staff = staffRepository.findAll(Sort.by("id")).iterator().next();
+				staff.setDates(datesRepository.findAll(Sort.by("id")).iterator().next());
+				staff.setShift(shiftRepository.findAll(Sort.by("id")).iterator().next());
+				staffRepository.save(staff);
 			}
-			Staff staff = staffRepository.findAll(Sort.by("id")).iterator().next();
-			staff.setSchedule(scheduleRepository.findAll(Sort.by("id")).iterator().next());
-			staff.setShift(shiftRepository.findAll(Sort.by("id")).iterator().next());
-			staffRepository.save(staff);
+
 		};
 	}
 

@@ -45,35 +45,35 @@ public class Staff {
 
 	@PlanningId
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false)
 	private Long id;
 
 	@NotBlank
-	@Column(nullable = false)
+	@Column(length = 100, nullable = false)
 	private String cardID;
 	@NotBlank
-	@Column(nullable = false)
+	@Column(length = 100, nullable = false)
 	private String name;
 	@NotBlank
-	@Column(nullable = false)
+	@Column(length = 100, nullable = false)
 	private String staffGroup;
 
-	@PlanningVariable(valueRangeProviderRefs = "scheduleRange")
+	@PlanningVariable(valueRangeProviderRefs = "datesRange")
 	@ManyToOne
-//	@JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
-	@JoinColumn(foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
-	private Schedule schedule;
+	@JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+//	@JoinColumn(foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+	private Dates dates;
 
 	@PlanningVariable(valueRangeProviderRefs = "shiftRange")
 	@ManyToOne
-//	@JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
-	@JoinColumn(foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+//	@JoinColumn(foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
 	private Shift shift;
 
 	@UpdateTimestamp
 	@Column(nullable = false)
-	private Timestamp ZStaff;
+	private Timestamp Zsgstaff;
 
 	public Staff() {
 	}
@@ -84,11 +84,11 @@ public class Staff {
 		this.staffGroup = staffGroup.trim();
 	}
 
-	public Staff(long id, String cardID, String name, String staffGroup, Shift shift, Schedule schedule) {
+	public Staff(long id, String cardID, String name, String staffGroup, Shift shift, Dates dates) {
 		this(cardID, name, staffGroup);
 		this.id = id;
 		this.shift = shift;
-		this.schedule = schedule;
+		this.dates = dates;
 	}
 
 	@Override
@@ -116,12 +116,12 @@ public class Staff {
 		return staffGroup;
 	}
 
-	public Schedule getSchedule() {
-		return schedule;
+	public Dates getDates() {
+		return dates;
 	}
 
-	public void setSchedule(Schedule schedule) {
-		this.schedule = schedule;
+	public void setDates(Dates dates) {
+		this.dates = dates;
 	}
 
 	public Shift getShift() {
@@ -132,11 +132,11 @@ public class Staff {
 		this.shift = shift;
 	}
 
-	public Timestamp getZStaff() {
-		return ZStaff;
+	public Timestamp getZsgstaff() {
+		return Zsgstaff;
 	}
 
-	public void setZStaff(Timestamp ZStaff) {
-		this.ZStaff = ZStaff;
+	public void setZsgstaff(Timestamp Zsgstaff) {
+		this.Zsgstaff = Zsgstaff;
 	}
 }

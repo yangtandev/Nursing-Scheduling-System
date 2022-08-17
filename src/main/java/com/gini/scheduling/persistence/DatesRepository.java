@@ -18,12 +18,12 @@ package com.gini.scheduling.persistence;
 
 import java.util.List;
 
-import com.gini.scheduling.domain.Schedule;
+import com.gini.scheduling.domain.Dates;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface ScheduleRepository extends PagingAndSortingRepository<Schedule, Long> {
+public interface DatesRepository extends PagingAndSortingRepository<Dates, Long> {
 
     @Override
-    List<Schedule> findAll();
+    List<Dates> findAll();
 
 }

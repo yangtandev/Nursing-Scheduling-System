@@ -31,22 +31,22 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 @Entity
-@Table(name="SGSHIFT",schema = "SG", uniqueConstraints = @UniqueConstraint(columnNames = { "name" }))
+@Table(name = "SGSHIFT", schema = "SG", uniqueConstraints = @UniqueConstraint(columnNames = { "name" }))
 public class Shift {
 
 	@PlanningId
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false)
 	private Long id;
 
 	@NotBlank
-	@Column(nullable = false)
+	@Column(length = 100, nullable = false)
 	private String name;
 
 	@UpdateTimestamp
 	@Column(nullable = false)
-	private Timestamp ZShift;
+	private Timestamp Zsgshift;
 
 	public Shift() {
 	}
@@ -77,11 +77,11 @@ public class Shift {
 		return name;
 	}
 
-	public Timestamp getZShift() {
-		return ZShift;
+	public Timestamp getZsgshift() {
+		return Zsgshift;
 	}
 
-	public void setZShift(Timestamp ZShift) {
-		this.ZShift = ZShift;
+	public void setZsgshift(Timestamp Zsgshift) {
+		this.Zsgshift = Zsgshift;
 	}
 }

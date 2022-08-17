@@ -47,8 +47,8 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
         return constraintFactory
                 // Select each pair of 2 different staffs ...
                 .fromUniquePair(Staff.class,
-                        // ... in the same schedule ...
-                        Joiners.equal(Staff::getSchedule),
+                        // ... in the same dates ...
+                        Joiners.equal(Staff::getDates),
                         // ... in the same shift ...
                         Joiners.equal(Staff::getShift))
                 // ... and penalize each pair with a hard weight.
@@ -59,7 +59,7 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
         // A name can teach at most one staff at the same time.
         return constraintFactory
                 .fromUniquePair(Staff.class,
-                        Joiners.equal(Staff::getSchedule),
+                        Joiners.equal(Staff::getDates),
                         Joiners.equal(Staff::getName))
                 .penalize("Name conflict", HardSoftScore.ONE_HARD);
     }
@@ -68,7 +68,7 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
         // A student can attend at most one staff at the same time.
         return constraintFactory
                 .fromUniquePair(Staff.class,
-                        Joiners.equal(Staff::getSchedule),
+                        Joiners.equal(Staff::getDates),
                         Joiners.equal(Staff::getStaffGroup))
                 .penalize("StaffGroup conflict", HardSoftScore.ONE_HARD);
     }
@@ -87,10 +87,10 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
         return constraintFactory
                 .from(Staff.class)
                 .join(Staff.class, Joiners.equal(Staff::getName),
-                        Joiners.equal((staff) -> staff.getSchedule().getDayOfWeek()))
+                        Joiners.equal((staff) -> staff.getDates().getDayOfWeek()))
                 .filter((staff1, staff2) -> {
-                    Duration between = Duration.between(staff1.getSchedule().getEndTime(),
-                            staff2.getSchedule().getStartTime());
+                    Duration between = Duration.between(staff1.getDates().getEndTime(),
+                            staff2.getDates().getStartTime());
                     return !between.isNegative() && between.compareTo(Duration.ofMinutes(30)) <= 0;
                 })
                 .reward("Name time efficiency", HardSoftScore.ONE_SOFT);
@@ -103,10 +103,10 @@ public class TimeTableConstraintProvider implements ConstraintProvider {
                 .join(Staff.class,
                         Joiners.equal(Staff::getCardID),
                         Joiners.equal(Staff::getStaffGroup),
-                        Joiners.equal((staff) -> staff.getSchedule().getDayOfWeek()))
+                        Joiners.equal((staff) -> staff.getDates().getDayOfWeek()))
                 .filter((staff1, staff2) -> {
-                    Duration between = Duration.between(staff1.getSchedule().getEndTime(),
-                            staff2.getSchedule().getStartTime());
+                    Duration between = Duration.between(staff1.getDates().getEndTime(),
+                            staff2.getDates().getStartTime());
                     return !between.isNegative() && between.compareTo(Duration.ofMinutes(30)) <= 0;
                 })
                 .penalize("StaffGroup cardID variety", HardSoftScore.ONE_SOFT);
