@@ -46,7 +46,7 @@ public class Shift {
 
 	@UpdateTimestamp
 	@Column(nullable = false)
-	private Timestamp Zsgshift;
+	private Timestamp zsgshift;
 
 	public Shift() {
 	}
@@ -77,11 +77,11 @@ public class Shift {
 		return name;
 	}
 
-	public Timestamp getZsgshift() {
-		return Zsgshift;
+	public Timestamp getzsgshift() {
+		return zsgshift;
 	}
 
-	public void setZsgshift(Timestamp Zsgshift) {
-		this.Zsgshift = Zsgshift;
+	public void setzsgshift(Timestamp zsgshift) {
+		this.zsgshift = zsgshift;
 	}
 }

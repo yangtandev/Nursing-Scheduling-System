@@ -16,11 +16,13 @@
 
 package com.gini.scheduling.domain;
 
+import org.springframework.stereotype.Component;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.JoinColumn;
@@ -28,6 +30,7 @@ import javax.persistence.ForeignKey;
 
 import java.sql.Timestamp;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.validation.constraints.NotBlank;
@@ -38,10 +41,11 @@ import org.optaplanner.core.api.domain.entity.PlanningEntity;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
 
-
+@Component
+@PlanningEntity
 @Entity
-@Table(name = "SGSTAFF", schema = "SG")
-public class Staff {
+@Table(name = "SGSCHED", schema = "SG")
+public class Schedule {
 
 	@PlanningId
 	@Id
@@ -49,41 +53,39 @@ public class Staff {
 	@Column(nullable = false)
 	private Long id;
 
-	@NotBlank
-	@Column(length = 100, nullable = false)
-	private String cardID;
-	
-	@NotBlank
-	@Column(length = 100, nullable = false)
-	private String name;
-	
-	@NotBlank
-	@Column(length = 100, nullable = false)
-	private String staffGroup;
+	@PlanningVariable(valueRangeProviderRefs = "staffRange")
+	@ManyToOne
+	@JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+	private Staff staff;
+
+	@PlanningVariable(valueRangeProviderRefs = "datesRange")
+	@OneToMany(mappedBy="shift",cascade=CascadeType.PERSIST)
+	@JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+	private Dates dates;
+
+	@PlanningVariable(valueRangeProviderRefs = "shiftRange")
+	@ManyToOne
+	@JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+	private Shift shift;
 
 	@UpdateTimestamp
 	@Column(nullable = false)
-	private Timestamp zsgstaff;
+	private Timestamp zsgsched;
 
-	public Staff() {
+	public Schedule() {
 	}
 
-	public Staff(String cardID, String name, String staffGroup) {
-		this.cardID = cardID.trim();
-		this.name = name.trim();
-		this.staffGroup = staffGroup.trim();
+	public Schedule(Staff staff, Shift shift, Dates dates) {
+		this.staff = staff;
+		this.shift = shift;
+		this.dates = dates;
 	}
 
-	public Staff(long id, String cardID, String name, String staffGroup) {
+	public Schedule(long id, Staff staff, Shift shift, Dates dates) {
 		this.id = id;
-		this.cardID = cardID.trim();
-		this.name = name.trim();
-		this.staffGroup = staffGroup.trim();
-	}
-
-	@Override
-	public String toString() {
-		return cardID + "(" + id + ")";
+		this.staff = staff;
+		this.shift = shift;
+		this.dates = dates;
 	}
 
 	// ************************************************************************
@@ -94,23 +96,35 @@ public class Staff {
 		return id;
 	}
 
-	public String getCardID() {
-		return cardID;
+	public Staff getStaff() {
+		return staff;
 	}
 
-	public String getName() {
-		return name;
+	public void setStaff(Staff staff) {
+		this.staff = staff;
 	}
 
-	public String getStaffGroup() {
-		return staffGroup;
+	public Dates getDates() {
+		return dates;
 	}
 
-	public Timestamp getzsgstaff() {
-		return zsgstaff;
+	public void setDates(Dates dates) {
+		this.dates = dates;
 	}
 
-	public void setzsgstaff(Timestamp zsgstaff) {
-		this.zsgstaff = zsgstaff;
+	public Shift getShift() {
+		return shift;
+	}
+
+	public void setShift(Shift shift) {
+		this.shift = shift;
+	}
+
+	public Timestamp getzsgsched() {
+		return zsgsched;
+	}
+
+	public void setzsgsched(Timestamp zsgsched) {
+		this.zsgsched = zsgsched;
 	}
 }

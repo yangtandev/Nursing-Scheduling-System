@@ -16,6 +16,7 @@
 
 package com.gini.scheduling.persistence;
 
+import com.gini.scheduling.domain.Schedule;
 import com.gini.scheduling.domain.Staff;
 import com.gini.scheduling.domain.TimeTable;
 
@@ -36,6 +37,8 @@ public class TimeTableRepository {
 	private ShiftRepository shiftRepository;
 	@Autowired
 	private StaffRepository staffRepository;
+	@Autowired
+	private ScheduleRepository scheduleRepository;
 
 	public TimeTable findById(Long id) {
 		if (!SINGLETON_TIME_TABLE_ID.equals(id)) {
@@ -44,14 +47,15 @@ public class TimeTableRepository {
 		// Occurs in a single transaction, so each initialized staff references the same
 		// dates/shift instance
 		// that is contained by the timeTable's datesList/shiftList.
-		return new TimeTable(datesRepository.findAll(), shiftRepository.findAll(), staffRepository.findAll());
+		return new TimeTable(datesRepository.findAll(), shiftRepository.findAll(), staffRepository.findAll(),
+				scheduleRepository.findAll());
 	}
 
 	public void save(TimeTable timeTable) {
-		for (Staff staff : timeTable.getStaffList()) {
+		for (Schedule schedule : timeTable.getScheduleList()) {
 			// TODO this is awfully naive: optimistic locking causes issues if called by the
 			// SolverManager
-			staffRepository.save(staff);
+			scheduleRepository.save(schedule);
 		}
 	}
 

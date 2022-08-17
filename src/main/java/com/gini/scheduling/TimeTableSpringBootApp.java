@@ -6,7 +6,9 @@ import java.time.LocalTime;
 import com.gini.scheduling.domain.Staff;
 import com.gini.scheduling.domain.Shift;
 import com.gini.scheduling.domain.Dates;
+import com.gini.scheduling.domain.Schedule;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import com.gini.scheduling.persistence.StaffRepository;
 import com.gini.scheduling.persistence.ShiftRepository;
 import com.gini.scheduling.persistence.DatesRepository;
+import com.gini.scheduling.persistence.ScheduleRepository;
 
 @SpringBootApplication
 public class TimeTableSpringBootApp extends SpringBootServletInitializer {
@@ -31,16 +34,13 @@ public class TimeTableSpringBootApp extends SpringBootServletInitializer {
 		SpringApplication.run(TimeTableSpringBootApp.class, args);
 	}
 
-	@Value("${timeTable.demoData:SMALL}")
-	private DemoData demoData;
-
+	@Autowired
+	Schedule schedule ;
+	
 	@Bean
 	public CommandLineRunner demoData(DatesRepository datesRepository, ShiftRepository shiftRepository,
-			StaffRepository staffRepository) {
+			StaffRepository staffRepository, ScheduleRepository scheduleRepository) {
 		return (args) -> {
-			if (demoData == DemoData.NONE) {
-				return;
-			}
 			if (datesRepository.findAll().isEmpty()) {
 				datesRepository.save(new Dates(DayOfWeek.MONDAY, LocalTime.of(00, 00), LocalTime.of(8, 00)));
 				datesRepository.save(new Dates(DayOfWeek.MONDAY, LocalTime.of(8, 00), LocalTime.of(16, 00)));
@@ -99,16 +99,14 @@ public class TimeTableSpringBootApp extends SpringBootServletInitializer {
 				staffRepository.save(new Staff("4567", "Nancy", "A"));
 				staffRepository.save(new Staff("6789", "Oliver", "A"));
 				staffRepository.save(new Staff("7891", "Peter", "A"));
-				Staff staff = staffRepository.findAll(Sort.by("id")).iterator().next();
-				staff.setDates(datesRepository.findAll(Sort.by("id")).iterator().next());
-				staff.setShift(shiftRepository.findAll(Sort.by("id")).iterator().next());
-				staffRepository.save(staff);
+				
 			}
+			
+			schedule.setStaff(staffRepository.findAll(Sort.by("id")).iterator().next());
+			schedule.setDates(datesRepository.findAll(Sort.by("id")).iterator().next());
+			schedule.setShift(shiftRepository.findAll(Sort.by("id")).iterator().next());
+			scheduleRepository.save(schedule);
 
 		};
-	}
-
-	public enum DemoData {
-		NONE, SMALL,
 	}
 }

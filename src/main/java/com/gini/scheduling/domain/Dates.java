@@ -51,7 +51,7 @@ public class Dates {
 
 	@UpdateTimestamp
 	@Column(nullable = false)
-	private Timestamp Zsgdates;
+	private Timestamp zsgdates;
 
 	public Dates() {
 	}
@@ -80,7 +80,7 @@ public class Dates {
 		return id;
 	}
 
-	public DayOfWeek getDayOfWeek() {
+	public DayOfWeek getDate() {
 		return date;
 	}
 
@@ -92,11 +92,11 @@ public class Dates {
 		return endTime;
 	}
 
-	public Timestamp getZsgdates() {
-		return Zsgdates;
+	public Timestamp getzsgdates() {
+		return zsgdates;
 	}
 
-	public void setZsgdates(Timestamp Zsgdates) {
-		this.Zsgdates = Zsgdates;
+	public void setzsgdates(Timestamp zsgdates) {
+		this.zsgdates = zsgdates;
 	}
 }

@@ -19,6 +19,7 @@ package com.gini.scheduling.persistence;
 import com.gini.scheduling.domain.Staff;
 import com.gini.scheduling.domain.Shift;
 import com.gini.scheduling.domain.Dates;
+import com.gini.scheduling.domain.Schedule;
 import com.gini.scheduling.solver.TimeTableController;
 import org.optaplanner.core.api.solver.SolverStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,13 @@ public class ProblemChangedRepositoryEventListener {
     @HandleBeforeDelete
     private void staffCreateSaveDelete(Staff staff) {
         assertNotSolving();
+    }
+    
+    @HandleBeforeCreate
+    @HandleBeforeSave
+    @HandleBeforeDelete
+    private void staffCreateSaveDelete(Schedule schedule) {
+    	assertNotSolving();
     }
 
     public void assertNotSolving() {

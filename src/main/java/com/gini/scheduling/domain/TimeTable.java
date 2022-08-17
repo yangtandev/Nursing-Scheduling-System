@@ -37,8 +37,13 @@ public class TimeTable {
     @ProblemFactCollectionProperty
     private List<Shift> shiftList;
 
-    @PlanningEntityCollectionProperty
+    @ValueRangeProvider(id = "staffRange")
+    @ProblemFactCollectionProperty
     private List<Staff> staffList;
+    
+    @ValueRangeProvider(id = "scheduleRange")
+    @PlanningEntityCollectionProperty
+    private List<Schedule> scheduleList;
 
     @PlanningScore
     private HardSoftScore score;
@@ -50,10 +55,11 @@ public class TimeTable {
     }
 
     public TimeTable(List<Dates> datesList, List<Shift> shiftList,
-            List<Staff> staffList) {
+            List<Staff> staffList,List<Schedule> scheduleList) {
         this.datesList = datesList;
         this.shiftList = shiftList;
         this.staffList = staffList;
+        this.scheduleList = scheduleList;
     }
 
     // ************************************************************************
@@ -70,6 +76,10 @@ public class TimeTable {
 
     public List<Staff> getStaffList() {
         return staffList;
+    }
+    
+    public List<Schedule> getScheduleList() {
+    	return scheduleList;
     }
 
     public HardSoftScore getScore() {
