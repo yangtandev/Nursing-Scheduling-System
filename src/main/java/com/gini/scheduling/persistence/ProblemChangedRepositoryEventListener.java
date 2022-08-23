@@ -2,7 +2,7 @@ package com.gini.scheduling.persistence;
 
 import com.gini.scheduling.domain.Staff;
 import com.gini.scheduling.domain.Shift;
-import com.gini.scheduling.solver.TimeTableController;
+import com.gini.scheduling.solver.SchedulingController;
 import org.optaplanner.core.api.solver.SolverStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @RepositoryEventHandler
 public class ProblemChangedRepositoryEventListener {
     @Autowired
-    private TimeTableController timeTableController;
+    private SchedulingController timeTableController;
 
     // TODO Future work: Give the CRUD operations "right of way", by calling something like this:
     // before: solverManager.freeze(TIME_TABLE_ID);

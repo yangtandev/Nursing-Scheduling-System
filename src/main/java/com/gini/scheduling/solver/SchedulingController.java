@@ -1,7 +1,7 @@
 package com.gini.scheduling.solver;
 
-import com.gini.scheduling.domain.TimeTable;
-import com.gini.scheduling.persistence.TimeTableRepository;
+import com.gini.scheduling.domain.Scheduling;
+import com.gini.scheduling.persistence.SchedulingRepository;
 import org.optaplanner.core.api.score.ScoreManager;
 import org.optaplanner.core.api.solver.SolverManager;
 import org.optaplanner.core.api.solver.SolverStatus;
@@ -17,20 +17,20 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
-public class TimeTableController {
+public class SchedulingController {
     @Autowired
-    private TimeTableRepository timeTableRepository;
+    private SchedulingRepository schedulingRepository;
     @Autowired(required = false)
-    private SolverManager<TimeTable, String> solverManager;
+    private SolverManager<Scheduling, String> solverManager;
     @Autowired(required = false)
-    private ScoreManager<TimeTable> scoreManager;
+    private ScoreManager<Scheduling> scoreManager;
 
     @GetMapping()
-    public TimeTable getTimeTable() {
+    public Scheduling getScheduling() {
         // Get the solver status before loading the solution
         // to avoid the race condition that the solver terminates between them
         SolverStatus solverStatus = getSolverStatus();
-        TimeTable solution = timeTableRepository.findById(TimeTableRepository.SINGLETON_TIME_TABLE_ID);
+        Scheduling solution = schedulingRepository.findById(SchedulingRepository.SINGLETON_TIME_TABLE_ID);
         scoreManager.updateScore(solution); // Sets the score
         solution.setSolverStatus(solverStatus);
         return solution;
@@ -38,17 +38,17 @@ public class TimeTableController {
 
     @PostMapping("/solve")
     public void solve() {
-        solverManager.solveAndListen(TimeTableRepository.SINGLETON_TIME_TABLE_ID,
-                timeTableRepository::findById,
-                timeTableRepository::save);
+        solverManager.solveAndListen(SchedulingRepository.SINGLETON_TIME_TABLE_ID,
+                schedulingRepository::findById,
+                schedulingRepository::save);
     }
 
     public SolverStatus getSolverStatus() {
-        return solverManager.getSolverStatus(TimeTableRepository.SINGLETON_TIME_TABLE_ID);
+        return solverManager.getSolverStatus(SchedulingRepository.SINGLETON_TIME_TABLE_ID);
     }
 
     @PostMapping("/stopSolving")
     public void stopSolving() {
-        solverManager.terminateEarly(TimeTableRepository.SINGLETON_TIME_TABLE_ID);
+        solverManager.terminateEarly(SchedulingRepository.SINGLETON_TIME_TABLE_ID);
     }
 }

@@ -24,6 +24,10 @@ public class Shift {
     private String id = UUIDGenerator.generateUUID22();
 
     @NotBlank
+    @Column(nullable = false, columnDefinition = "char(3) default")
+    private String hid = "2A0";
+
+    @NotBlank
     @Column(nullable = false, columnDefinition = "char(100) default")
     private String name;
     @Column(nullable = false, columnDefinition = "date default '9999-12-31'")

@@ -16,14 +16,14 @@ import java.time.LocalDate;
 import java.util.*;
 
 @SpringBootApplication
-public class TimeTableSpringBootApp extends SpringBootServletInitializer {
+public class SchedulingSpringBootApp extends SpringBootServletInitializer {
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.sources(TimeTableSpringBootApp.class);
+        return builder.sources(SchedulingSpringBootApp.class);
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(TimeTableSpringBootApp.class, args);
+        SpringApplication.run(SchedulingSpringBootApp.class, args);
     }
 
 

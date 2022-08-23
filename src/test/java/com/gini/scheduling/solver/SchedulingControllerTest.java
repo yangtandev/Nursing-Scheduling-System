@@ -27,26 +27,26 @@
 //import org.springframework.boot.test.context.SpringBootTest;
 //
 //import com.gini.scheduling.domain.Staff;
-//import com.gini.scheduling.domain.TimeTable;
+//import com.gini.scheduling.domain.Scheduling;
 //
 //@SpringBootTest(properties = {
 //        "optaplanner.solver.termination.spent-limit=1h", // Effectively disable this termination in favor of the best-score-limit
 //        "optaplanner.solver.termination.best-score-limit=0hard/*soft"})
-//public class TimeTableControllerTest {
+//public class SchedulingControllerTest {
 //
 //    @Autowired
-//    private TimeTableController timeTableController;
+//    private SchedulingController timeTableController;
 //
 //    @Test
 //    @Timeout(600_000)
 //    public void solveDemoDataUntilFeasible() throws InterruptedException {
 //        timeTableController.solve();
-//        TimeTable timeTable;
+//        Scheduling timeTable;
 //        do { // Use do-while to give the solver some time and avoid retrieving an early infeasible solution.
 //            // Quick polling (not a Test Thread Sleep anti-pattern)
 //            // Test is still fast on fast machines and doesn't randomly fail on slow machines.
 //            Thread.sleep(20L);
-//            timeTable = timeTableController.getTimeTable();
+//            timeTable = timeTableController.getScheduling();
 //        } while (timeTable.getSolverStatus() != SolverStatus.NOT_SOLVING || !timeTable.getScore().isFeasible());
 //        assertFalse(timeTable.getStaffList().isEmpty());
 //        for (Staff lesson : timeTable.getStaffList()) {

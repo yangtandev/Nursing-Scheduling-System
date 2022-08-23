@@ -12,7 +12,7 @@ import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 import org.optaplanner.core.api.solver.SolverStatus;
 
 @PlanningSolution
-public class TimeTable {
+public class Scheduling {
     @ValueRangeProvider(id = "staffRange")
     @ProblemFactCollectionProperty
     private List<Staff> staffList;
@@ -26,10 +26,10 @@ public class TimeTable {
     // Ignored by OptaPlanner, used by the UI to display solve or stop solving button
     private SolverStatus solverStatus;
 
-    private TimeTable() {
+    private Scheduling() {
     }
 
-    public TimeTable(List<Shift> shiftList,
+    public Scheduling(List<Shift> shiftList,
                      List<Staff> staffList) {
         this.shiftList = shiftList;
         this.staffList = staffList;
