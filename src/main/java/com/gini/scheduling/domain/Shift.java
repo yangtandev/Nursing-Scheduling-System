@@ -2,46 +2,41 @@ package com.gini.scheduling.domain;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.UUID;
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-
-import com.gini.scheduling.persistence.StaffRepository;
 import com.gini.scheduling.utils.UUIDGenerator;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.optaplanner.core.api.domain.entity.PlanningEntity;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
 
-@PlanningEntity
 @Entity
+@PlanningEntity
 @Table(name = "SGSHIFT", schema = "SG")
+@IdClass(ShiftId.class)
 public class Shift {
     @PlanningId
     @Id
-    @Column(nullable = false, columnDefinition = "char(100) default")
+    @Column(columnDefinition = "char(100) not null with default")
     private String id = UUIDGenerator.generateUUID22();
 
-    @NotBlank
-    @Column(nullable = false, columnDefinition = "char(3) default")
+    @Id
+    @Column(columnDefinition = "char(3) not null with default")
     private String hid = "2A0";
-
-    @NotBlank
-    @Column(nullable = false, columnDefinition = "char(100) default")
+    @Column(columnDefinition = "char(100) not null with default")
     private String name;
-    @Column(nullable = false, columnDefinition = "date default '9999-12-31'")
+    @Column(columnDefinition = "date not null with default '9999-12-31'")
     private LocalDate date;
 
-    @Column(nullable = false, columnDefinition = "integer default")
+    @Column(columnDefinition = "integer not null with default")
     private int week;
 
     @PlanningVariable(valueRangeProviderRefs = "staffRange")
-    @ManyToOne
-    @JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "staffid", referencedColumnName = "id", foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "staffhid", referencedColumnName = "hid", foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
     private Staff staff;
     @UpdateTimestamp
-    @Column(nullable = false, columnDefinition = "timestamp default current timestamp")
+    @Column(columnDefinition = "timestamp not null with default")
     private Timestamp zsgshift;
 
     public Shift() {

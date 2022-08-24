@@ -1,7 +1,6 @@
 package com.gini.scheduling.persistence;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.gini.scheduling.domain.Shift;
 import org.springframework.data.repository.PagingAndSortingRepository;
