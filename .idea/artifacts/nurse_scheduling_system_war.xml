@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="nurse-scheduling-system:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>nurse-scheduling-system</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="NNS.war">
+      <element id="artifact" artifact-name="nurse-scheduling-system:war exploded" />
+    </root>
+  </artifact>
+</component>

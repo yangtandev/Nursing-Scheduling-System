@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="31696d0c-43ec-49b2-b5ab-b85715a4a25a" name="Changes" comment="【Feat】Generated basic RESTful API for all the entities.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/gini/scheduling/controller/SchedulingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/gini/scheduling/controller/SchedulingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/gini/scheduling/controller/SgschController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/gini/scheduling/controller/SgschController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/gini/scheduling/dao/SgschRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/gini/scheduling/dao/SgschRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/gini/scheduling/controller/SchedulingController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/gini/scheduling/controller/SchedulingController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/gini/scheduling/controller/SgrroomController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/gini/scheduling/controller/SgrroomController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/gini/scheduling/controller/SgruserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/gini/scheduling/controller/SgruserController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/gini/scheduling/controller/SgschController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/gini/scheduling/controller/SgschController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/gini/scheduling/controller/SgsysController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/gini/scheduling/controller/SgsysController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/gini/scheduling/dao/SgruserRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/gini/scheduling/dao/SgruserRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/gini/scheduling/dao/SgschRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/gini/scheduling/dao/SgschRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/gini/scheduling/model/SgrroomId.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/gini/scheduling/model/SgrroomId.class" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="AnnotationType" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="345581c3-85b9-49c9-9e85-95b61b191936" />
+        <option name="url" value="https://github.com/yangtandev/Nursing-scheduling-system.git" />
+      </UrlAndAccount>
+    </option>
+  </component>
+  <component name="JpbToolWindowState">
+    <option name="myId2FirstActivated">
+      <map>
+        <entry key="com.haulmont.jpb.jpaInspector" value="true" />
+        <entry key="com.haulmont.jpb.jpaPalette" value="true" />
+        <entry key="com.haulmont.jpb.jpaStructure" value="true" />
+      </map>
+    </option>
+    <option name="myId2Visible">
+      <map>
+        <entry key="com.haulmont.jpb.jpaInspector" value="false" />
+        <entry key="com.haulmont.jpb.jpaPalette" value="false" />
+        <entry key="com.haulmont.jpb.jpaStructure" value="false" />
+      </map>
+    </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="useMavenConfig" value="true" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="MigrationScriptOptions">
+    <option name="ignoreImplicitObjects" value="true" />
+    <option name="ignoreSourceCode" value="false" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectId" id="2DYaj8bmRQCWXyGM4gVKJ3Pg7JN" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/Users/gini/git/nursing-scheduling-system/src/main/java/com/gini/scheduling/domain",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "SDKs",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.editor",
+    "spring.configuration.checksum": "083900da63246a960abeb08ecf487f59"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "db2"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.gini.scheduling.persistence" />
+      <recent name="com.gini.scheduling.solver" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\gini\git\nursing-scheduling-system\src\main\java\com\gini\scheduling\domain" />
+      <recent name="C:\Users\gini\git\nursing-scheduling-system\src\main\resources" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\gini\git\nursing-scheduling-system\src\main\resources" />
+      <recent name="C:\Users\gini\git\nursing-scheduling-system\src\main\webapp\WEB-INF" />
+      <recent name="C:\Users\gini\git\nursing-scheduling-system\target" />
+    </key>
+    <key name="ImportMappingsDialog.RecentPackages">
+      <recent name="" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.gini.scheduling.service" />
+      <recent name="com.gini.scheduling.controller" />
+      <recent name="com.gini.scheduling.persistence" />
+      <recent name="com.gini.scheduling.domain" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Spring Boot.SchedulingSpringBootApp">
+    <configuration name="All in nurse-scheduling-system (1)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="nurse-scheduling-system" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="All in nurse-scheduling-system (3)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="nurse-scheduling-system" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="All in nurse-scheduling-system (4)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="nurse-scheduling-system" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="All in nurse-scheduling-system" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+      <module name="nurse-scheduling-system" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="All in nurse-scheduling-system" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="nurse-scheduling-system" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TimeTableConstraintProviderTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="nurse-scheduling-system" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.gini.scheduling.controller.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.gini.scheduling.solver" />
+      <option name="MAIN_CLASS_NAME" value="com.gini.scheduling.solver.TimeTableConstraintProviderTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SchedulingSpringBootApp" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true">
+      <option name="ACTIVE_PROFILES" />
+      <module name="nurse-scheduling-system" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.gini.scheduling.SchedulingSpringBootApp" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="JUnit.All in nurse-scheduling-system" />
+      <item itemvalue="JUnit.All in nurse-scheduling-system (1)" />
+      <item itemvalue="JUnit.TimeTableConstraintProviderTest" />
+      <item itemvalue="JUnit.All in nurse-scheduling-system (3)" />
+      <item itemvalue="JUnit.All in nurse-scheduling-system (4)" />
+      <item itemvalue="Spring Boot.SchedulingSpringBootApp" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.SchedulingSpringBootApp" />
+        <item itemvalue="JUnit.TimeTableConstraintProviderTest" />
+        <item itemvalue="JUnit.All in nurse-scheduling-system (4)" />
+        <item itemvalue="JUnit.All in nurse-scheduling-system (3)" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="31696d0c-43ec-49b2-b5ab-b85715a4a25a" name="Changes" comment="" />
+      <created>1660878603647</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1660878603647</updated>
+      <workItem from="1660878604990" duration="296000" />
+      <workItem from="1660879767759" duration="4394000" />
+      <workItem from="1660887366512" duration="2424000" />
+      <workItem from="1660889801133" duration="1840000" />
+      <workItem from="1660897800918" duration="129000" />
+      <workItem from="1660897940328" duration="46135000" />
+      <workItem from="1661162423645" duration="13709000" />
+      <workItem from="1661194548227" duration="40961000" />
+      <workItem from="1661303972186" duration="24180000" />
+      <workItem from="1661333867773" duration="8578000" />
+      <workItem from="1661480488732" duration="107116000" />
+    </task>
+    <task id="LOCAL-00001" summary="【Feat】temp.">
+      <created>1660879956447</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1660879956447</updated>
+    </task>
+    <task id="LOCAL-00002" summary="【Feat】Modified the programming method of creating fake data.">
+      <created>1661252646973</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1661252646973</updated>
+    </task>
+    <task id="LOCAL-00003" summary="【Feat】Modified the programming method of creating fake data.">
+      <created>1661252662106</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1661252662106</updated>
+    </task>
+    <task id="LOCAL-00004" summary="【Feat】Changed filename prefix from Timetable to Scheduling.">
+      <created>1661258032095</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1661258032095</updated>
+    </task>
+    <task id="LOCAL-00005" summary="【FIX】Corrected the syntax of composite keys and foreign key.">
+      <created>1661329726745</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1661329726745</updated>
+    </task>
+    <task id="LOCAL-00006" summary="【Feat】Integrated databases and reclassified all files.">
+      <created>1661746449786</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1661746449786</updated>
+    </task>
+    <task id="LOCAL-00007" summary="【Feat】Generated basic RESTful API for all the entities.">
+      <created>1661764914867</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1661764914867</updated>
+    </task>
+    <task id="LOCAL-00008" summary="【Feat】Generated basic RESTful API for all the entities.">
+      <created>1661851181422</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1661851181423</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="【Feat】temp." />
+    <MESSAGE value="【Feat】Modified the programming method of creating fake data." />
+    <MESSAGE value="【Feat】Changed filename prefix from Timetable to Scheduling." />
+    <MESSAGE value="【FIX】Corrected the syntax of composite keys and foreign key." />
+    <MESSAGE value="【Feat】Integrated databases and reclassified all files." />
+    <MESSAGE value="【Feat】Generated basic RESTful API for all the entities." />
+    <option name="LAST_COMMIT_MESSAGE" value="【Feat】Generated basic RESTful API for all the entities." />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="org.hibernate.PropertyNotFoundException" package="org.hibernate" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/nursing_scheduling_system$All_in_nurse_scheduling_system__6_.ic" NAME="All in nurse-scheduling-system (6) Coverage Results" MODIFIED="1660886486544" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="coverage/nursing_scheduling_system$All_in_nurse_scheduling_system__1_.ic" NAME="All in nurse-scheduling-system (1) Coverage Results" MODIFIED="1660886633230" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+  </component>
+</project>

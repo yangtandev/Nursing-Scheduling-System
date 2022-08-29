@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal" created-in="IU-222.3739.54">
+    <data-source name="localhost" uuid="1a28f806-d0d9-46ce-ae49-bf62e2160055">
+      <database-info product="DB2/NT64" version="SQL110570" jdbc-version="4.1" driver-name="IBM Data Server Driver for JDBC and SQLJ" driver-version="4.26.14" dbms="DB2_LUW" exact-version="11.5.70" exact-driver-version="4.26">
+        <extra-name-characters>@#</extra-name-characters>
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="upper" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>apsg01</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="schema" qname="SG" />
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+  </component>
+</project>
