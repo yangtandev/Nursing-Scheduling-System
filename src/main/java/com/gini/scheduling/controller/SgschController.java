@@ -24,18 +24,18 @@ public class SgschController {
     @GetMapping("/sgsch")
     public List<Sgsch> getSgsch(
             @RequestParam String uno,
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate
+            @RequestParam LocalDate startSchdate,
+            @RequestParam LocalDate endSchdate
     ) {
-        return sgschRepository.findAllByUnoAndDate(uno, startDate, endDate);
+        return sgschRepository.findAllByUnoAndDate(uno, startSchdate, endSchdate);
     }
 
     @GetMapping("/sgsches")
     public List<Sgsch> getSgsches(
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate
+            @RequestParam LocalDate startSchdate,
+            @RequestParam LocalDate endSchdate
     ) {
-        return sgschRepository.findAllByDate(startDate, endDate);
+        return sgschRepository.findAllByDate(startSchdate, endSchdate);
     }
 
     @PutMapping("/sgsch")

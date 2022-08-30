@@ -13,10 +13,10 @@ public interface SgschRepository extends PagingAndSortingRepository<Sgsch, Strin
 
     @Query(value = "SELECT * FROM sg.sgsch WHERE schdate BETWEEN ?1 AND ?2 ORDER BY schdate",
             nativeQuery = true)
-    List<Sgsch> findAllByDate(LocalDate startDate, LocalDate endDate);
+    List<Sgsch> findAllByDate(LocalDate startSchdate, LocalDate endSchdate);
 
     @Query(value = "SELECT * FROM sg.sgsch WHERE useruno = ?1 AND schdate BETWEEN ?2 AND ?3 ORDER BY schdate",
             nativeQuery = true)
-    List<Sgsch> findAllByUnoAndDate(String uno, LocalDate startDate, LocalDate endDate);
+    List<Sgsch> findAllByUnoAndDate(String uno, LocalDate startSchdate, LocalDate endSchdate);
 
 }

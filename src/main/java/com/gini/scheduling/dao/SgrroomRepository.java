@@ -11,6 +11,6 @@ public interface SgrroomRepository extends PagingAndSortingRepository<Sgrroom, S
 
     @Query(value = "SELECT * FROM sg.sgrroom WHERE schdate = ?1 ",
             nativeQuery = true)
-    List<Sgrroom> findAllByDate(LocalDate date);
+    List<Sgrroom> findAllByDate(LocalDate schdate);
 
 }

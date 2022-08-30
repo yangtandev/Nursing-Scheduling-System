@@ -23,10 +23,10 @@ public class SgrroomController {
 
     @GetMapping
     public List<Object> getSgrroom(
-            @RequestParam LocalDate date
+            @RequestParam LocalDate schdate
     ) {
-        List<Sgrroom> sgrrooms = sgrroomRepository.findAllByDate(date);
-        List<Sgsch> sgsches = sgschRepository.findAllByDate(date, date);
+        List<Sgrroom> sgrrooms = sgrroomRepository.findAllByDate(schdate);
+        List<Sgsch> sgsches = sgschRepository.findAllByDate(schdate, schdate);
         List<Object> list=new ArrayList<>();
         for (Sgrroom sgrroom : sgrrooms) {
             Map<String, String> map = new HashMap<>();
@@ -65,10 +65,10 @@ public class SgrroomController {
 
     @PutMapping
     public String putSgrroom(
-            @RequestParam LocalDate date,
+            @RequestParam LocalDate schdate,
             @RequestBody Map<String, String> sgrroomMap
     ) {
-        List<Sgrroom> sgrrooms = sgrroomRepository.findAllByDate(date);
+        List<Sgrroom> sgrrooms = sgrroomRepository.findAllByDate(schdate);
         for (Sgrroom sgrroom : sgrrooms) {
             for (Map.Entry<String, String> entry : sgrroomMap.entrySet()) {
                 String rmname = entry.getKey();
