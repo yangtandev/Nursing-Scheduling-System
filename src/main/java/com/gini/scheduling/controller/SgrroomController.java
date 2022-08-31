@@ -3,6 +3,7 @@ package com.gini.scheduling.controller;
 import com.gini.scheduling.dao.SgrroomRepository;
 import com.gini.scheduling.dao.SgschRepository;
 import com.gini.scheduling.model.*;
+import com.gini.scheduling.utils.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class SgrroomController {
     @GetMapping
     public List<Object> getSgrroom(
             @RequestParam LocalDate schdate
-    ) {
+    )throws EntityNotFoundException {
         List<Sgrroom> sgrrooms = sgrroomRepository.findAllByDate(schdate);
         List<Sgsch> sgsches = sgschRepository.findAllByDate(schdate, schdate);
         List<Object> list=new ArrayList<>();

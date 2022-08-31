@@ -3,6 +3,7 @@ package com.gini.scheduling.controller;
 import com.gini.scheduling.dao.*;
 import com.gini.scheduling.dao.SgschRepository;
 import com.gini.scheduling.model.*;
+import com.gini.scheduling.utils.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class SgschController {
             @RequestParam String uno,
             @RequestParam LocalDate startSchdate,
             @RequestParam LocalDate endSchdate
-    ) {
+    )throws EntityNotFoundException {
         return sgschRepository.findAllByUnoAndDate(uno, startSchdate, endSchdate);
     }
 
@@ -34,7 +35,7 @@ public class SgschController {
     public List<Sgsch> getSgsches(
             @RequestParam LocalDate startSchdate,
             @RequestParam LocalDate endSchdate
-    ) {
+    )throws EntityNotFoundException {
         return sgschRepository.findAllByDate(startSchdate, endSchdate);
     }
 

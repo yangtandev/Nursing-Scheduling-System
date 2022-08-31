@@ -4,6 +4,7 @@ import com.gini.scheduling.dao.SgruserRepository;
 
 import com.gini.scheduling.model.*;
 
+import com.gini.scheduling.utils.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class SgruserController {
 
     @GetMapping("/sgruser")
     public List<Sgruser> getSgruser(
-    ) {
+    )throws EntityNotFoundException {
         return sgruserRepository.findAll();
     }
 

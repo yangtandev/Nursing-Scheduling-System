@@ -4,6 +4,7 @@ package com.gini.scheduling.controller;
 import com.gini.scheduling.dao.SgsysRepository;
 import com.gini.scheduling.model.*;
 
+import com.gini.scheduling.utils.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class SgsysController {
 
     @GetMapping
     public List<Sgsys> getSgsys(
-    ) {
+    )throws EntityNotFoundException {
         return sgsysRepository.findAll();
     }
 

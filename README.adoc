@@ -47,5 +47,5 @@ $ mvn clean package -DskipTests
 +
 [source, shell]
 ----
-$ ./target/nursing-scheduling-system.war
+$ ./target/NSS.war
 ----
