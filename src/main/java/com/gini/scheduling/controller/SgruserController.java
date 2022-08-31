@@ -4,7 +4,9 @@ import com.gini.scheduling.dao.SgruserRepository;
 
 import com.gini.scheduling.model.*;
 
-import com.gini.scheduling.utils.EntityNotFoundException;
+import com.gini.scheduling.exception.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,11 +15,11 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping
 public class SgruserController {
     @Autowired
     private SgruserRepository sgruserRepository;
-
+    public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
     @GetMapping("/sgruser")
     public List<Sgruser> getSgruser(
     )throws EntityNotFoundException {

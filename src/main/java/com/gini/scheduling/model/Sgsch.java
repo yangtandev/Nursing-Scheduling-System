@@ -48,11 +48,11 @@ public class Sgsch {
 
     // 出勤人員卡號、出勤人員之醫院代碼
     @PlanningVariable(valueRangeProviderRefs = "sgruserRange")
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumns({
-            @JoinColumn(name = "useruno", referencedColumnName = "uno", foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT)),
-            @JoinColumn(name = "userhid", referencedColumnName = "hid", foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT), columnDefinition = "CHAR(003) NOT NULL CHECK (USERHID NOT IN ('   '))")
-    })
+    @OneToOne(cascade = CascadeType.ALL,orphanRemoval = true)
+    @JoinColumns(value = {
+            @JoinColumn(name = "uno", referencedColumnName = "uno"),
+            @JoinColumn(name = "userhid", referencedColumnName = "hid", columnDefinition = "CHAR(003) NOT NULL CHECK (USERHID NOT IN ('   '))")
+    }, foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
     private Sgruser sgruser;
 
     // 醫院代碼

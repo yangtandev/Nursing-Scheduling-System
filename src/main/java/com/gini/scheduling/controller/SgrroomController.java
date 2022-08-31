@@ -3,7 +3,9 @@ package com.gini.scheduling.controller;
 import com.gini.scheduling.dao.SgrroomRepository;
 import com.gini.scheduling.dao.SgschRepository;
 import com.gini.scheduling.model.*;
-import com.gini.scheduling.utils.EntityNotFoundException;
+import com.gini.scheduling.exception.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,13 +17,14 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/sgrroom")
+@RequestMapping("/sgrroom")
 public class SgrroomController {
     @Autowired
     private SgrroomRepository sgrroomRepository;
     @Autowired
     private SgschRepository sgschRepository;
 
+    public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
     @GetMapping
     public List<Object> getSgrroom(
             @RequestParam LocalDate schdate

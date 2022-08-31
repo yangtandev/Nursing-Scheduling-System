@@ -1,6 +1,5 @@
-package com.gini.scheduling.utils;
+package com.gini.scheduling.exception;
 
-import com.gini.scheduling.utils.ApiError;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.core.Ordered;

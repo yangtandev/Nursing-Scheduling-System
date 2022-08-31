@@ -1,4 +1,4 @@
-package com.gini.scheduling.utils;
+package com.gini.scheduling.exception;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;

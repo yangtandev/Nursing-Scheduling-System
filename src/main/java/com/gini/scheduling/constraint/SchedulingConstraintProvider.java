@@ -24,8 +24,7 @@ public class SchedulingConstraintProvider implements ConstraintProvider {
         return constraintFactory
                 .fromUniquePair(Sgsch.class,
                         Joiners.equal(Sgsch::getUno),
-                        Joiners.equal(Sgsch::getSchdate),
-                        Joiners.equal(Sgsch::getSchweek)
+                        Joiners.equal(Sgsch::getSchdate)
                 ).filter((Sgsch1, Sgsch2) -> {
                     return true;
                 })

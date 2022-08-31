@@ -1,4 +1,4 @@
-package com.gini.scheduling.utils;
+package com.gini.scheduling.exception;
 
 import org.apache.commons.lang3.StringUtils;
 

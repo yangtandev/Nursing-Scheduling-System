@@ -1,6 +1,5 @@
-package com.gini.scheduling.utils;
+package com.gini.scheduling.exception;
 
-import com.gini.scheduling.utils.LowerCaseClassNameResolver;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;

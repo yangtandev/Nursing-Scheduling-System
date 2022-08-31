@@ -1,4 +1,4 @@
-package com.gini.scheduling.utils;
+package com.gini.scheduling.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

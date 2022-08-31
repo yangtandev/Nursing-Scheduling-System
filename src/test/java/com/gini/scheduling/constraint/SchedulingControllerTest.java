@@ -48,7 +48,7 @@
 //            Thread.sleep(20L);
 //            timeTable = timeTableController.getScheduling();
 //        } while (timeTable.getSolverStatus() != SolverStatus.NOT_SOLVING || !timeTable.getScore().isFeasible());
-//        assertFalse(timeTable.getSgruserList().isEmpty());
+//        assertFalse(timeTable.getSgruserList().size() == 0);
 //        for (Sgruser lesson : timeTable.getSgruserList()) {
 //            assertNotNull(lesson.getSchedule());
 //            assertNotNull(lesson.getSgsch());

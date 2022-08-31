@@ -3,7 +3,9 @@ package com.gini.scheduling.controller;
 import com.gini.scheduling.dao.*;
 import com.gini.scheduling.dao.SgschRepository;
 import com.gini.scheduling.model.*;
-import com.gini.scheduling.utils.EntityNotFoundException;
+import com.gini.scheduling.exception.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping
 public class SgschController {
 
     @Autowired
@@ -21,7 +23,7 @@ public class SgschController {
 
     @Autowired
     private SgruserRepository sgruserRepository;
-
+    public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
     @GetMapping("/sgsch")
     public List<Sgsch> getSgsch(
             @RequestParam String uno,
