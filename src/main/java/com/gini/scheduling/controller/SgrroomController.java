@@ -1,7 +1,7 @@
 package com.gini.scheduling.controller;
 
 import com.gini.scheduling.dao.SgrroomRepository;
-import com.gini.scheduling.dao.SgschRepository;
+import com.gini.scheduling.dao.SgresultRepository;
 import com.gini.scheduling.model.*;
 import com.gini.scheduling.exception.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ public class SgrroomController {
     @Autowired
     private SgrroomRepository sgrroomRepository;
     @Autowired
-    private SgschRepository sgschRepository;
+    private SgresultRepository sgresultRepository;
 
     public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
     @GetMapping
@@ -30,16 +30,16 @@ public class SgrroomController {
             @RequestParam LocalDate schdate
     )throws EntityNotFoundException {
         List<Sgrroom> sgrrooms = sgrroomRepository.findAllByDate(schdate);
-        List<Sgsch> sgsches = sgschRepository.findAllByDate(schdate, schdate);
+        List<Sgresult> sgresultList = sgresultRepository.findAllByDate(schdate, schdate);
         List<Object> list=new ArrayList<>();
         for (Sgrroom sgrroom : sgrrooms) {
             Map<String, String> map = new HashMap<>();
             map.put("uno", sgrroom.getUno());
             map.put("schdate", String.valueOf(sgrroom.getSchdate()));
             map.put("rmname", sgrroom.getRmname());
-            for (Sgsch sgsch : sgsches) {
-                if (sgrroom.getUno().equals(sgsch.getUno())){
-                    map.put("uname", sgsch.getUname());
+            for (Sgresult sgresult : sgresultList) {
+                if (sgrroom.getUno().equals(sgresult.getUno())){
+                    map.put("uname", sgresult.getUname());
                 }
             }
             list.add(map);

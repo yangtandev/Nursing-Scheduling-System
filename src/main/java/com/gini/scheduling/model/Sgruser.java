@@ -1,11 +1,8 @@
 package com.gini.scheduling.model;
 
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 
 // 人員主表
 @Entity
@@ -52,9 +49,9 @@ public class Sgruser {
     private String hid = "2A0";
 
     // 更新時間
-    @Generated(GenerationTime.ALWAYS)
-    @Column(columnDefinition = "GENERATED ALWAYS FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP NOT NULL",insertable=false,updatable=false)
-    private Timestamp zruser;
+//    @Generated(GenerationTime.ALWAYS)
+//    @Column(columnDefinition = "GENERATED ALWAYS FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP NOT NULL",insertable=false,updatable=false)
+//    private Timestamp zruser;
 
     public Sgruser() {
     }
@@ -68,7 +65,7 @@ public class Sgruser {
         this.uname = uname.trim();
         this.uteam = "";
         this.urole = "使用者";
-        this.uopno = "R1";
+        this.uopno = "";
         this.uisbn = false;
         this.uissn = false;
         this.udsb = false;
@@ -79,7 +76,7 @@ public class Sgruser {
         this.uname = uname.trim();
         this.uteam = uteam.trim();
         this.urole = "使用者";
-        this.uopno = "R1";
+        this.uopno = "";
         this.uisbn = false;
         this.uissn = false;
         this.udsb = false;
@@ -176,11 +173,11 @@ public class Sgruser {
         this.hid = hid.trim();
     }
 
-    public Timestamp getZruser() {
-        return zruser;
-    }
-
-    public void setZruser(Timestamp zruser) {
-        this.zruser = zruser;
-    }
+//    public Timestamp getZruser() {
+//        return zruser;
+//    }
+//
+//    public void setZruser(Timestamp zruser) {
+//        this.zruser = zruser;
+//    }
 }

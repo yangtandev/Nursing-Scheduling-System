@@ -2,9 +2,6 @@ package com.gini.scheduling;
 
 import com.gini.scheduling.controller.SgrroomController;
 import com.gini.scheduling.model.Sgsys;
-import com.gini.scheduling.dao.SgrroomRepository;
-import com.gini.scheduling.dao.SgschRepository;
-import com.gini.scheduling.dao.SgruserRepository;
 import com.gini.scheduling.dao.SgsysRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +27,7 @@ public class SchedulingSpringBootApp extends SpringBootServletInitializer {
     }
 
     @Bean
-    public CommandLineRunner initData(SgschRepository sgschRepository,
-                                      SgruserRepository sgruserRepository, SgrroomRepository sgrroomRepository, SgsysRepository sgsysRepository) {
+    public CommandLineRunner initData(SgsysRepository sgsysRepository) {
         return (args) -> {
             // 自動帶入系統設定
             if (sgsysRepository.findCount() == 0) {

@@ -2,10 +2,10 @@ package com.gini.scheduling.service;
 
 import com.gini.scheduling.dao.SgrroomRepository;
 import com.gini.scheduling.dao.SgruserRepository;
-import com.gini.scheduling.dao.SgschRepository;
+import com.gini.scheduling.dao.SgresultRepository;
 import com.gini.scheduling.dao.SgsysRepository;
 import com.gini.scheduling.model.Scheduling;
-import com.gini.scheduling.model.Sgsch;
+import com.gini.scheduling.model.Sgresult;
 import com.gini.scheduling.utils.UUIDGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class SchedulingService {
 //    public static final String SINGLETON_TIME_TABLE_ID = new Sgruser().toString();
     public static final String SINGLETON_TIME_TABLE_ID = UUIDGenerator.generateUUID22();
     @Autowired
-    private SgschRepository sgschRepository;
+    private SgresultRepository sgresultRepository;
     @Autowired
     private SgruserRepository sgruserRepository;
 
@@ -33,15 +33,15 @@ public class SchedulingService {
             throw new IllegalStateException("There is no timeTable with id (" + id + ").");
         }
         // Occurs in a single transaction, so each initialized schedule references the same
-        // sgruser/sgsch instance
-        // that is contained by the timeTable's sgruserList/sgschList.
-        return new Scheduling(sgschRepository.findAll(), sgruserRepository.findAll());
+        // sgruser/sgresult instance
+        // that is contained by the timeTable's sgruserList/sgresultList.
+        return new Scheduling(sgresultRepository.findAll(), sgruserRepository.findAll());
     }
 
     public void save(Scheduling scheduling) {
-        for (Sgsch sgsch : scheduling.getSgschList()) {
+        for (Sgresult sgresult : scheduling.getSgresultList()) {
             // TODO this is awfully naive: optimistic locking causes issues if called by the SolverManager
-            sgschRepository.save(sgsch);
+            sgresultRepository.save(sgresult);
         }
     }
 }

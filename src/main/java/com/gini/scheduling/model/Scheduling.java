@@ -17,7 +17,7 @@ public class Scheduling {
     private List<Sgruser> sgruserList;
 
     @PlanningEntityCollectionProperty
-    private List<Sgsch> sgschList;
+    private List<Sgresult> sgresultList;
 
     @PlanningScore
     private HardSoftScore score;
@@ -28,9 +28,9 @@ public class Scheduling {
     private Scheduling() {
     }
 
-    public Scheduling(List<Sgsch> sgschList,
+    public Scheduling(List<Sgresult> sgresultList,
                      List<Sgruser> sgruserList) {
-        this.sgschList = sgschList;
+        this.sgresultList = sgresultList;
         this.sgruserList = sgruserList;
 
     }
@@ -39,8 +39,8 @@ public class Scheduling {
     // Getters and setters
     // ************************************************************************
 
-    public List<Sgsch> getSgschList() {
-        return sgschList;
+    public List<Sgresult> getSgresultList() {
+        return sgresultList;
     }
 
     public List<Sgruser> getSgruserList() {

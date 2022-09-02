@@ -1,10 +1,7 @@
 package com.gini.scheduling.model;
 
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 
 /*
 系統設定表 (排班設定)
@@ -63,9 +60,9 @@ public class Sgsys {
     private String hid = "2A0";
 
     // 更新時間
-    @Generated(GenerationTime.ALWAYS)
-    @Column(columnDefinition = "GENERATED ALWAYS FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP NOT NULL",insertable=false,updatable=false)
-    private Timestamp zsys;
+//    @Generated(GenerationTime.ALWAYS)
+//    @Column(columnDefinition = "GENERATED ALWAYS FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP NOT NULL",insertable=false,updatable=false)
+//    private Timestamp zsys;
 
     public Sgsys() {
     }
@@ -106,11 +103,11 @@ public class Sgsys {
         this.hid = hid.trim();
     }
 
-    public Timestamp getZrroom() {
-        return zsys;
-    }
-
-    public void setZrroom(Timestamp zsys) {
-        this.zsys = zsys;
-    }
+//    public Timestamp getZrroom() {
+//        return zsys;
+//    }
+//
+//    public void setZrroom(Timestamp zsys) {
+//        this.zsys = zsys;
+//    }
 }

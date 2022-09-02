@@ -1,9 +1,7 @@
 package com.gini.scheduling.controller;
 
 
-import com.gini.scheduling.dao.SgruserRepository;
-import com.gini.scheduling.dao.SgschRepository;
-import com.gini.scheduling.dao.SgsysRepository;
+import com.gini.scheduling.dao.*;
 import com.gini.scheduling.model.*;
 import com.gini.scheduling.service.SchedulingService;
 import com.gini.scheduling.utils.DateGenerator;
@@ -30,7 +28,11 @@ public class SchedulingController {
     @Autowired
     private SchedulingService schedulingService;
     @Autowired
+    private SgresultRepository sgresultRepository;
+    @Autowired
     private SgschRepository sgschRepository;
+    @Autowired
+    private SgbackupRepository sgbackupRepository;
     @Autowired
     private SgsysRepository sgsysRepository;
     @Autowired
@@ -41,7 +43,31 @@ public class SchedulingController {
     private ScoreManager<Scheduling> scoreManager;
     public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
 
-    public void init(LocalDate startSchdate, LocalDate endSchdate) {
+    public void syncSgsch(LocalDate startSchdate, LocalDate endSchdate){
+        int sgschNumber = sgschRepository.findCountByDate(startSchdate, endSchdate);
+        if (sgschNumber > 0) {
+            sgschRepository.deleteALLByDate(startSchdate, endSchdate);
+        }
+        List<Sgresult> sgresultList = sgresultRepository.findAllByDate(startSchdate, endSchdate);
+        for(Sgresult sgresult:sgresultList){
+            String uno = sgresult.getUno();
+            LocalDate schdate = sgresult.getSchdate();
+            String clsno = sgresult.getClsno();
+            int clspr = sgresult.getClspr();
+            int overtime = sgresult.getOvertime();
+            sgschRepository.save(new Sgsch(uno, schdate, clsno, clspr, overtime));
+        }
+    }
+    public void backupSgsch(LocalDate startSchdate, LocalDate endSchdate){
+        List<Sgsch> sgschList = sgschRepository.findAllByDate(startSchdate, endSchdate);
+        for(Sgsch sgsch:sgschList){
+            String uno = sgsch.getUno();
+            LocalDate schdate = sgsch.getSchdate();
+            String clsno = sgsch.getClsno();
+            sgbackupRepository.save(new Sgbackup(uno, schdate, clsno));
+        }
+    }
+    public Map<String, Integer> getRequiredCLS(){
         int r55RoomOpen = 12;
         int r55NeedManpower = 2;
         List<Sgsys> sgsysList = sgsysRepository.findAll();
@@ -52,11 +78,14 @@ public class SchedulingController {
                 r55NeedManpower = Integer.parseInt(sgsys.getVal());
             }
         }
-        Map<String, Integer> sgschMap = new HashMap<>();
-        sgschMap.put("55", r55RoomOpen * r55NeedManpower + 4);
-        sgschMap.put("D6", 2);
-        sgschMap.put("A0", 2);
-        sgschMap.put("A8", 2);
+        Map<String, Integer> sgresultMap = new HashMap<>();
+        sgresultMap.put("55", r55RoomOpen * r55NeedManpower + 4);
+        sgresultMap.put("D6", 2);
+        sgresultMap.put("A0", 2);
+        sgresultMap.put("A8", 2);
+        return sgresultMap;
+    }
+    public void init(LocalDate startSchdate, LocalDate endSchdate) {
 
         long monthsBetween = ChronoUnit.MONTHS.between(
                 LocalDate.parse(startSchdate.toString()),
@@ -66,9 +95,9 @@ public class SchedulingController {
             YearMonth month = YearMonth.from(currentMonth);
             LocalDate monthStart = month.atDay(1);
             LocalDate monthEnd = month.atEndOfMonth();
-            int sgschNumber = sgschRepository.findCountByDate(monthStart, monthEnd);
-            if (sgschNumber > 0) {
-                sgschRepository.deleteALLByDate(monthStart, monthEnd);
+            int sgresultNumber = sgresultRepository.findCountByDate(monthStart, monthEnd);
+            if (sgresultNumber > 0) {
+                sgresultRepository.deleteALLByDate(monthStart, monthEnd);
             }
             DateGenerator newDateUtil = new DateGenerator();
             List<DateGenerator.WeekInfo> weekList = newDateUtil.getScope(String.valueOf(currentMonth.getYear()), String.valueOf(currentMonth.getMonth().getValue()));
@@ -82,14 +111,14 @@ public class SchedulingController {
                 for (int dateIndex = 0; dateIndex < totalDates; dateIndex++) {
                     LocalDate currentDate
                             = startDate.plusDays(dateIndex);
-                    for (Map.Entry<String, Integer> entry : sgschMap.entrySet()) {
+                    for (Map.Entry<String, Integer> entry : this.getRequiredCLS().entrySet()) {
                         for (int count = 0; count < entry.getValue(); count++) {
                             if (!sgrusers.hasNext()) {
                                 sgrusers = sgruserRepository.findAll().iterator();
                             }
                             Sgruser sgruser = sgrusers.next();
                             String clsno = entry.getKey();
-                            sgschRepository.save(new Sgsch(sgruser, currentDate, currentWeek, clsno));
+                            sgresultRepository.save(new Sgresult(sgruser, currentDate, currentWeek, clsno));
                         }
                     }
 
@@ -101,10 +130,12 @@ public class SchedulingController {
     @PostMapping("/solve")
     public String solve(LocalDate startSchdate, LocalDate endSchdate) {
         this.stopSolving();
+        this.backupSgsch(startSchdate, endSchdate);
         this.init(startSchdate, endSchdate);
         solverManager.solveAndListen(SchedulingService.SINGLETON_TIME_TABLE_ID,
                 schedulingService::findById,
                 schedulingService::save);
+        this.syncSgsch(startSchdate, endSchdate);
         return "Success";
     }
 

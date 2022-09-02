@@ -5,15 +5,15 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 
-public class SgschId implements Serializable {
+public class SgbackupId implements Serializable {
     private String uno;
     private LocalDate schdate;
     private String hid;
 
-    public SgschId() {
+    public SgbackupId() {
     }
 
-    public SgschId(String uno, LocalDate schdate, String hid) {
+    public SgbackupId(String uno, LocalDate schdate, String hid) {
         this.uno = uno;
         this.schdate = schdate;
         this.hid = hid;
@@ -23,10 +23,10 @@ public class SgschId implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SgschId sgschId = (SgschId) o;
-        return uno.equals(sgschId.uno) &&
-                schdate.equals(sgschId.schdate) &&
-                hid.equals(sgschId.hid);
+        SgbackupId sgbackupId = (SgbackupId) o;
+        return uno.equals(sgbackupId.uno) &&
+                schdate.equals(sgbackupId.schdate) &&
+                hid.equals(sgbackupId.hid);
     }
 
     @Override

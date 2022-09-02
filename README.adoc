@@ -19,18 +19,6 @@ $ cd Nursing-scheduling-system
 $ mvn spring-boot:run
 ----
 
-. Visit http://localhost:8080 in your browser.
-
-. Click on the *Solve* button.
-
-Then try _live coding_:
-
-. Make some changes in the source code.
-. Refresh your browser (F5).
-
-Notice that those changes are immediately in effect.
-
-
 [[package]]
 == Run the packaged application
 
