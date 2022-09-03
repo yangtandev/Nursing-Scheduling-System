@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 // 人員排班表
 @Entity
-@Table(schema = "SG")
+
 @IdClass(SgschId.class)
 public class Sgsch {
     // 使用者卡號

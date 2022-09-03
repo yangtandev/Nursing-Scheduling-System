@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 // 人員手術室排班表
 @Entity
-@Table(schema = "SG")
+
 @IdClass(SgrroomId.class)
 public class Sgrroom {
     // 使用者卡號

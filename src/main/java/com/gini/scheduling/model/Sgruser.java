@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 // 人員主表
 @Entity
-@Table(schema = "SG")
+
 @IdClass(SgruserId.class)
 public class Sgruser {
     // 使用者卡號

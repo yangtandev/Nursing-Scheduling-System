@@ -13,7 +13,6 @@ import java.time.LocalDate;
 // 人員排班結果表
 @Entity
 @PlanningEntity
-@Table(schema = "SG")
 @IdClass(SgresultId.class)
 public class Sgresult {
     // 班別序號 UUID

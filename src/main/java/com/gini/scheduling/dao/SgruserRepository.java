@@ -9,7 +9,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface SgruserRepository extends PagingAndSortingRepository<Sgruser, String> {
     @Override
     List<Sgruser> findAll();
-    @Query(value = "SELECT * FROM sg.sgrroom WHERE uno = ?1 ",
+    @Query(value = "SELECT * FROM sgrroom WHERE uno = ?1 ",
             nativeQuery = true)
     List<Sgruser> findAllByUno(String uno);
 }

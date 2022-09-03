@@ -1,6 +1,8 @@
 package com.gini.scheduling;
 
 import com.gini.scheduling.controller.SgrroomController;
+import com.gini.scheduling.dao.SgruserRepository;
+import com.gini.scheduling.model.Sgruser;
 import com.gini.scheduling.model.Sgsys;
 import com.gini.scheduling.dao.SgsysRepository;
 import org.slf4j.Logger;
@@ -27,7 +29,7 @@ public class SchedulingSpringBootApp extends SpringBootServletInitializer {
     }
 
     @Bean
-    public CommandLineRunner initData(SgsysRepository sgsysRepository) {
+    public CommandLineRunner initData(SgruserRepository sgruserRepository, SgsysRepository sgsysRepository) {
         return (args) -> {
             // 自動帶入系統設定
             if (sgsysRepository.findCount() == 0) {
@@ -36,26 +38,26 @@ public class SchedulingSpringBootApp extends SpringBootServletInitializer {
                 sgsys.put("r55RoomOpen", "12");
                 sgsys.put("r55NeedManpower", "2");
                 sgsys.put("r55HolidayDay", "2");
-                sgsys.put("r55HolidayA", "5");
-                sgsys.put("r55HolidayB", "7");
-                sgsys.put("r55HolidayC", "9");
+                sgsys.put("r55HolidayA", "1");
+                sgsys.put("r55HolidayB", "1");
+                sgsys.put("r55HolidayC", "1");
                 // D6(16-00)
-                sgsys.put("rd6ManpowerA", "5");
-                sgsys.put("rd6manpowerB", "7");
-                sgsys.put("rd6ManpowerC", "9");
+                sgsys.put("rd6ManpowerA", "1");
+                sgsys.put("rd6manpowerB", "1");
+                sgsys.put("rd6ManpowerC", "1");
                 sgsys.put("rd6HolidayDay", "2");
                 // A0(00-08)
-                sgsys.put("ra0ManpowerA", "5");
-                sgsys.put("ra0ManpowerB", "7");
-                sgsys.put("ra0ManpowerC", "9");
+                sgsys.put("ra0ManpowerA", "1");
+                sgsys.put("ra0ManpowerB", "1");
+                sgsys.put("ra0ManpowerC", "1");
                 sgsys.put("ra0HolidayDay", "2");
                 // A8(12-20)
-                sgsys.put("ra8ManpowerA", "5");
-                sgsys.put("ra8ManpowerB", "7");
-                sgsys.put("ra8ManpowerC", "9");
+                sgsys.put("ra8ManpowerA", "1");
+                sgsys.put("ra8ManpowerB", "1");
+                sgsys.put("ra8ManpowerC", "1");
                 sgsys.put("ra8HolidayDay", "2");
                 // 通用規則
-                sgsys.put("generalBetweenHour", "12");
+                sgsys.put("generalBetweenHour", "11");
 
                 for (Map.Entry<String, String> entry : sgsys.entrySet()) {
                     sgsysRepository.save(new Sgsys(entry.getKey(), entry.getValue()));

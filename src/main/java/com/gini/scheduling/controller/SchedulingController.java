@@ -43,6 +43,18 @@ public class SchedulingController {
     private ScoreManager<Scheduling> scoreManager;
     public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
 
+    public void backupSgsch(LocalDate startSchdate, LocalDate endSchdate){
+        int sgbackupNumber = sgbackupRepository.findCountByDate(startSchdate, endSchdate);
+        if(sgbackupNumber==0){
+            List<Sgsch> sgschList = sgschRepository.findAllByDate(startSchdate, endSchdate);
+            for(Sgsch sgsch:sgschList){
+                String uno = sgsch.getUno();
+                LocalDate schdate = sgsch.getSchdate();
+                String clsno = sgsch.getClsno();
+                sgbackupRepository.save(new Sgbackup(uno, schdate, clsno));
+            }
+        }
+    }
     public void syncSgsch(LocalDate startSchdate, LocalDate endSchdate){
         int sgschNumber = sgschRepository.findCountByDate(startSchdate, endSchdate);
         if (sgschNumber > 0) {
@@ -58,15 +70,7 @@ public class SchedulingController {
             sgschRepository.save(new Sgsch(uno, schdate, clsno, clspr, overtime));
         }
     }
-    public void backupSgsch(LocalDate startSchdate, LocalDate endSchdate){
-        List<Sgsch> sgschList = sgschRepository.findAllByDate(startSchdate, endSchdate);
-        for(Sgsch sgsch:sgschList){
-            String uno = sgsch.getUno();
-            LocalDate schdate = sgsch.getSchdate();
-            String clsno = sgsch.getClsno();
-            sgbackupRepository.save(new Sgbackup(uno, schdate, clsno));
-        }
-    }
+
     public Map<String, Integer> getRequiredCLS(){
         int r55RoomOpen = 12;
         int r55NeedManpower = 2;
@@ -86,48 +90,50 @@ public class SchedulingController {
         return sgresultMap;
     }
     public void init(LocalDate startSchdate, LocalDate endSchdate) {
+        List<Sgbackup> sgbackupList = sgbackupRepository.findAllByDate(startSchdate, endSchdate);
 
-        long monthsBetween = ChronoUnit.MONTHS.between(
-                LocalDate.parse(startSchdate.toString()),
-                LocalDate.parse(endSchdate.toString()).plusDays(1));
-        for (int i = 0; i < monthsBetween; i++) {
-            LocalDate currentMonth = startSchdate.plusMonths(i);
-            YearMonth month = YearMonth.from(currentMonth);
-            LocalDate monthStart = month.atDay(1);
-            LocalDate monthEnd = month.atEndOfMonth();
-            int sgresultNumber = sgresultRepository.findCountByDate(monthStart, monthEnd);
-            if (sgresultNumber > 0) {
-                sgresultRepository.deleteALLByDate(monthStart, monthEnd);
-            }
-            DateGenerator newDateUtil = new DateGenerator();
-            List<DateGenerator.WeekInfo> weekList = newDateUtil.getScope(String.valueOf(currentMonth.getYear()), String.valueOf(currentMonth.getMonth().getValue()));
+            long monthsBetween = ChronoUnit.MONTHS.between(
+                    LocalDate.parse(startSchdate.toString()),
+                    LocalDate.parse(endSchdate.toString()).plusDays(1));
+            for (int i = 0; i < monthsBetween; i++) {
+                LocalDate currentMonth = startSchdate.plusMonths(i);
+                YearMonth month = YearMonth.from(currentMonth);
+                LocalDate monthStart = month.atDay(1);
+                LocalDate monthEnd = month.atEndOfMonth();
+                int sgresultNumber = sgresultRepository.findCountByDate(monthStart, monthEnd);
+                if (sgresultNumber > 0) {
+                    sgresultRepository.deleteALLByDate(monthStart, monthEnd);
+                }
+                DateGenerator newDateUtil = new DateGenerator();
+                List<DateGenerator.WeekInfo> weekList = newDateUtil.getScope(String.valueOf(currentMonth.getYear()), String.valueOf(currentMonth.getMonth().getValue()));
 
-            for (int week = 0; week < weekList.size(); week++) {
-                int currentWeek = week + 1;
-                Iterator<Sgruser> sgrusers = sgruserRepository.findAll().iterator();
-                LocalDate startDate = LocalDate.parse(weekList.get(week).getStart());
-                LocalDate endDate = LocalDate.parse(weekList.get(week).getEnd());
-                int totalDates = endDate.getDayOfMonth() - startDate.getDayOfMonth() + 1;
-                for (int dateIndex = 0; dateIndex < totalDates; dateIndex++) {
-                    LocalDate currentDate
-                            = startDate.plusDays(dateIndex);
-                    for (Map.Entry<String, Integer> entry : this.getRequiredCLS().entrySet()) {
-                        for (int count = 0; count < entry.getValue(); count++) {
-                            if (!sgrusers.hasNext()) {
-                                sgrusers = sgruserRepository.findAll().iterator();
+                for (int week = 0; week < weekList.size(); week++) {
+                    int currentWeek = week + 1;
+                    Iterator<Sgruser> sgrusers = sgruserRepository.findAll().iterator();
+                    LocalDate startDate = LocalDate.parse(weekList.get(week).getStart());
+                    LocalDate endDate = LocalDate.parse(weekList.get(week).getEnd());
+                    int totalDates = endDate.getDayOfMonth() - startDate.getDayOfMonth() + 1;
+                    for (int dateIndex = 0; dateIndex < totalDates; dateIndex++) {
+                        LocalDate currentDate
+                                = startDate.plusDays(dateIndex);
+                        for (Map.Entry<String, Integer> entry : this.getRequiredCLS().entrySet()) {
+                            for (int count = 0; count < entry.getValue(); count++) {
+                                if (!sgrusers.hasNext()) {
+                                    sgrusers = sgruserRepository.findAll().iterator();
+                                }
+                                Sgruser sgruser = sgrusers.next();
+                                String clsno = entry.getKey();
+                                sgresultRepository.save(new Sgresult(sgruser, currentDate, currentWeek, clsno));
                             }
-                            Sgruser sgruser = sgrusers.next();
-                            String clsno = entry.getKey();
-                            sgresultRepository.save(new Sgresult(sgruser, currentDate, currentWeek, clsno));
                         }
-                    }
 
+                    }
                 }
             }
-        }
+
     }
 
-    @PostMapping("/solve")
+    @GetMapping("/solve")
     public String solve(LocalDate startSchdate, LocalDate endSchdate) {
         this.stopSolving();
         this.backupSgsch(startSchdate, endSchdate);

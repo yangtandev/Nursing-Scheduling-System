@@ -42,7 +42,7 @@ import javax.persistence.*;
 
 */
 @Entity
-@Table(schema = "SG")
+
 @IdClass(SgsysId.class)
 public class Sgsys {
     // table 對應key值

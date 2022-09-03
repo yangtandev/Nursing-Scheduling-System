@@ -1,13 +1,18 @@
 package com.gini.scheduling.constraint;
 
+import com.gini.scheduling.dao.SgruserRepository;
 import com.gini.scheduling.model.Sgresult;
 import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 import org.optaplanner.core.api.score.stream.Constraint;
 import org.optaplanner.core.api.score.stream.ConstraintFactory;
 import org.optaplanner.core.api.score.stream.ConstraintProvider;
 import org.optaplanner.core.api.score.stream.Joiners;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class SchedulingConstraintProvider implements ConstraintProvider {
+    @Autowired
+    private SgruserRepository sgruserRepository;
+
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[]{
@@ -15,10 +20,18 @@ public class SchedulingConstraintProvider implements ConstraintProvider {
                 sgresultConflict(constraintFactory),
 //                nameConflict(constraintFactory),
 //                uteamConflict(constraintFactory),
+
 //                Soft constraints
 //                nameSgresultStability(constraintFactory),
         };
     }
+
+//    Constraint OffConstraint(ConstraintFactory constraintFactory) {
+//        return constraintFactory
+//                .from(Shift.class)
+//                .filter(shift -> shift.getEmployee().getName().equals("Ann"))
+//                .penalize("Don't assign Ann", HardSoftScore.ONE_SOFT);
+//    }
 
     Constraint sgresultConflict(ConstraintFactory constraintFactory) {
         return constraintFactory

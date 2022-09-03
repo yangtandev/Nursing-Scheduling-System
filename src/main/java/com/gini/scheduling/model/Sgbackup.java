@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 // 人員排班備份表
 @Entity
-@Table(schema = "SG")
+
 @IdClass(SgschId.class)
 public class Sgbackup {
     // 使用者卡號

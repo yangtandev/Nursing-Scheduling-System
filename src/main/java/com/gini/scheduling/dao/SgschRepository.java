@@ -14,21 +14,21 @@ public interface SgschRepository extends PagingAndSortingRepository<Sgsch, Strin
     @Override
     List<Sgsch> findAll();
 
-    @Query(value = "SELECT COUNT(*) FROM sg.sgsch WHERE schdate BETWEEN :startSchdate AND :endSchdate",
+    @Query(value = "SELECT COUNT(*) FROM sgsch WHERE schdate BETWEEN :startSchdate AND :endSchdate",
             nativeQuery = true)
     int findCountByDate(
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT * FROM sg.sgsch WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
+    @Query(value = "SELECT * FROM sgsch WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
             nativeQuery = true)
     List<Sgsch> findAllByDate(
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT * FROM sg.sgsch WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
+    @Query(value = "SELECT * FROM sgsch WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
             nativeQuery = true)
     List<Sgsch> findAllByUnoAndDate(
             @Param("uno") String uno,
@@ -38,7 +38,7 @@ public interface SgschRepository extends PagingAndSortingRepository<Sgsch, Strin
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE FROM sg.sgsch WHERE schdate BETWEEN :startSchdate AND :endSchdate",
+    @Query(value = "DELETE FROM sgsch WHERE schdate BETWEEN :startSchdate AND :endSchdate",
             nativeQuery = true)
     void deleteALLByDate(
             @Param("startSchdate") LocalDate startSchdate,

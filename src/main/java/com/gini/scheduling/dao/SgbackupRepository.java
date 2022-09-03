@@ -14,21 +14,21 @@ public interface SgbackupRepository extends PagingAndSortingRepository<Sgbackup,
     @Override
     List<Sgbackup> findAll();
 
-    @Query(value = "SELECT COUNT(*) FROM sg.sgbackup WHERE schdate BETWEEN :startSchdate AND :endSchdate",
+    @Query(value = "SELECT COUNT(*) FROM sgbackup WHERE schdate BETWEEN :startSchdate AND :endSchdate",
             nativeQuery = true)
     int findCountByDate(
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT * FROM sg.sgbackup WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
+    @Query(value = "SELECT * FROM sgbackup WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
             nativeQuery = true)
     List<Sgbackup> findAllByDate(
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT * FROM sg.sgbackup WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
+    @Query(value = "SELECT * FROM sgbackup WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
             nativeQuery = true)
     List<Sgbackup> findAllByUnoAndDate(
             @Param("uno") String uno,
@@ -38,7 +38,7 @@ public interface SgbackupRepository extends PagingAndSortingRepository<Sgbackup,
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE FROM sg.sgbackup WHERE schdate BETWEEN :startSchdate AND :endSchdate",
+    @Query(value = "DELETE FROM sgbackup WHERE schdate BETWEEN :startSchdate AND :endSchdate",
             nativeQuery = true)
     void deleteALLByDate(
             @Param("startSchdate") LocalDate startSchdate,
