@@ -4,6 +4,7 @@ import com.gini.scheduling.dao.SgruserRepository;
 import com.gini.scheduling.dao.SgresultRepository;
 import com.gini.scheduling.exception.EntityNotFoundException;
 import com.gini.scheduling.model.Sgresult;
+import com.gini.scheduling.model.Sgshift;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,7 @@ public class SgresultController {
         LocalDate date = LocalDate.parse(schdate, dateTimeFormatter);
         Sgresult sgresult = sgresultRepository.findAllByUnoAndDate(uno, date, date).get(0);
         sgresult.setSchdate(date);
-        sgresult.setClsno(clsno);
+        sgresult.setSgshift(new Sgshift(clsno));
         sgresultRepository.save(sgresult);
         return "Success";
     }

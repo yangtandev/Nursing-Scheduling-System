@@ -1,16 +1,13 @@
 package com.gini.scheduling.model;
 
-import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 import javax.persistence.*;
 
 // 人員主表
 @Entity
-
 @IdClass(SgruserId.class)
 public class Sgruser {
     // 使用者卡號
-    @PlanningId
     @Id
     @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
     private String uno;
@@ -39,10 +36,6 @@ public class Sgruser {
     @Column(columnDefinition = "BOOLEAN NOT NULL WITH DEFAULT 0")
     private boolean uissn;
 
-    // 是否失效 0 or 1
-    @Column(columnDefinition = "BOOLEAN NOT NULL WITH DEFAULT 0")
-    private boolean udsb;
-
     // 醫院代碼
     @Id
     @Column(columnDefinition = "CHAR(003) NOT NULL CHECK (HID NOT IN ('   '))")
@@ -68,7 +61,6 @@ public class Sgruser {
         this.uopno = "";
         this.uisbn = false;
         this.uissn = false;
-        this.udsb = false;
     }
 
     public Sgruser(String uno, String uname, String uteam) {
@@ -79,7 +71,6 @@ public class Sgruser {
         this.uopno = "";
         this.uisbn = false;
         this.uissn = false;
-        this.udsb = false;
     }
 
     public Sgruser(String uno, String uname, String uteam, String urole, String uopno, Boolean uisbn, Boolean uissn, Boolean udsb) {
@@ -90,7 +81,6 @@ public class Sgruser {
         this.uopno = uopno.trim();
         this.uisbn = uisbn;
         this.uissn = uissn;
-        this.udsb = udsb;
     }
 
     @Override
@@ -155,14 +145,6 @@ public class Sgruser {
 
     public void setUissn(boolean uissn) {
         this.uissn = uissn;
-    }
-
-    public boolean isUdsb() {
-        return udsb;
-    }
-
-    public void setUdsb(boolean udsb) {
-        this.udsb = udsb;
     }
 
     public String getHid() {

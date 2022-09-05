@@ -12,9 +12,9 @@ import org.optaplanner.core.api.solver.SolverStatus;
 
 @PlanningSolution
 public class Scheduling {
-    @ValueRangeProvider(id = "sgruserRange")
+    @ValueRangeProvider(id = "shiftRange")
     @ProblemFactCollectionProperty
-    private List<Sgruser> sgruserList;
+    private List<Sgshift> sgshiftList;
 
     @PlanningEntityCollectionProperty
     private List<Sgresult> sgresultList;
@@ -25,14 +25,12 @@ public class Scheduling {
     // Ignored by OptaPlanner, used by the UI to display solve or stop solving button
     private SolverStatus solverStatus;
 
-    private Scheduling() {
+    public Scheduling() {
     }
 
-    public Scheduling(List<Sgresult> sgresultList,
-                     List<Sgruser> sgruserList) {
+    public Scheduling(List<Sgresult> sgresultList, List<Sgshift> sgshiftList) {
         this.sgresultList = sgresultList;
-        this.sgruserList = sgruserList;
-
+        this.sgshiftList = sgshiftList;
     }
 
     // ************************************************************************
@@ -43,8 +41,8 @@ public class Scheduling {
         return sgresultList;
     }
 
-    public List<Sgruser> getSgruserList() {
-        return sgruserList;
+    public List<Sgshift> getSgshiftList() {
+        return sgshiftList;
     }
 
 

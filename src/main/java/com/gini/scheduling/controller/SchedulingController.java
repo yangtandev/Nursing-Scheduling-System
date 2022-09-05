@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -30,6 +30,8 @@ public class SchedulingController {
     @Autowired
     private SgresultRepository sgresultRepository;
     @Autowired
+    private SgshiftRepository sgshiftRepository;
+    @Autowired
     private SgschRepository sgschRepository;
     @Autowired
     private SgbackupRepository sgbackupRepository;
@@ -39,98 +41,194 @@ public class SchedulingController {
     private SgruserRepository sgruserRepository;
     @Autowired(required = false)
     private SolverManager<Scheduling, String> solverManager;
+
     @Autowired(required = false)
     private ScoreManager<Scheduling> scoreManager;
+
     public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
 
-    public void backupSgsch(LocalDate startSchdate, LocalDate endSchdate){
-        int sgbackupNumber = sgbackupRepository.findCountByDate(startSchdate, endSchdate);
-        if(sgbackupNumber==0){
-            List<Sgsch> sgschList = sgschRepository.findAllByDate(startSchdate, endSchdate);
-            for(Sgsch sgsch:sgschList){
-                String uno = sgsch.getUno();
-                LocalDate schdate = sgsch.getSchdate();
-                String clsno = sgsch.getClsno();
-                sgbackupRepository.save(new Sgbackup(uno, schdate, clsno));
-            }
+    public void backupSgsch(LocalDate startSchdate, LocalDate endSchdate) {
+        List<Sgbackup> sgbackupList = new ArrayList<>();
+        List<Sgsch> sgschList = sgschRepository.findAllByDate(startSchdate, endSchdate);
+        for (Sgsch sgsch : sgschList) {
+            String uno = sgsch.getUno();
+            LocalDate schdate = sgsch.getSchdate();
+            String clsno = sgsch.getClsno();
+            sgbackupList.add(new Sgbackup(uno, schdate, clsno));
         }
+        sgbackupRepository.saveAll(sgbackupList);
     }
-    public void syncSgsch(LocalDate startSchdate, LocalDate endSchdate){
-        int sgschNumber = sgschRepository.findCountByDate(startSchdate, endSchdate);
-        if (sgschNumber > 0) {
-            sgschRepository.deleteALLByDate(startSchdate, endSchdate);
-        }
+
+    public void syncSgsch(LocalDate startSchdate, LocalDate endSchdate) {
+        List<Sgsch> sgschList = new ArrayList<>();
         List<Sgresult> sgresultList = sgresultRepository.findAllByDate(startSchdate, endSchdate);
-        for(Sgresult sgresult:sgresultList){
+        for (Sgresult sgresult : sgresultList) {
             String uno = sgresult.getUno();
             LocalDate schdate = sgresult.getSchdate();
-            String clsno = sgresult.getClsno();
+            String clsno = sgresult.getSgshift().getClsno();
             int clspr = sgresult.getClspr();
             int overtime = sgresult.getOvertime();
-            sgschRepository.save(new Sgsch(uno, schdate, clsno, clspr, overtime));
+            sgschList.add(new Sgsch(uno, schdate, clsno, clspr, overtime));
         }
+        sgschRepository.saveAll(sgschList);
     }
 
-    public Map<String, Integer> getRequiredCLS(){
-        int r55RoomOpen = 12;
-        int r55NeedManpower = 2;
-        List<Sgsys> sgsysList = sgsysRepository.findAll();
-        for (Sgsys sgsys : sgsysList) {
-            if (sgsys.getSkey().equals("r55RoomOpen")) {
-                r55RoomOpen = Integer.parseInt(sgsys.getVal());
-            } else if (sgsys.getSkey().equals("r55NeedManpower")) {
-                r55NeedManpower = Integer.parseInt(sgsys.getVal());
-            }
-        }
-        Map<String, Integer> sgresultMap = new HashMap<>();
-        sgresultMap.put("55", r55RoomOpen * r55NeedManpower + 4);
-        sgresultMap.put("D6", 2);
-        sgresultMap.put("A0", 2);
-        sgresultMap.put("A8", 2);
-        return sgresultMap;
-    }
     public void init(LocalDate startSchdate, LocalDate endSchdate) {
-        List<Sgbackup> sgbackupList = sgbackupRepository.findAllByDate(startSchdate, endSchdate);
+        // clean SGRESULT
+        sgresultRepository.deleteALLByDate(startSchdate, endSchdate);
 
-            long monthsBetween = ChronoUnit.MONTHS.between(
-                    LocalDate.parse(startSchdate.toString()),
-                    LocalDate.parse(endSchdate.toString()).plusDays(1));
-            for (int i = 0; i < monthsBetween; i++) {
-                LocalDate currentMonth = startSchdate.plusMonths(i);
-                YearMonth month = YearMonth.from(currentMonth);
-                LocalDate monthStart = month.atDay(1);
-                LocalDate monthEnd = month.atEndOfMonth();
-                int sgresultNumber = sgresultRepository.findCountByDate(monthStart, monthEnd);
-                if (sgresultNumber > 0) {
-                    sgresultRepository.deleteALLByDate(monthStart, monthEnd);
-                }
-                DateGenerator newDateUtil = new DateGenerator();
-                List<DateGenerator.WeekInfo> weekList = newDateUtil.getScope(String.valueOf(currentMonth.getYear()), String.valueOf(currentMonth.getMonth().getValue()));
+        List<Sgruser> sgruserList = sgruserRepository.findAll();
+        List<Sgshift> sgshiftList = sgshiftRepository.findAll();
+        List<Sgresult> sgresultList = new ArrayList<>();
+        long monthsBetween = ChronoUnit.MONTHS.between(
+                LocalDate.parse(startSchdate.toString()),
+                LocalDate.parse(endSchdate.toString()).plusDays(1));
 
-                for (int week = 0; week < weekList.size(); week++) {
-                    int currentWeek = week + 1;
-                    Iterator<Sgruser> sgrusers = sgruserRepository.findAll().iterator();
-                    LocalDate startDate = LocalDate.parse(weekList.get(week).getStart());
-                    LocalDate endDate = LocalDate.parse(weekList.get(week).getEnd());
-                    int totalDates = endDate.getDayOfMonth() - startDate.getDayOfMonth() + 1;
-                    for (int dateIndex = 0; dateIndex < totalDates; dateIndex++) {
-                        LocalDate currentDate
-                                = startDate.plusDays(dateIndex);
-                        for (Map.Entry<String, Integer> entry : this.getRequiredCLS().entrySet()) {
-                            for (int count = 0; count < entry.getValue(); count++) {
-                                if (!sgrusers.hasNext()) {
-                                    sgrusers = sgruserRepository.findAll().iterator();
+        for (int i = 0; i < monthsBetween; i++) {
+            LocalDate currentMonth = startSchdate.plusMonths(i);
+            YearMonth month = YearMonth.from(currentMonth);
+            LocalDate monthStart = month.atDay(1);
+            LocalDate monthEnd = month.atEndOfMonth();
+            List<Sgbackup> unavaliableList = sgbackupRepository.findAllByDate(monthStart, monthEnd);
+            List<DateGenerator.WeekInfo> weekList = new DateGenerator().getScope(String.valueOf(currentMonth.getYear()), String.valueOf(currentMonth.getMonth().getValue()));
+
+            for (int week = 0; week < weekList.size(); week++) {
+                LocalDate startDate = LocalDate.parse(weekList.get(week).getStart());
+                LocalDate endDate = LocalDate.parse(weekList.get(week).getEnd());
+                int totalDates = endDate.getDayOfMonth() - startDate.getDayOfMonth() + 1;
+                int currentWeek = week + 1;
+
+                for (int dateIndex = 0; dateIndex < totalDates; dateIndex++) {
+                    LocalDate currentDate = startDate.plusDays(dateIndex);
+
+                    // 預設每日所有人為 OFF
+                    for (Sgruser sgruser : sgruserList) {
+                        Boolean isVacation = unavaliableList.stream().filter(sgbackup -> {
+                                    if (sgbackup.getUno().equals(sgruser.getUno())) {
+                                        if (sgbackup.getClsno().equals("公休")) {
+                                            return true;
+                                        }
+                                    }
+                                    return false;
                                 }
-                                Sgruser sgruser = sgrusers.next();
-                                String clsno = entry.getKey();
-                                sgresultRepository.save(new Sgresult(sgruser, currentDate, currentWeek, clsno));
-                            }
+                        ).collect(Collectors.toList()).size() > 0;
+                        if (isVacation) {
+                            sgresultList.add(new Sgresult(sgruser.getUno(), currentDate, currentWeek, new Sgshift("公休")));
+                        } else {
+                            sgresultList.add(new Sgresult(sgruser.getUno(), currentDate, currentWeek, new Sgshift("OFF")));
+                        }
+                    }
+
+                    // 參考預約休假名單，過濾休假人員，並為公休人員的班表由"OFF"修改成"公休"
+                    Iterator<Sgruser> avaliableIterator = sgruserRepository.findAll().stream().filter(sgruser -> {
+                        Boolean isVacation = unavaliableList.stream().filter(sgbackup -> {
+                                    if (sgbackup.getUno().equals(sgruser.getUno())) {
+                                        if (sgbackup.getClsno().equals("公休")) {
+                                            return true;
+                                        }
+                                    }
+                                    return false;
+                                }
+                        ).collect(Collectors.toList()).size() > 0;
+
+                        if (
+                                isVacation
+                        ) {
+                            return false;
                         }
 
+                        Boolean ifOFF = unavaliableList.stream().filter(sgbackup -> {
+                                    if (sgbackup.getUno().equals(sgruser.getUno())) {
+                                        if (sgbackup.getClsno().equals("OFF")) {
+                                            return true;
+                                        }
+                                    }
+                                    return false;
+                                }
+                        ).collect(Collectors.toList()).size() > 0;
+
+                        if(ifOFF){
+                            return false;
+                        }
+
+                        return true;
+                    }).collect(Collectors.toList()).iterator();
+
+                    List<Sgsys> sgsysList = sgsysRepository.findAll();
+                    int r55RoomOpen = 0;
+                    int r55NeedManpower = 0;
+                    int rd6Manpower = 0;
+                    int ra0Manpower = 0;
+                    int ra8Manpower = 0;
+                    int rdailyManpower = 0;
+                    for (Sgsys sgsys:sgsysList){
+                        switch (sgsys.getSkey()){
+                            case "r55RoomOpen" :
+                                r55RoomOpen = Integer.parseInt(sgsys.getVal());
+                                break;
+                            case "r55NeedManpower" :
+                                r55NeedManpower = Integer.parseInt(sgsys.getVal());
+                                break;
+                            case "rd6Manpower" :
+                                rd6Manpower = Integer.parseInt(sgsys.getVal());
+                                break;
+                            case "ra0Manpower" :
+                                ra0Manpower = Integer.parseInt(sgsys.getVal());
+                                break;
+                            case "ra8Manpower" :
+                                ra8Manpower = Integer.parseInt(sgsys.getVal());
+                                break;
+                            case "rdailyManpower" :
+                                rdailyManpower = Integer.parseInt(sgsys.getVal());
+                                break;
+                        }
+                    }
+                    for (Sgshift sgshift : sgshiftList) {
+                        int requireManpower = 0;
+                        switch (sgshift.getClsno()){
+                            case "55" :
+                                requireManpower = r55RoomOpen*r55NeedManpower;
+                                break;
+                            case "D6" :
+                                requireManpower = rd6Manpower;
+                                break;
+                            case "A0" :
+                                requireManpower = ra0Manpower;
+                                break;
+                            case "A8" :
+                                requireManpower = ra8Manpower;
+                                break;
+                            case "常日" :
+                                requireManpower = rdailyManpower;
+                                break;
+                        }
+                        for (int manpower = 1; manpower <= requireManpower; manpower++) {
+                            // 當非休假人員額度用完，則指派 OFF 班別人員出勤
+                            if (!avaliableIterator.hasNext()) {
+                                Iterator<Sgruser> unavaliableIterator = sgruserRepository.findAll().stream().filter(sgruser -> {
+                                    Boolean ifOFF = unavaliableList.stream().filter(sgbackup -> {
+                                                if (sgbackup.getUno().equals(sgruser.getUno())) {
+                                                    if (sgbackup.getClsno().equals("OFF")) {
+                                                        return true;
+                                                    }
+                                                }
+                                                return false;
+                                            }
+                                    ).collect(Collectors.toList()).size() > 0;
+                                    if (ifOFF) {
+                                        return true;
+                                    }
+                                    return false;
+                                }).collect(Collectors.toList()).iterator();
+                                avaliableIterator = unavaliableIterator;
+                            }
+                            sgresultList.add(new Sgresult(avaliableIterator.next().getUno(), currentDate, currentWeek, sgshift));
+                        }
                     }
                 }
             }
-
+        }
+        sgresultRepository.saveAll(sgresultList);
     }
 
     @GetMapping("/solve")
@@ -154,4 +252,6 @@ public class SchedulingController {
         solverManager.terminateEarly(SchedulingService.SINGLETON_TIME_TABLE_ID);
         return "Success";
     }
+
+
 }

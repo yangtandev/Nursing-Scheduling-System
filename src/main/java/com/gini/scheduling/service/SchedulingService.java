@@ -1,9 +1,6 @@
 package com.gini.scheduling.service;
 
-import com.gini.scheduling.dao.SgrroomRepository;
-import com.gini.scheduling.dao.SgruserRepository;
-import com.gini.scheduling.dao.SgresultRepository;
-import com.gini.scheduling.dao.SgsysRepository;
+import com.gini.scheduling.dao.*;
 import com.gini.scheduling.model.Scheduling;
 import com.gini.scheduling.model.Sgresult;
 import com.gini.scheduling.utils.UUIDGenerator;
@@ -14,11 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class SchedulingService {
-    //     There is only one timetable, so there is only timeTableId (= problemId).
-//    public static final String SINGLETON_TIME_TABLE_ID = new Sgruser().toString();
     public static final String SINGLETON_TIME_TABLE_ID = UUIDGenerator.generateUUID22();
     @Autowired
     private SgresultRepository sgresultRepository;
+    @Autowired
+    private SgshiftRepository sgshiftRepository;
     @Autowired
     private SgruserRepository sgruserRepository;
 
@@ -34,8 +31,8 @@ public class SchedulingService {
         }
         // Occurs in a single transaction, so each initialized schedule references the same
         // sgruser/sgresult instance
-        // that is contained by the timeTable's sgruserList/sgresultList.
-        return new Scheduling(sgresultRepository.findAll(), sgruserRepository.findAll());
+        // that is contained by the timeTable's sgruserList/sgresultList
+        return new Scheduling(sgresultRepository.findAll(), sgshiftRepository.findAll());
     }
 
     public void save(Scheduling scheduling) {

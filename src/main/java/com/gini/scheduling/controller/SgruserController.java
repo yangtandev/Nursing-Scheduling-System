@@ -53,9 +53,6 @@ public class SgruserController {
                 case "uissn":
                     sgruser.setUissn(Boolean.parseBoolean(entry.getValue()));
                     break;
-                case "udsb":
-                    sgruser.setUdsb(Boolean.parseBoolean(entry.getValue()));
-                    break;
             }
         }
         sgruserRepository.save(sgruser);
@@ -100,9 +97,6 @@ public class SgruserController {
                             break;
                         case "uissn":
                             sgruser.setUissn(Boolean.parseBoolean(entry.getValue()));
-                            break;
-                        case "udsb":
-                            sgruser.setUdsb(Boolean.parseBoolean(entry.getValue()));
                             break;
                     }
                 }

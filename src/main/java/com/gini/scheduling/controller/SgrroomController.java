@@ -37,11 +37,6 @@ public class SgrroomController {
             map.put("uno", sgrroom.getUno());
             map.put("schdate", String.valueOf(sgrroom.getSchdate()));
             map.put("rmname", sgrroom.getRmname());
-            for (Sgresult sgresult : sgresultList) {
-                if (sgrroom.getUno().equals(sgresult.getUno())){
-                    map.put("uname", sgresult.getUname());
-                }
-            }
             list.add(map);
         }
         return list;

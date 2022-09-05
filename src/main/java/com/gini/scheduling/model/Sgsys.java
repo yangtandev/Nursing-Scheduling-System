@@ -29,13 +29,6 @@ import javax.persistence.*;
 * 每天休假人數 ra0HolidayDay
 * end A0(00-08)
 
-* A8(12-20)
-* 每天所需人數 A 組 ra8ManpowerA
-* 每天所需人數 B 組 ra8ManpowerB
-* 每天所需人數 C 組 ra8ManpowerC
-* 每天休假人數 ra8HolidayDay
-* end A8(12-20)
-
 * 通用規則
 * 班與班之間最小時數 generalBetweenHour
 * end 通用規則
