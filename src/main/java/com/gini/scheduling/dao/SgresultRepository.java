@@ -1,5 +1,6 @@
 package com.gini.scheduling.dao;
 
+import com.gini.scheduling.config.SchemaConfig;
 import com.gini.scheduling.model.Sgresult;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,21 +15,21 @@ public interface SgresultRepository extends PagingAndSortingRepository<Sgresult,
     @Override
     List<Sgresult> findAll();
 
-    @Query(value = "SELECT COUNT(*) FROM sgresult WHERE schdate BETWEEN :startSchdate AND :endSchdate",
+    @Query(value = "SELECT COUNT(*) FROM "+ SchemaConfig.schema +".sgresult WHERE schdate BETWEEN :startSchdate AND :endSchdate",
             nativeQuery = true)
     int findCountByDate(
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT * FROM sgresult WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
+    @Query(value = "SELECT * FROM "+SchemaConfig.schema+".sgresult WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
             nativeQuery = true)
     List<Sgresult> findAllByDate(
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT * FROM sgresult WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
+    @Query(value = "SELECT * FROM "+SchemaConfig.schema+".sgresult WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
             nativeQuery = true)
     List<Sgresult> findAllByUnoAndDate(
             @Param("uno") String uno,
@@ -38,7 +39,7 @@ public interface SgresultRepository extends PagingAndSortingRepository<Sgresult,
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE FROM sgresult WHERE schdate BETWEEN :startSchdate AND :endSchdate",
+    @Query(value = "DELETE FROM "+SchemaConfig.schema+".sgresult WHERE schdate BETWEEN :startSchdate AND :endSchdate",
             nativeQuery = true)
     void deleteALLByDate(
             @Param("startSchdate") LocalDate startSchdate,

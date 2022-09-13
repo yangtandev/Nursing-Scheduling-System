@@ -81,8 +81,8 @@ public class SchedulingController {
         List<Sgshift> sgshiftList = sgshiftRepository.findAll();
         List<Sgresult> sgresultList = new ArrayList<>();
         long monthsBetween = ChronoUnit.MONTHS.between(
-                LocalDate.parse(startSchdate.toString()),
-                LocalDate.parse(endSchdate.toString()).plusDays(1));
+            LocalDate.parse(startSchdate.toString()),
+            LocalDate.parse(endSchdate.toString()).plusDays(1));
 
         for (int i = 0; i < monthsBetween; i++) {
             LocalDate currentMonth = startSchdate.plusMonths(i);
@@ -100,60 +100,43 @@ public class SchedulingController {
 
                 for (int dateIndex = 0; dateIndex < totalDates; dateIndex++) {
                     LocalDate currentDate = startDate.plusDays(dateIndex);
-
-                    // 預設每日所有人為 OFF
-                    for (Sgruser sgruser : sgruserList) {
-                        Boolean isVacation = unavaliableList.stream().filter(sgbackup -> {
-                                    if (sgbackup.getUno().equals(sgruser.getUno())) {
-                                        if (sgbackup.getClsno().equals("公休")) {
-                                            return true;
-                                        }
-                                    }
-                                    return false;
-                                }
-                        ).collect(Collectors.toList()).size() > 0;
-                        if (isVacation) {
-                            sgresultList.add(new Sgresult(sgruser.getUno(), currentDate, currentWeek, new Sgshift("公休")));
-                        } else {
+                    Iterator<Sgruser> avaliableIterator;
+                    // 判斷有無休假紀錄
+                    if (unavaliableList.size() > 0) {
+                        // 預設每日所有人為 OFF，如有排公休則予以公休。
+                        for (Sgruser sgruser : sgruserList) {
+                            Boolean isVacation = unavaliableList
+                                .stream()
+                                .filter(sgbackup -> sgbackup.getUno().equals(sgruser.getUno()) && sgbackup.getClsno().equals("公休"))
+                                .collect(Collectors.toList())
+                                .size() > 0;
+                            if (isVacation) {
+                                sgresultList.add(new Sgresult(sgruser.getUno(), currentDate, currentWeek, new Sgshift("公休")));
+                            } else {
+                                sgresultList.add(new Sgresult(sgruser.getUno(), currentDate, currentWeek, new Sgshift("OFF")));
+                            }
+                        }
+                        // 參考預約休假名單，過濾休假人員，以獲取可出勤人員名單
+                        avaliableIterator = sgruserRepository
+                            .findAll()
+                            .stream()
+                            .filter(sgruser ->
+                                unavaliableList
+                                    .stream()
+                                    .filter(sgbackup -> sgbackup.getUno().equals(sgruser.getUno()) && (sgbackup.getClsno().equals("OFF") || sgbackup.getClsno().equals("公休")))
+                                    .collect(Collectors.toList())
+                                    .size() == 0
+                            )
+                            .collect(Collectors.toList())
+                            .iterator();
+                    } else {
+                        // 預設每日所有人為 OFF
+                        for (Sgruser sgruser : sgruserList) {
                             sgresultList.add(new Sgresult(sgruser.getUno(), currentDate, currentWeek, new Sgshift("OFF")));
                         }
+                        avaliableIterator = sgruserRepository.findAll().iterator();
                     }
-
-                    // 參考預約休假名單，過濾休假人員，並為公休人員的班表由"OFF"修改成"公休"
-                    Iterator<Sgruser> avaliableIterator = sgruserRepository.findAll().stream().filter(sgruser -> {
-                        Boolean isVacation = unavaliableList.stream().filter(sgbackup -> {
-                                    if (sgbackup.getUno().equals(sgruser.getUno())) {
-                                        if (sgbackup.getClsno().equals("公休")) {
-                                            return true;
-                                        }
-                                    }
-                                    return false;
-                                }
-                        ).collect(Collectors.toList()).size() > 0;
-
-                        if (
-                                isVacation
-                        ) {
-                            return false;
-                        }
-
-                        Boolean ifOFF = unavaliableList.stream().filter(sgbackup -> {
-                                    if (sgbackup.getUno().equals(sgruser.getUno())) {
-                                        if (sgbackup.getClsno().equals("OFF")) {
-                                            return true;
-                                        }
-                                    }
-                                    return false;
-                                }
-                        ).collect(Collectors.toList()).size() > 0;
-
-                        if(ifOFF){
-                            return false;
-                        }
-
-                        return true;
-                    }).collect(Collectors.toList()).iterator();
-
+                    // 獲取排班設定
                     List<Sgsys> sgsysList = sgsysRepository.findAll();
                     int r55RoomOpen = 0;
                     int r55NeedManpower = 0;
@@ -161,68 +144,72 @@ public class SchedulingController {
                     int ra0Manpower = 0;
                     int ra8Manpower = 0;
                     int rdailyManpower = 0;
-                    for (Sgsys sgsys:sgsysList){
-                        switch (sgsys.getSkey()){
-                            case "r55RoomOpen" :
+                    for (Sgsys sgsys : sgsysList) {
+                        switch (sgsys.getSkey()) {
+                            case "r55RoomOpen":
                                 r55RoomOpen = Integer.parseInt(sgsys.getVal());
                                 break;
-                            case "r55NeedManpower" :
+                            case "r55NeedManpower":
                                 r55NeedManpower = Integer.parseInt(sgsys.getVal());
                                 break;
-                            case "rd6Manpower" :
+                            case "rd6Manpower":
                                 rd6Manpower = Integer.parseInt(sgsys.getVal());
                                 break;
-                            case "ra0Manpower" :
+                            case "ra0Manpower":
                                 ra0Manpower = Integer.parseInt(sgsys.getVal());
                                 break;
-                            case "ra8Manpower" :
+                            case "ra8Manpower":
                                 ra8Manpower = Integer.parseInt(sgsys.getVal());
                                 break;
-                            case "rdailyManpower" :
+                            case "rdailyManpower":
                                 rdailyManpower = Integer.parseInt(sgsys.getVal());
                                 break;
                         }
                     }
+                    // 計算每日各班別出勤人數
                     for (Sgshift sgshift : sgshiftList) {
                         int requireManpower = 0;
-                        switch (sgshift.getClsno()){
-                            case "55" :
-                                requireManpower = r55RoomOpen*r55NeedManpower;
+                        switch (sgshift.getClsno()) {
+                            case "55":
+                                requireManpower = r55RoomOpen * r55NeedManpower;
                                 break;
-                            case "D6" :
+                            case "D6":
                                 requireManpower = rd6Manpower;
                                 break;
-                            case "A0" :
+                            case "A0":
                                 requireManpower = ra0Manpower;
                                 break;
-                            case "A8" :
+                            case "A8":
                                 requireManpower = ra8Manpower;
                                 break;
-                            case "常日" :
+                            case "常日":
                                 requireManpower = rdailyManpower;
                                 break;
                         }
+                        // 指派人員出勤到各班別
                         for (int manpower = 1; manpower <= requireManpower; manpower++) {
+                            String currentUno = avaliableIterator.next().getUno();
                             // 當非休假人員額度用完，則指派 OFF 班別人員出勤
                             if (!avaliableIterator.hasNext()) {
-                                Iterator<Sgruser> unavaliableIterator = sgruserRepository.findAll().stream().filter(sgruser -> {
-                                    Boolean ifOFF = unavaliableList.stream().filter(sgbackup -> {
-                                                if (sgbackup.getUno().equals(sgruser.getUno())) {
-                                                    if (sgbackup.getClsno().equals("OFF")) {
-                                                        return true;
-                                                    }
-                                                }
-                                                return false;
-                                            }
-                                    ).collect(Collectors.toList()).size() > 0;
-                                    if (ifOFF) {
-                                        return true;
-                                    }
-                                    return false;
-                                }).collect(Collectors.toList()).iterator();
-                                avaliableIterator = unavaliableIterator;
+                                avaliableIterator = sgruserRepository
+                                    .findAll()
+                                    .stream()
+                                    .filter(sgruser ->
+                                        sgresultList
+                                            .stream()
+                                            .filter(sgresult -> sgresult.getUno().equals(sgruser.getUno()) && sgresult.getSgshift().getClsno().equals("OFF"))
+                                            .collect(Collectors.toList())
+                                            .size() > 0
+                                    )
+                                    .collect(Collectors.toList())
+                                    .iterator();
                             }
-                            sgresultList.add(new Sgresult(avaliableIterator.next().getUno(), currentDate, currentWeek, sgshift));
+                            // 更新排班結果表
+                            for (int sgresultIndex = 0; sgresultIndex < sgresultList.size(); sgresultIndex++) {
+                                if (sgresultList.get(sgresultIndex).getUno().equals(currentUno)) {
+                                    sgresultList.get(sgresultIndex).setSgshift(sgshift);
+                                }
+                            }
                         }
                     }
                 }
@@ -237,8 +224,8 @@ public class SchedulingController {
         this.backupSgsch(startSchdate, endSchdate);
         this.init(startSchdate, endSchdate);
         solverManager.solveAndListen(SchedulingService.SINGLETON_TIME_TABLE_ID,
-                schedulingService::findById,
-                schedulingService::save);
+            schedulingService::findById,
+            schedulingService::save);
         this.syncSgsch(startSchdate, endSchdate);
         return "Success";
     }

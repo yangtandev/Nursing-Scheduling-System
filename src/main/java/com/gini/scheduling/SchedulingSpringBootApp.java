@@ -39,9 +39,9 @@ public class SchedulingSpringBootApp extends SpringBootServletInitializer {
 //                List<Sgruser> sgruserList = sgruserRepository.findAll();
 //                List<Sgruser> newSgruserList = new ArrayList<>();
 //                for (int i = 0; i<sgruserList.size(); i++) {
-//                    if(i>=0 && i<30){
+//                    if(i>=0 && i<15){
 //                        sgruserList.get(i).setUteam("A");
-//                    }else if (i>=30 && i<60){
+//                    }else if (i>=15 && i<30){
 //                        sgruserList.get(i).setUteam("B");
 //                    }else{
 //                        sgruserList.get(i).setUteam("C");
@@ -52,9 +52,10 @@ public class SchedulingSpringBootApp extends SpringBootServletInitializer {
 //            }
             // 自動帶入系統設定
             if (sgsysRepository.findCount() == 0) {
+                List<Sgsys> sgsysList = new ArrayList<>();
                 Map<String, String> sgsys = new HashMap<>();
                 // 55(8-16)
-                sgsys.put("r55RoomOpen", "12");
+                sgsys.put("r55RoomOpen", "15");
                 sgsys.put("r55NeedManpower", "2");
                 sgsys.put("r55HolidayDay", "2");
                 sgsys.put("r55HolidayA", "1");
@@ -75,20 +76,23 @@ public class SchedulingSpringBootApp extends SpringBootServletInitializer {
                 // A8(12-20)
                 sgsys.put("ra8Manpower", "2");
                 // 常日
-                sgsys.put("rdailyManpower", "4");
+                sgsys.put("rdailyManpower", "2");
                 // 通用規則
                 sgsys.put("generalBetweenHour", "11");
 
                 for (Map.Entry<String, String> entry : sgsys.entrySet()) {
-                    sgsysRepository.save(new Sgsys(entry.getKey(), entry.getValue()));
+                    sgsysList.add(new Sgsys(entry.getKey(), entry.getValue()));
                 }
+                sgsysRepository.saveAll(sgsysList);
 
                 // 自動帶入班別
+                List<Sgshift> sgshiftList = new ArrayList<>();
                 String[] clsnoArray = new String[] {
                         "55", "D6", "A0", "A8", "常日" };
                 for (String clsno : clsnoArray) {
-                    sgshiftRepository.save(new Sgshift(clsno));
+                    sgshiftList.add(new Sgshift(clsno));
                 }
+                sgshiftRepository.saveAll(sgshiftList);
             }
         };
     }

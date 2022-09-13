@@ -29,7 +29,7 @@ public class Sgresult {
     private int schweek;
 
     // 班別編號 55, D6, A0, A8, OFF, 公休
-    @PlanningVariable(valueRangeProviderRefs = "shiftRange")
+    @PlanningVariable(valueRangeProviderRefs = "sgshiftRange")
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumns(value = {
             @JoinColumn(name = "clsno", referencedColumnName = "clsno", columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT"),

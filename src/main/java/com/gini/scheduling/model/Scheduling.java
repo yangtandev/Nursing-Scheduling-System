@@ -12,7 +12,7 @@ import org.optaplanner.core.api.solver.SolverStatus;
 
 @PlanningSolution
 public class Scheduling {
-    @ValueRangeProvider(id = "shiftRange")
+    @ValueRangeProvider(id = "sgshiftRange")
     @ProblemFactCollectionProperty
     private List<Sgshift> sgshiftList;
 

@@ -5,12 +5,10 @@ import com.gini.scheduling.dao.SgruserRepository;
 import com.gini.scheduling.dao.SgsysRepository;
 import com.gini.scheduling.model.Sgresult;
 import com.gini.scheduling.model.Sgruser;
-import com.gini.scheduling.model.Sgsys;
 import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 import org.optaplanner.core.api.score.stream.Constraint;
 import org.optaplanner.core.api.score.stream.ConstraintFactory;
 import org.optaplanner.core.api.score.stream.ConstraintProvider;
-import org.optaplanner.core.api.score.stream.Joiners;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,7 @@ import java.time.temporal.ChronoField;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.optaplanner.core.api.score.stream.ConstraintCollectors.countDistinct;
+import static org.optaplanner.core.api.score.stream.Joiners.equal;
 
 public class SchedulingConstraintProvider implements ConstraintProvider {
     @Autowired
@@ -36,8 +34,8 @@ public class SchedulingConstraintProvider implements ConstraintProvider {
         return new Constraint[]{
 //                 Hard constraints
 //                sgresultConflict(constraintFactory),
-//                nameConflict(constraintFactory),
-                uteamConflict(constraintFactory),
+//                OFFConflict(constraintFactory),
+//                uteamConflict(constraintFactory),
 
 //                Soft constraints
 //                nameSgresultStability(constraintFactory),
@@ -90,12 +88,13 @@ public class SchedulingConstraintProvider implements ConstraintProvider {
 //                    return (10 * 60) - breakLength;
 //                });
 //    }
-//    Constraint nameConflict(ConstraintFactory constraintFactory) {
+//    Constraint OFFConflict(ConstraintFactory constraintFactory) {
 //        return constraintFactory
-//                .fromUniquePair(Sgresult.class,
-//                        Joiners.equal(Sgresult::getName),
-//                        Joiners.equal(Sgresult::getDate)
-//                ).filter((Sgresult1, Sgresult2) -> {
+//                .from(Sgresult.class)
+//                .join(Sgresult.class,
+//                        equal(Sgresult::getSchweek),
+//                        equal(Sgresult::getUno))
+//                .filter((Sgresult1, Sgresult2) -> {
 //                    if (Sgresult1.getSgruser().getId() == Sgresult2.getSgruser().getId()) {
 //                        return false;
 //                    }
@@ -104,44 +103,44 @@ public class SchedulingConstraintProvider implements ConstraintProvider {
 //                .penalize("Name conflict", HardSoftScore.ONE_HARD);
 //    }
 //
-    Constraint uteamConflict(ConstraintFactory constraintFactory) {
-        return constraintFactory
-                .fromUniquePair(Sgresult.class,
-                        Joiners.equal(Sgresult::getSgshift),
-                        Joiners.equal(Sgresult::getSchdate))
-                .filter((Sgresult1, Sgresult2) -> {
-                    List<Sgruser> sgruserList = sgruserRepository.findAll();
-                    String clsno = Sgresult1.getSgshift().getClsno();
-                    String clsno2 = Sgresult1.getSgshift().getClsno();
-                    logger.info(clsno+" "+clsno2);
-                    LocalDate schdate = Sgresult1.getSchdate();
-                    DayOfWeek day = DayOfWeek.of(schdate.get(ChronoField.DAY_OF_WEEK));
-                    Boolean isWeekend = day == DayOfWeek.SUNDAY || day == DayOfWeek.SATURDAY;
-                    if (
-                            clsno.equals("D6") ||
-                                    clsno.equals("A0") ||
-                                    (clsno.equals("55") && isWeekend)
-                    ) {
-                        String team1 = sgruserList
-                                .stream()
-                                .filter(sgruser -> sgruser.getUno().equals(Sgresult1.getUno()))
-                                .map(sgruser -> sgruser.getUteam())
-                                .collect(Collectors.toList())
-                                .get(0);
-                        String team2 = sgruserList
-                                .stream()
-                                .filter(sgruser -> sgruser.getUno().equals(Sgresult2.getUno()))
-                                .map(sgruser -> sgruser.getUteam())
-                                .collect(Collectors.toList())
-                                .get(0);
-                        if (team1.equals(team2)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                })
-                .penalize("Team conflict", HardSoftScore.ONE_HARD);
-    }
+//    Constraint uteamConflict(ConstraintFactory constraintFactory) {
+//        return constraintFactory
+//                .fromUniquePair(Sgresult.class,
+//                        equal(Sgresult::getSgshift),
+//                        equal(Sgresult::getSchdate))
+//                .filter((Sgresult1, Sgresult2) -> {
+//                    List<Sgruser> sgruserList = sgruserRepository.findAll();
+//                    String clsno = Sgresult1.getSgshift().getClsno();
+//                    String clsno2 = Sgresult1.getSgshift().getClsno();
+//                    logger.info(clsno+" "+clsno2);
+//                    LocalDate schdate = Sgresult1.getSchdate();
+//                    DayOfWeek day = DayOfWeek.of(schdate.get(ChronoField.DAY_OF_WEEK));
+//                    Boolean isWeekend = day == DayOfWeek.SUNDAY || day == DayOfWeek.SATURDAY;
+//                    if (
+//                            clsno.equals("D6") ||
+//                                    clsno.equals("A0") ||
+//                                    (clsno.equals("55") && isWeekend)
+//                    ) {
+//                        String team1 = sgruserList
+//                                .stream()
+//                                .filter(sgruser -> sgruser.getUno().equals(Sgresult1.getUno()))
+//                                .map(sgruser -> sgruser.getUteam())
+//                                .collect(Collectors.toList())
+//                                .get(0);
+//                        String team2 = sgruserList
+//                                .stream()
+//                                .filter(sgruser -> sgruser.getUno().equals(Sgresult2.getUno()))
+//                                .map(sgruser -> sgruser.getUteam())
+//                                .collect(Collectors.toList())
+//                                .get(0);
+//                        if (team1.equals(team2)) {
+//                            return true;
+//                        }
+//                    }
+//                    return false;
+//                })
+//                .penalize("Team conflict", HardSoftScore.ONE_HARD);
+//    }
 //
 //    Constraint nameSgresultStability(ConstraintFactory constraintFactory) {
 //        // A name prefers to teach in a single sgresult.
