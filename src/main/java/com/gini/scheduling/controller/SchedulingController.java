@@ -13,8 +13,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -79,6 +81,7 @@ public class SchedulingController {
 
         List<Sgruser> sgruserList = sgruserRepository.findAll();
         List<Sgshift> sgshiftList = sgshiftRepository.findAll();
+        List<Sgsys> sgsysList = sgsysRepository.findAll();
         List<Sgresult> sgresultList = new ArrayList<>();
         long monthsBetween = ChronoUnit.MONTHS.between(
             LocalDate.parse(startSchdate.toString()),
@@ -100,6 +103,8 @@ public class SchedulingController {
 
                 for (int dateIndex = 0; dateIndex < totalDates; dateIndex++) {
                     LocalDate currentDate = startDate.plusDays(dateIndex);
+                    DayOfWeek day = DayOfWeek.of(currentDate.get(ChronoField.DAY_OF_WEEK));
+                    Boolean isWeekend = day == DayOfWeek.SUNDAY || day == DayOfWeek.SATURDAY;
                     Iterator<Sgruser> avaliableIterator;
                     // 判斷有無休假紀錄
                     if (unavaliableList.size() > 0) {
@@ -137,7 +142,6 @@ public class SchedulingController {
                         avaliableIterator = sgruserRepository.findAll().iterator();
                     }
                     // 獲取排班設定
-                    List<Sgsys> sgsysList = sgsysRepository.findAll();
                     int r55RoomOpen = 0;
                     int r55NeedManpower = 0;
                     int rd6Manpower = 0;
@@ -169,22 +173,37 @@ public class SchedulingController {
                     // 計算每日各班別出勤人數
                     for (Sgshift sgshift : sgshiftList) {
                         int requireManpower = 0;
-                        switch (sgshift.getClsno()) {
-                            case "55":
-                                requireManpower = r55RoomOpen * r55NeedManpower;
-                                break;
-                            case "D6":
-                                requireManpower = rd6Manpower;
-                                break;
-                            case "A0":
-                                requireManpower = ra0Manpower;
-                                break;
-                            case "A8":
-                                requireManpower = ra8Manpower;
-                                break;
-                            case "常日":
-                                requireManpower = rdailyManpower;
-                                break;
+                        // 判斷是否為假日
+                        if (isWeekend) {
+                            switch (sgshift.getClsno()) {
+                                case "55":
+                                    requireManpower = 2;
+                                    break;
+                                case "D6":
+                                    requireManpower = rd6Manpower;
+                                    break;
+                                case "A0":
+                                    requireManpower = ra0Manpower;
+                                    break;
+                            }
+                        } else {
+                            switch (sgshift.getClsno()) {
+                                case "55":
+                                    requireManpower = r55RoomOpen * r55NeedManpower;
+                                    break;
+                                case "D6":
+                                    requireManpower = rd6Manpower;
+                                    break;
+                                case "A0":
+                                    requireManpower = ra0Manpower;
+                                    break;
+                                case "A8":
+                                    requireManpower = ra8Manpower;
+                                    break;
+                                case "常日":
+                                    requireManpower = rdailyManpower;
+                                    break;
+                            }
                         }
                         // 指派人員出勤到各班別
                         for (int manpower = 1; manpower <= requireManpower; manpower++) {
@@ -206,7 +225,7 @@ public class SchedulingController {
                             }
                             // 更新排班結果表
                             for (int sgresultIndex = 0; sgresultIndex < sgresultList.size(); sgresultIndex++) {
-                                if (sgresultList.get(sgresultIndex).getUno().equals(currentUno)) {
+                                if (sgresultList.get(sgresultIndex).getUno().equals(currentUno) && sgresultList.get(sgresultIndex).getSchdate().equals(currentDate)) {
                                     sgresultList.get(sgresultIndex).setSgshift(sgshift);
                                 }
                             }
