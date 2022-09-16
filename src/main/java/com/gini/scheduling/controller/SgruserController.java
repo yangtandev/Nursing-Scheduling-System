@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,11 +62,13 @@ public class SgruserController {
     @PostMapping("/sgrusers")
     public String postSgrusers(@RequestBody Map<String, String> sgrusersMap
     ) {
+    	List<Sgruser> sgruserList = new ArrayList<>();
         for (Map.Entry<String, String> entry : sgrusersMap.entrySet()) {
             String uno = entry.getKey();
             String uname = entry.getValue();
-            sgruserRepository.save(new Sgruser(uno, uname));
+            sgruserList.add(new Sgruser(uno, uname));
         }
+        sgruserRepository.saveAll(sgruserList);
         return "Success";
     }
 

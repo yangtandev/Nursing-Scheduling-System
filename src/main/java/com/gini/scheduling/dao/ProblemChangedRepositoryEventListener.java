@@ -2,6 +2,7 @@ package com.gini.scheduling.dao;
 
 import com.gini.scheduling.controller.SchedulingController;
 import com.gini.scheduling.model.Sgruser;
+import com.gini.scheduling.model.Sgshift;
 import com.gini.scheduling.model.Sgresult;
 import org.optaplanner.core.api.solver.SolverStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,13 @@ public class ProblemChangedRepositoryEventListener {
     @HandleBeforeSave
     @HandleBeforeDelete
     private void sgruserCreateSaveDelete(Sgruser sgruser) {
+        assertNotSolving();
+    }
+    
+    @HandleBeforeCreate
+    @HandleBeforeSave
+    @HandleBeforeDelete
+    private void sgshiftCreateSaveDelete(Sgshift sgshift) {
         assertNotSolving();
     }
 

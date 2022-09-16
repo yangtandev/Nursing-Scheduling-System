@@ -6,16 +6,14 @@ import java.util.Objects;
 
 
 public class SgbackupId implements Serializable {
-    private String uno;
-    private LocalDate schdate;
+    private String schuuid;
     private String hid;
 
     public SgbackupId() {
     }
 
-    public SgbackupId(String uno, LocalDate schdate, String hid) {
-        this.uno = uno;
-        this.schdate = schdate;
+    public SgbackupId(String schuuid, String hid) {
+        this.schuuid = schuuid;
         this.hid = hid;
     }
 
@@ -24,13 +22,12 @@ public class SgbackupId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SgbackupId sgbackupId = (SgbackupId) o;
-        return uno.equals(sgbackupId.uno) &&
-                schdate.equals(sgbackupId.schdate) &&
+        return schuuid.equals(sgbackupId.schuuid) &&
                 hid.equals(sgbackupId.hid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uno, schdate, hid);
+        return Objects.hash(schuuid, hid);
     }
 }

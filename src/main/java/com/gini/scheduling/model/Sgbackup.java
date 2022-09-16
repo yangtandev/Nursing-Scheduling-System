@@ -2,25 +2,32 @@ package com.gini.scheduling.model;
 
 
 import javax.persistence.*;
+
+import org.optaplanner.core.api.domain.lookup.PlanningId;
+
+import com.gini.scheduling.utils.UUIDGenerator;
+
 import java.time.LocalDate;
 
 // 人員排班備份表
 @Entity
-
-@IdClass(SgschId.class)
+@IdClass(SgbackupId.class)
 public class Sgbackup {
+	@PlanningId
+    @Id
+    @Column(columnDefinition = "CHAR(22) NOT NULL WITH DEFAULT")
+    private String schuuid = UUIDGenerator.generateUUID22();
+	
     // 使用者卡號
-    @Id
-    @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(005) NOT NULL WITH DEFAULT")
     private String uno;
-
+	
     // 排班日期 yyyy/MM/dd
-    @Id
     @Column(columnDefinition = "DATE NOT NULL WITH DEFAULT '0001-01-01'")
     private LocalDate schdate;
 
     // 班別編號 55, D6, A0, A8, OFF, 公休
-    @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(006) NOT NULL WITH DEFAULT")
     private String clsno;
 
     // 醫院代碼
@@ -55,6 +62,10 @@ public class Sgbackup {
     // Getters and setters
     // ************************************************************************
 
+    public String getSchuuid() {
+        return schuuid;
+    }
+    
     public LocalDate getSchdate() {
         return schdate;
     }

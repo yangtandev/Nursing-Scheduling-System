@@ -10,10 +10,11 @@ import java.util.List;
 public interface SgsysRepository extends PagingAndSortingRepository<Sgsys, String> {
 
     @Override
-    @Query(value = "SELECT * FROM "+SchemaConfig.schema+".sgsys ORDER BY skey",
+    @Query(value = "SELECT skey,val,hid FROM "+SchemaConfig.schema+".sgsys ORDER BY skey WITH UR",
             nativeQuery = true)
     List<Sgsys> findAll();
-    @Query(value = "SELECT COUNT(*) FROM "+SchemaConfig.schema+".sgsys",
+    
+    @Query(value = "SELECT COUNT(*) FROM "+SchemaConfig.schema+".sgsys WITH UR",
             nativeQuery = true)
     int findCount();
 }

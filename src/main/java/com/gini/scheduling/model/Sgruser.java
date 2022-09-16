@@ -1,6 +1,12 @@
 package com.gini.scheduling.model;
 
 
+import org.optaplanner.core.api.domain.lookup.PlanningId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gini.scheduling.controller.SgrroomController;
+
 import javax.persistence.*;
 
 // 人員主表
@@ -8,24 +14,25 @@ import javax.persistence.*;
 @IdClass(SgruserId.class)
 public class Sgruser {
     // 使用者卡號
+    @PlanningId
     @Id
-    @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(005) NOT NULL WITH DEFAULT")
     private String uno;
-
+    
     // 使用者姓名
-    @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(012) NOT NULL WITH DEFAULT")
     private String uname;
 
     // 使用者組別
-    @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(009) NOT NULL WITH DEFAULT")
     private String uteam;
 
     // 使用者角色
-    @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(009) NOT NULL WITH DEFAULT")
     private String urole;
 
     // 手術室號 R1~R12
-    @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(009) NOT NULL WITH DEFAULT")
     private String uopno;
 
     // 是否大夜 0 or 1
@@ -62,7 +69,7 @@ public class Sgruser {
         this.uisbn = false;
         this.uissn = false;
     }
-
+    
     public Sgruser(String uno, String uname, String uteam) {
         this.uno = uno.trim();
         this.uname = uname.trim();
@@ -73,7 +80,7 @@ public class Sgruser {
         this.uissn = false;
     }
 
-    public Sgruser(String uno, String uname, String uteam, String urole, String uopno, Boolean uisbn, Boolean uissn, Boolean udsb) {
+    public Sgruser(String uno, String uname, String uteam, String urole, String uopno, Boolean uisbn, Boolean uissn) {
         this.uno = uno.trim();
         this.uname = uname.trim();
         this.uteam = uteam.trim();

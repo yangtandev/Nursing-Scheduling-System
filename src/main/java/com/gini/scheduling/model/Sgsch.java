@@ -13,26 +13,26 @@ import java.time.LocalDate;
 public class Sgsch {
     // 使用者卡號
     @Id
-    @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(005) NOT NULL WITH DEFAULT")
     private String uno;
-
+    
     // 排班日期 yyyy/MM/dd
     @Id
     @Column(columnDefinition = "DATE NOT NULL WITH DEFAULT '0001-01-01'")
     private LocalDate schdate;
 
     // 班別編號 55, D6, A0, A8, OFF, 公休
-    @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(006) NOT NULL WITH DEFAULT")
     private String clsno;
 
     // 工作時數 0 or 8
     @Generated(GenerationTime.INSERT)
-    @Column(columnDefinition = "INTEGER NOT NULL WITH DEFAULT 8")
+    @Column(columnDefinition = "SMALLINT NOT NULL WITH DEFAULT 8")
     private int clspr;
 
     // 加班順序 0 (無加班) or 1~24
     @Generated(GenerationTime.INSERT)
-    @Column(columnDefinition = "INTEGER NOT NULL WITH DEFAULT 0")
+    @Column(columnDefinition = "SMALLINT NOT NULL WITH DEFAULT 0")
     private int overtime;
 
     // 醫院代碼

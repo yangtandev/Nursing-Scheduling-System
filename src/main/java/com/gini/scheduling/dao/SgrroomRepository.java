@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface SgrroomRepository extends PagingAndSortingRepository<Sgrroom, String> {
 
-    @Query(value = "SELECT * FROM "+ SchemaConfig.schema+".sgrroom WHERE schdate = ?1 ",
+    @Query(value = "SELECT uno,schdate,rmname,hid FROM "+ SchemaConfig.schema+".sgrroom WHERE schdate = ?1 WITH UR",
             nativeQuery = true)
     List<Sgrroom> findAllByDate(LocalDate schdate);
 

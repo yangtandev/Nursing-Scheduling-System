@@ -13,23 +13,25 @@ import java.util.List;
 
 public interface SgresultRepository extends PagingAndSortingRepository<Sgresult, String> {
     @Override
+    @Query(value = "SELECT schuuid,schdate,schweek,clsno,uno,clsnohid,clspr,overtime,hid FROM "+SchemaConfig.schema+".sgresult WITH UR",
+    nativeQuery = true)
     List<Sgresult> findAll();
 
-    @Query(value = "SELECT COUNT(*) FROM "+ SchemaConfig.schema +".sgresult WHERE schdate BETWEEN :startSchdate AND :endSchdate",
+    @Query(value = "SELECT COUNT(*) FROM "+ SchemaConfig.schema +".sgresult WHERE schdate BETWEEN :startSchdate AND :endSchdate WITH UR",
             nativeQuery = true)
     int findCountByDate(
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT * FROM "+SchemaConfig.schema+".sgresult WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
+    @Query(value = "SELECT schuuid,schdate,schweek,clsno,uno,clsnohid,clspr,overtime,hid FROM "+SchemaConfig.schema+".sgresult WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate WITH UR",
             nativeQuery = true)
     List<Sgresult> findAllByDate(
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT * FROM "+SchemaConfig.schema+".sgresult WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
+    @Query(value = "SELECT schuuid,schdate,schweek,clsno,uno,clsnohid,clspr,overtime,hid FROM "+SchemaConfig.schema+".sgresult WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate WITH UR",
             nativeQuery = true)
     List<Sgresult> findAllByUnoAndDate(
             @Param("uno") String uno,
@@ -45,5 +47,6 @@ public interface SgresultRepository extends PagingAndSortingRepository<Sgresult,
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
+
 
 }

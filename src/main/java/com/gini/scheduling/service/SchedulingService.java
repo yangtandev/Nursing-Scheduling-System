@@ -1,38 +1,64 @@
 package com.gini.scheduling.service;
 
+import com.gini.scheduling.controller.SgrroomController;
 import com.gini.scheduling.dao.*;
 import com.gini.scheduling.model.Scheduling;
+import com.gini.scheduling.model.Sgbackup;
 import com.gini.scheduling.model.Sgresult;
+import com.gini.scheduling.model.Sgruser;
 import com.gini.scheduling.utils.UUIDGenerator;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional
 public class SchedulingService {
-    public static final String SINGLETON_TIME_TABLE_ID = UUIDGenerator.generateUUID22();
+    public static final String PROBLEM_ID = UUIDGenerator.generateUUID22();
     @Autowired
     private SgresultRepository sgresultRepository;
     @Autowired
     private SgshiftRepository sgshiftRepository;
     @Autowired
     private SgruserRepository sgruserRepository;
-
     @Autowired
     private SgrroomRepository sgrroomRepository;
-
     @Autowired
     private SgsysRepository sgsysRepository;
+    @Autowired
+    private SgbackupRepository sgbackupRepository;
 
+    private LocalDate startSchdate;
+    private LocalDate endSchdate;
+    private List<Sgruser> sgruserList;
+    private List<String> sgshiftList;
+    private List<Sgbackup> sgbackupList;
+    private List<Sgresult> sgresultList;
+    
+    public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
+    
     public Scheduling findById(String id) {
-        if (!SINGLETON_TIME_TABLE_ID.equals(id)) {
+        if (!PROBLEM_ID.equals(id)) {
             throw new IllegalStateException("There is no timeTable with id (" + id + ").");
         }
-        // Occurs in a single transaction, so each initialized schedule references the same
-        // sgruser/sgresult instance
-        // that is contained by the timeTable's sgruserList/sgresultList
-        return new Scheduling(sgresultRepository.findAll(), sgshiftRepository.findAll());
+        setSgruserList();
+        setSgshiftList();
+        setSgbackupList();
+        setSgresultList();
+        return new Scheduling(
+        		sgruserList, 
+        		sgshiftList,
+        		sgbackupList,
+        		sgresultList);
     }
 
     public void save(Scheduling scheduling) {
@@ -41,4 +67,41 @@ public class SchedulingService {
             sgresultRepository.save(sgresult);
         }
     }
+
+	public void setSchdate(LocalDate startSchdate, LocalDate endSchdate) {
+		this.startSchdate = startSchdate;
+		this.endSchdate = endSchdate;
+	}
+
+	public List<Sgruser> getSgruserList() {
+		return sgruserList;
+	}
+
+	public void setSgruserList() {
+		this.sgruserList = sgruserRepository.findAll();
+	}
+
+	public List<String> getSgshiftList() {
+		return sgshiftList;
+	}
+
+	public void setSgshiftList() {
+		this.sgshiftList = sgshiftRepository.findAll().stream().map(sgshift->sgshift.getClsno()).collect(Collectors.toList());
+	}
+
+	public List<Sgbackup> getSgbackupList() {
+		return sgbackupList;
+	}
+
+	public void setSgbackupList() {
+		this.sgbackupList = sgbackupRepository.findAll();
+	}
+	
+	public List<Sgresult> getSgresultList() {
+		return sgresultList;
+	}
+
+	public void setSgresultList() {
+		this.sgresultList = sgresultRepository.findAllByDate(this.startSchdate,this.endSchdate);
+	}
 }

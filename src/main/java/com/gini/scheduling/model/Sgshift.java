@@ -1,3 +1,5 @@
+
+
 package com.gini.scheduling.model;
 
 import org.optaplanner.core.api.domain.lookup.PlanningId;
@@ -13,11 +15,11 @@ import java.time.LocalDate;
 @IdClass(SgshiftId.class)
 public class Sgshift {
     // 班別編號 55, D6, A0, A8, OFF, 公休
-    @PlanningId
+	@PlanningId
     @Id
-    @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(006) NOT NULL WITH DEFAULT")
     private String clsno;
-
+	
     // 醫院代碼
     @Id
     @Column(columnDefinition = "CHAR(003) NOT NULL CHECK (HID NOT IN ('   '))")

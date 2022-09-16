@@ -12,16 +12,16 @@ import java.time.LocalDate;
 public class Sgrroom {
     // 使用者卡號
     @Id
-    @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(005) NOT NULL WITH DEFAULT")
     private String uno;
-
+    
     // 排班日期 yyyy/MM/dd
     @Id
     @Column(columnDefinition = "DATE NOT NULL WITH DEFAULT '0001-01-01'")
     private LocalDate schdate;
 
     // 手術室號 R1~R12
-    @Column(columnDefinition = "CHAR(10) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(009) NOT NULL WITH DEFAULT")
     private String rmname;
 
     // 醫院代碼

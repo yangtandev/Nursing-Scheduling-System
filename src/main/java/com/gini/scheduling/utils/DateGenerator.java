@@ -7,7 +7,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gini.scheduling.controller.SgrroomController;
+
 public class DateGenerator {
+	
+	public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
     /**
      * 獲取當前時間所在月有多少週
      *
@@ -15,11 +22,13 @@ public class DateGenerator {
      * @return weeks
      */
     public int weeksOfMonth(String year, String month) {
-        Calendar c = Calendar.getInstance();
-        c.set(Calendar.YEAR, Integer.parseInt(year));
-        c.set(Calendar.MONTH, Integer.parseInt(month));
-        c.setFirstDayOfWeek(Calendar.MONDAY);
-        return c.WEEK_OF_MONTH;
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, Integer.parseInt(year));
+        calendar.set(Calendar.MONTH, Integer.parseInt(month)-1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        int numOfWeeksInMonth = calendar.getActualMaximum(Calendar.WEEK_OF_MONTH); 
+        return numOfWeeksInMonth;
     }
 
     //算出所在周的周日

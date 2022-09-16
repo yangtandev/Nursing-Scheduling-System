@@ -66,7 +66,7 @@ public class SgresultController {
         LocalDate date = LocalDate.parse(schdate, dateTimeFormatter);
         Sgresult sgresult = sgresultRepository.findAllByUnoAndDate(uno, date, date).get(0);
         sgresult.setSchdate(date);
-        sgresult.setSgshift(new Sgshift(clsno));
+        sgresult.setClsno(clsno);
         sgresultRepository.save(sgresult);
         return "Success";
     }

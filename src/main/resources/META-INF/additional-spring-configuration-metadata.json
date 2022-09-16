@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "server.undertow.io-threads",
+    "type": "java.lang.String",
+    "description": "A description for 'server.undertow.io-threads'"
+  },
+  {
+    "name": "server.undertow.worker-threads",
+    "type": "java.lang.String",
+    "description": "A description for 'server.undertow.worker-threads'"
+  }
+]}

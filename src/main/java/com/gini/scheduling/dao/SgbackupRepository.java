@@ -13,23 +13,25 @@ import java.util.List;
 
 public interface SgbackupRepository extends PagingAndSortingRepository<Sgbackup, String> {
     @Override
+    @Query(value = "SELECT schuuid,uno,schdate,clsno,hid FROM "+ SchemaConfig.schema+".sgbackup WITH UR",
+    nativeQuery = true)
     List<Sgbackup> findAll();
 
-    @Query(value = "SELECT COUNT(*) FROM "+ SchemaConfig.schema+".sgbackup WHERE schdate BETWEEN :startSchdate AND :endSchdate",
+    @Query(value = "SELECT COUNT(*) FROM "+ SchemaConfig.schema+".sgbackup WHERE schdate BETWEEN :startSchdate AND :endSchdate WITH UR",
             nativeQuery = true)
     int findCountByDate(
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT * FROM "+SchemaConfig.schema+".sgbackup WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
+    @Query(value = "SELECT schuuid,uno,schdate,clsno,hid FROM "+SchemaConfig.schema+".sgbackup WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate WITH UR",
             nativeQuery = true)
     List<Sgbackup> findAllByDate(
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT * FROM "+SchemaConfig.schema+".sgbackup WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate",
+    @Query(value = "SELECT schuuid,uno,schdate,clsno,hid FROM "+SchemaConfig.schema+".sgbackup WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate WITH UR",
             nativeQuery = true)
     List<Sgbackup> findAllByUnoAndDate(
             @Param("uno") String uno,

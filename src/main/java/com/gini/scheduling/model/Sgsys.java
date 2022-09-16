@@ -42,9 +42,9 @@ public class Sgsys {
     @Id
     @Column(columnDefinition = "CHAR(20) NOT NULL WITH DEFAULT")
     private String skey;
-
+    
     // table key值對應內容
-    @Column(columnDefinition = "CHAR(20) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(002) NOT NULL WITH DEFAULT")
     private String val;
 
     // 醫院代碼
