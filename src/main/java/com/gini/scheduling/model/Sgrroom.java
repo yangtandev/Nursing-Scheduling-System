@@ -29,11 +29,6 @@ public class Sgrroom {
     @Column(columnDefinition = "CHAR(003) NOT NULL CHECK (HID NOT IN ('   '))")
     private String hid = "2A0";
 
-    // 更新時間
-//    @Generated(GenerationTime.ALWAYS)
-//    @Column(columnDefinition = "GENERATED ALWAYS FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP NOT NULL", insertable = false, updatable = false)
-//    private Timestamp zrroom;
-
     public Sgrroom() {
     }
 
@@ -83,12 +78,4 @@ public class Sgrroom {
     public void setHid(String hid) {
         this.hid = hid.trim();
     }
-
-//    public Timestamp getZrroom() {
-//        return zrroom;
-//    }
-//
-//    public void setZrroom(Timestamp zrroom) {
-//        this.zrroom = zrroom;
-//    }
 }

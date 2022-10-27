@@ -23,7 +23,7 @@ public class SgschController {
 
     @Autowired
     private SgruserRepository sgruserRepository;
-    public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
+    public static final Logger logger = LoggerFactory.getLogger(SgschController.class);
     @GetMapping("/sgsch")
     public List<Sgsch> getSgsch(
             @RequestParam String uno,

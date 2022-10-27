@@ -20,7 +20,7 @@ import com.gini.scheduling.utils.*;
  * 從12月1號起計算一年中的假期
  */
 public class VacationDayCalculate {
-	public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
+	public static final Logger logger = LoggerFactory.getLogger(VacationDayCalculate.class);
 	// 3天節假日規則=節日在周幾，放假日在周幾_放假之前的多少天上班_放假後的多少天上班;
 	private String vacationWeek = "1,6-7-1_0_0;2,7-1-2_1_0;3,1-2-3_2_0;4,4-5-6_0_1;5,5-6-7_0_0;6,6-7-1_0_0;7,6-7-1_0_0";
 

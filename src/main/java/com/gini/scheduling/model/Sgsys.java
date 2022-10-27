@@ -52,11 +52,6 @@ public class Sgsys {
     @Column(columnDefinition = "CHAR(003) NOT NULL CHECK (HID NOT IN ('   '))")
     private String hid = "2A0";
 
-    // 更新時間
-//    @Generated(GenerationTime.ALWAYS)
-//    @Column(columnDefinition = "GENERATED ALWAYS FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP NOT NULL",insertable=false,updatable=false)
-//    private Timestamp zsys;
-
     public Sgsys() {
     }
 
@@ -95,12 +90,4 @@ public class Sgsys {
     public void setHid(String hid) {
         this.hid = hid.trim();
     }
-
-//    public Timestamp getZrroom() {
-//        return zsys;
-//    }
-//
-//    public void setZrroom(Timestamp zsys) {
-//        this.zsys = zsys;
-//    }
 }

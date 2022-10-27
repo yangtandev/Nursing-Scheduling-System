@@ -40,23 +40,20 @@ public class SchedulingService {
     private LocalDate startSchdate;
     private LocalDate endSchdate;
     private List<Sgruser> sgruserList;
-    private List<String> sgshiftList;
     private List<Sgbackup> sgbackupList;
     private List<Sgresult> sgresultList;
     
-    public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
+    public static final Logger logger = LoggerFactory.getLogger(SchedulingService.class);
     
     public Scheduling findById(String id) {
         if (!PROBLEM_ID.equals(id)) {
             throw new IllegalStateException("There is no timeTable with id (" + id + ").");
         }
         setSgruserList();
-        setSgshiftList();
         setSgbackupList();
         setSgresultList();
         return new Scheduling(
         		sgruserList, 
-        		sgshiftList,
         		sgbackupList,
         		sgresultList);
     }
@@ -79,14 +76,6 @@ public class SchedulingService {
 
 	public void setSgruserList() {
 		this.sgruserList = sgruserRepository.findAll();
-	}
-
-	public List<String> getSgshiftList() {
-		return sgshiftList;
-	}
-
-	public void setSgshiftList() {
-		this.sgshiftList = sgshiftRepository.findAll().stream().map(sgshift->sgshift.getClsno()).collect(Collectors.toList());
 	}
 
 	public List<Sgbackup> getSgbackupList() {

@@ -19,7 +19,7 @@ import java.util.Map;
 public class SgsysController {
     @Autowired
     private SgsysRepository sgsysRepository;
-    public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
+    public static final Logger logger = LoggerFactory.getLogger(SgsysController.class);
     @GetMapping
     public List<Sgsys> getSgsys(
     )throws EntityNotFoundException {

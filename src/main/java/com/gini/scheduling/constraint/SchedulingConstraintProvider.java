@@ -27,7 +27,7 @@ import static org.optaplanner.core.api.score.stream.Joiners.equal;
 import static org.optaplanner.core.api.score.stream.Joiners.filtering;
 
 public class SchedulingConstraintProvider implements ConstraintProvider {
-    public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
+    public static final Logger logger = LoggerFactory.getLogger(SchedulingConstraintProvider.class);
 
 //	private int level1 = 10;
 //	private int level2 = level1 * level1;
@@ -49,12 +49,12 @@ public class SchedulingConstraintProvider implements ConstraintProvider {
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[]{
 //            UnoAndUteamConstraint(constraintFactory),
-////            daysOffInTheWeekConstraint(constraintFactory),
+//            daysOffInTheWeekConstraint(constraintFactory),
 //            daysOffInTheMonthConstraint(constraintFactory),
 //            atLeastOneFullWeekendConstraint(constraintFactory),
 //            atLeast15daysPerMonthConstraint(constraintFactory),
 //            clsnoConstraint(constraintFactory),
-////            fourDaysPerCourseConstraint(constraintFactory),
+//            fourDaysPerCourseConstraint(constraintFactory),
         };
     }
 
@@ -256,44 +256,5 @@ public class SchedulingConstraintProvider implements ConstraintProvider {
                 return false;
             })
             .penalize("Clsno constraint", HardSoftScore.ofHard(level5));
-    }
-
-    Constraint fourDaysPerCourseConstraint(ConstraintFactory constraintFactory) {
-        return constraintFactory
-            .from(Sgresult.class)
-            .join(Sgresult.class)
-            .join(Sgresult.class)
-            .join(Sgresult.class)
-            .filter((Sgresult1, Sgresult2, Sgresult3, Sgresult4) -> {
-                logger.info("Sgresult1 {} {} {}", Sgresult1.getSchdate(), Sgresult1.getUno(), Sgresult1.getClsno());
-                logger.info("Sgresult2 {} {} {}", Sgresult2.getSchdate(), Sgresult2.getUno(), Sgresult2.getClsno());
-                logger.info("Sgresult3 {} {} {}", Sgresult3.getSchdate(), Sgresult3.getUno(), Sgresult3.getClsno());
-                logger.info("Sgresult4 {} {} {}", Sgresult4.getSchdate(), Sgresult4.getUno(), Sgresult4.getClsno());
-                return false;
-//                LocalDate currentDate = Sgresult1.getSchdate();
-//                int currentMonth = currentDate.getMonthValue();
-//                String currentUno = Sgresult1.getUno();
-//                Boolean allInTheSameMonth = Sgresult2.getSchdate().getMonthValue() == currentMonth
-//                    && Sgresult3.getSchdate().getMonthValue() == currentMonth
-//                    && Sgresult4.getSchdate().getMonthValue() == currentMonth;
-//                Boolean allUnoAreTheSame = Sgresult2.getUno().equals(currentUno)
-//                    && Sgresult3.getUno().equals(currentUno)
-//                    && Sgresult4.getUno().equals(currentUno);
-//                Boolean allSchdateAreCorrect = Sgresult2.getSchdate().minusDays(1).equals(currentDate)
-//                    && Sgresult3.getSchdate().minusDays(2).equals(currentDate)
-//                    && Sgresult4.getSchdate().minusDays(3).equals(currentDate);
-//                Boolean allClsnoAreA0 = Sgresult1.getClsno().equals("A0")
-//                    && Sgresult2.getClsno().equals("A0")
-//                    && Sgresult3.getClsno().equals("A0")
-//                    && Sgresult4.getClsno().equals("A0");
-//                if(allInTheSameMonth && allUnoAreTheSame && allSchdateAreCorrect && allClsnoAreA0){
-//                    logger.info("Sgresult1 {} {} {}",Sgresult1.getSchdate(),Sgresult1.getUno(),Sgresult1.getClsno());
-//                    logger.info("Sgresult2 {} {} {}",Sgresult2.getSchdate(),Sgresult2.getUno(),Sgresult2.getClsno());
-//                    logger.info("Sgresult3 {} {} {}",Sgresult3.getSchdate(),Sgresult3.getUno(),Sgresult3.getClsno());
-//                    logger.info("Sgresult4 {} {} {}",Sgresult4.getSchdate(),Sgresult4.getUno(),Sgresult4.getClsno());
-//                }
-//                return !(allInTheSameMonth && allUnoAreTheSame && allSchdateAreCorrect && allClsnoAreA0);
-            })
-            .penalize("Four days per course constraint", HardSoftScore.ofHard(level1));
     }
 }

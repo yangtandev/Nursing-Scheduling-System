@@ -15,7 +15,6 @@ import java.time.LocalDate;
 @IdClass(SgshiftId.class)
 public class Sgshift {
     // 班別編號 55, D6, A0, A8, OFF, 公休
-	@PlanningId
     @Id
     @Column(columnDefinition = "CHAR(006) NOT NULL WITH DEFAULT")
     private String clsno;

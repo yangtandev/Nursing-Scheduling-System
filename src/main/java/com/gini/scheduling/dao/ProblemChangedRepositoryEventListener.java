@@ -35,13 +35,6 @@ public class ProblemChangedRepositoryEventListener {
     @HandleBeforeCreate
     @HandleBeforeSave
     @HandleBeforeDelete
-    private void sgshiftCreateSaveDelete(Sgshift sgshift) {
-        assertNotSolving();
-    }
-
-    @HandleBeforeCreate
-    @HandleBeforeSave
-    @HandleBeforeDelete
     private void sgresultCreateSaveDelete(Sgresult sgresult) {
         assertNotSolving();
     }

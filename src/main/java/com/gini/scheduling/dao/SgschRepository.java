@@ -47,4 +47,14 @@ public interface SgschRepository extends PagingAndSortingRepository<Sgsch, Strin
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM "+SchemaConfig.schema+".sgsch WHERE schdate BETWEEN :startSchdate AND :endSchdate AND uno = :uno",
+        nativeQuery = true)
+    void deleteALLByDateAndUno(
+        @Param("startSchdate") LocalDate startSchdate,
+        @Param("endSchdate") LocalDate endSchdate,
+        @Param("uno") String uno
+    );
 }

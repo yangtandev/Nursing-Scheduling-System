@@ -26,12 +26,12 @@ public class Sgsch {
     private String clsno;
 
     // 工作時數 0 or 8
-    @Generated(GenerationTime.INSERT)
+
     @Column(columnDefinition = "SMALLINT NOT NULL WITH DEFAULT 8")
     private int clspr;
 
     // 加班順序 0 (無加班) or 1~24
-    @Generated(GenerationTime.INSERT)
+
     @Column(columnDefinition = "SMALLINT NOT NULL WITH DEFAULT 0")
     private int overtime;
 
@@ -39,11 +39,6 @@ public class Sgsch {
     @Id
     @Column(columnDefinition = "CHAR(003) NOT NULL CHECK (HID NOT IN ('   '))")
     private String hid = "2A0";
-
-    // 更新時間
-//    @Generated(GenerationTime.ALWAYS)
-//    @Column(columnDefinition = "GENERATED ALWAYS FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP NOT NULL", insertable = false, updatable = false)
-//    private Timestamp zsch;
 
     public Sgsch() {
     }
@@ -116,12 +111,4 @@ public class Sgsch {
     public String getUno() {
         return uno.trim();
     }
-
-//    public Timestamp getZsch() {
-//        return zsch;
-//    }
-//
-//    public void setZsch(Timestamp zsch) {
-//        this.zsch = zsch;
-//    }
 }

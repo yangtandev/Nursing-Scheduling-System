@@ -24,7 +24,7 @@ public class SgresultController {
 
     @Autowired
     private SgruserRepository sgruserRepository;
-    public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
+    public static final Logger logger = LoggerFactory.getLogger(SgresultController.class);
     @GetMapping("/sgresult")
     public List<Sgresult> getSgresult(
             @RequestParam String uno,

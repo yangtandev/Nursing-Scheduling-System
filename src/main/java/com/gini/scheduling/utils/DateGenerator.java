@@ -14,7 +14,7 @@ import com.gini.scheduling.controller.SgrroomController;
 
 public class DateGenerator {
 	
-	public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
+	public static final Logger logger = LoggerFactory.getLogger(DateGenerator.class);
     /**
      * 獲取當前時間所在月有多少週
      *

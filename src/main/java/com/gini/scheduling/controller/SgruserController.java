@@ -19,7 +19,7 @@ import java.util.Map;
 public class SgruserController {
     @Autowired
     private SgruserRepository sgruserRepository;
-    public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
+    public static final Logger logger = LoggerFactory.getLogger(SgruserController.class);
     @GetMapping("/sgruser")
     public List<Sgruser> getSgruser(
     )throws EntityNotFoundException {

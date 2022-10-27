@@ -47,12 +47,10 @@ public class Sgresult {
     private Sgruser sgruser;
 
     // 工作時數 0 or 8
-    @Generated(GenerationTime.INSERT)
     @Column(columnDefinition = "SMALLINT NOT NULL WITH DEFAULT 8")
     private int clspr;
 
     // 加班順序 0 (無加班) or 1~24
-    @Generated(GenerationTime.INSERT)
     @Column(columnDefinition = "SMALLINT NOT NULL WITH DEFAULT 0")
     private int overtime;
 
@@ -61,11 +59,6 @@ public class Sgresult {
     @Column(columnDefinition = "CHAR(003) NOT NULL CHECK (HID NOT IN ('   '))")
     private String hid = "2A0";
 
-    // 更新時間
-//    @Generated(GenerationTime.ALWAYS)
-//    @Column(columnDefinition = "GENERATED ALWAYS FOR EACH ROW ON UPDATE AS ROW CHANGE TIMESTAMP NOT NULL", insertable = false, updatable = false)
-//    private Timestamp zresult;
-
     public Sgresult() {
     }
 
@@ -73,14 +66,12 @@ public class Sgresult {
         Sgruser sgruser,
         LocalDate schdate,
         int schweek,
-        String clsno,
-        int clspr
+        String clsno
     ) {
         this.sgruser = sgruser;
         this.schdate = schdate;
         this.schweek = schweek;
         this.clsno = clsno;
-        this.clspr = clspr;
     }
 
 
@@ -161,12 +152,4 @@ public class Sgresult {
     public Boolean isUnAvailable() {
         return this.getClsno().equals("公休");
     }
-
-//    public Timestamp getZresult() {
-//        return zresult;
-//    }
-//
-//    public void setZresult(Timestamp zresult) {
-//        this.zresult = zresult;
-//    }
 }

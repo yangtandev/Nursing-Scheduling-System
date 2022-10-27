@@ -19,9 +19,6 @@ public class Scheduling {
     private List<Sgruser> sgruserList;
 
     @ProblemFactCollectionProperty
-    private List<String> sgshiftList;
-    
-    @ProblemFactCollectionProperty
     private List<Sgbackup> sgbackupList;
     
     @PlanningEntityCollectionProperty
@@ -36,9 +33,8 @@ public class Scheduling {
     public Scheduling() {
     }
 
-    public Scheduling(List<Sgruser> sgruserList, List<String> sgshiftList, List<Sgbackup> sgbackupList, List<Sgresult> sgresultList) {
+    public Scheduling(List<Sgruser> sgruserList, List<Sgbackup> sgbackupList, List<Sgresult> sgresultList) {
         this.sgruserList = sgruserList;
-        this.sgshiftList = sgshiftList;
         this.sgbackupList = sgbackupList;
         this.sgresultList = sgresultList;
     }
@@ -51,10 +47,6 @@ public class Scheduling {
         return sgruserList;
     }
 
-    public List<String> getSgshiftList() {
-        return sgshiftList;
-    }
-    
     public List<Sgbackup> getSgbackupList() {
         return sgbackupList;
     }

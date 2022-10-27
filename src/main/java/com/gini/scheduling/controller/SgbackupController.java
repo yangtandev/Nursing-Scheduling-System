@@ -23,7 +23,7 @@ public class SgbackupController {
 
     @Autowired
     private SgruserRepository sgruserRepository;
-    public static final Logger logger = LoggerFactory.getLogger(SgrroomController.class);
+    public static final Logger logger = LoggerFactory.getLogger(SgbackupController.class);
     @GetMapping("/sgbackup")
     public List<Sgbackup> getSgbackup(
             @RequestParam String uno,
