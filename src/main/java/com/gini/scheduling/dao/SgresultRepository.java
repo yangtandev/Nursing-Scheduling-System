@@ -48,5 +48,13 @@ public interface SgresultRepository extends PagingAndSortingRepository<Sgresult,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM "+SchemaConfig.schema+".sgresult WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate",
+        nativeQuery = true)
+    void deleteALLByUnoAndDate(
+        @Param("uno") String uno,
+        @Param("startSchdate") LocalDate startSchdate,
+        @Param("endSchdate") LocalDate endSchdate
+    );
 }

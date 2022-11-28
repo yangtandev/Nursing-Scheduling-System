@@ -220,16 +220,13 @@ public class SchedulingController {
         int numberOfUteamA = 0;
         int numberOfUteamB = 0;
         int numberOfUteamC = 0;
-        int numberOfUteamDaily = 0;
         List<String> uteamList = sgruserRepository.findAll().stream().map(sgruser -> sgruser.getUteam()).collect(Collectors.toList());
         for (String uteam : uteamList) {
             if (uteam.equals("A")) numberOfUteamA++;
             if (uteam.equals("B")) numberOfUteamB++;
             if (uteam.equals("C")) numberOfUteamC++;
-            if (uteam.equals("不排班")) numberOfUteamDaily++;
         }
         int minimumUteamABCRequirement = 5;
-        int minimumUteamDailyRequirement = 2;
         int numberOfUteamAShortages = numberOfUteamA > 0
             ? minimumUteamABCRequirement - numberOfUteamA
             : minimumUteamABCRequirement;
@@ -239,9 +236,6 @@ public class SchedulingController {
         int numberOfUteamCShortages = numberOfUteamC > 0
             ? minimumUteamABCRequirement - numberOfUteamC
             : minimumUteamABCRequirement;
-        int numberOfUteamDailyShortages = numberOfUteamDaily > 0
-            ? minimumUteamDailyRequirement - numberOfUteamDaily
-            : minimumUteamDailyRequirement;
         String debugMessage = "";
         if (numberOfUteamAShortages > 0)
             debugMessage = debugMessage.concat("A 組尚缺 " + numberOfUteamAShortages + " 名人員, ");
@@ -249,8 +243,6 @@ public class SchedulingController {
             debugMessage = debugMessage.concat("B 組尚缺 " + numberOfUteamBShortages + " 名人員, ");
         if (numberOfUteamCShortages > 0)
             debugMessage = debugMessage.concat("C 組尚缺 " + numberOfUteamCShortages + " 名人員, ");
-        if (numberOfUteamDailyShortages > 0)
-            debugMessage = debugMessage.concat("不排班組尚缺 " + numberOfUteamDailyShortages + " 名人員, ");
         Map<String, String> result = new LinkedHashMap<>();
         if (!debugMessage.equals("")) {
             result.put("httpStatusCode", "400");
@@ -292,9 +284,12 @@ public class SchedulingController {
             List<Sgresult> lastMonthUno3ShiftList = new ArrayList<>();
             List<Sgresult> lastMonthShiftList = sgresultRepository.findAllByDate(lastMonthStart, lastMonthEnd);
             for (Sgresult sgresult : lastMonthShiftList) {
-                if (sgresult.getUno().equals(lastMonthUno1)) lastMonthUno1ShiftList.add(sgresult);
-                if (sgresult.getUno().equals(lastMonthUno2)) lastMonthUno2ShiftList.add(sgresult);
-                if (sgresult.getUno().equals(lastMonthUno3)) lastMonthUno3ShiftList.add(sgresult);
+                if (sgresult.getUno().equals(lastMonthUno1))
+                    lastMonthUno1ShiftList.add(sgresult);
+                if (sgresult.getUno().equals(lastMonthUno2))
+                    lastMonthUno2ShiftList.add(sgresult);
+                if (sgresult.getUno().equals(lastMonthUno3))
+                    lastMonthUno3ShiftList.add(sgresult);
             }
 
             // 按日期排序
@@ -314,13 +309,14 @@ public class SchedulingController {
                         occupationMap.put("singleDayOff1", occupationMap.get("singleDayOff1") + 1);
                     }
                     break;
+                } else {
+                    occupationMap.put("occupation1", occupationMap.get("occupation1") + 1);
                 }
-                occupationMap.put("occupation1", occupationMap.get("occupation1") + 1);
             }
             for (int index = lastMonthUno2ShiftList.size() - 1; index >= 0; index--) {
                 if (lastMonthUno2ShiftList.get(index).getClsno().equals("OFF")
                     || lastMonthUno2ShiftList.get(index).getClsno().equals("A8")
-                    || lastMonthUno1ShiftList.get(index).getClsno().equals("55")
+                    || lastMonthUno2ShiftList.get(index).getClsno().equals("55")
                 ) {
                     if (!(lastMonthUno2ShiftList.get(index - 1).getClsno().equals("OFF")
                         || lastMonthUno2ShiftList.get(index - 1).getClsno().equals("A8")
@@ -329,8 +325,9 @@ public class SchedulingController {
                         occupationMap.put("singleDayOff2", occupationMap.get("singleDayOff2") + 1);
                     }
                     break;
+                } else {
+                    occupationMap.put("occupation2", occupationMap.get("occupation2") + 1);
                 }
-                occupationMap.put("occupation2", occupationMap.get("occupation2") + 1);
             }
             for (int index = lastMonthUno3ShiftList.size() - 1; index >= 0; index--) {
                 if (lastMonthUno3ShiftList.get(index).getClsno().equals("OFF")
@@ -344,8 +341,9 @@ public class SchedulingController {
                         occupationMap.put("singleDayOff3", occupationMap.get("singleDayOff3") + 1);
                     }
                     break;
+                } else {
+                    occupationMap.put("occupation3", occupationMap.get("occupation3") + 1);
                 }
-                occupationMap.put("occupation3", occupationMap.get("occupation3") + 1);
             }
             // 計算上月名單將佔本月初多少工作天，以及本月當班人員起始工作日。
             int occupationStartSchdate1 = 0;
@@ -543,7 +541,6 @@ public class SchedulingController {
             if (uno2.equals("")) uno2 = getRandomList(currentUnoList, 1).get(0);
             if (uno3.equals("")) uno3 = getRandomList(currentUnoList, 1).get(0);
         }
-
         List<LocalDate> occupationSchdate1 = new ArrayList<>();
         List<LocalDate> occupationSchdate2 = new ArrayList<>();
         List<LocalDate> occupationSchdate3 = new ArrayList<>();
@@ -846,12 +843,23 @@ public class SchedulingController {
             .stream()
             .filter(sgruser -> {
                 Boolean isCurrentUteam = sgruser.getUteam().equals("不排班");
-//                Boolean isSpeicalLeave = SchedulingController.isSpecialLeave(sgruser.getUno(), startSchdate, endSchdate);
-//                return isCurrentUteam || isSpeicalLeave;
-                return isCurrentUteam;
+                Boolean isSpeicalLeave = SchedulingController.isSpecialLeave(sgruser.getUno(), startSchdate, endSchdate);
+                return isCurrentUteam || isSpeicalLeave;
             })
             .collect(Collectors.toList());
         sgruserList.removeAll(sgruserRegularList);
+        List<Sgruser> allSgruserList = Stream
+            .of(
+                sgruserList,
+                sgruserRegularList,
+                sgruserBreastFeedList
+            )
+            .flatMap(x -> x.stream())
+            .collect(Collectors.toList());
+        List<String> allUnoList = allSgruserList
+            .stream()
+            .map(sgruser -> sgruser.getUno())
+            .collect(Collectors.toList());
         List<Sgshift> sgshiftList = sgshiftRepository.findAll();
         List<Sgsys> sgsysList = sgsysRepository.findAll();
         long monthsBetween = ChronoUnit.MONTHS.between(LocalDate.parse(startSchdate.toString()),
@@ -862,10 +870,66 @@ public class SchedulingController {
             // 本月日期區間
             LocalDate monthStart = startSchdate.plusMonths(i);
             LocalDate monthEnd = YearMonth.from(monthStart).atEndOfMonth();
+            // 本月 uteam 備份
+            for (Sgruser sgruser : sgruserList) {
+                if (sgruser.getUteam().equals("A") || sgruser.getUteam().equals("B") || sgruser.getUteam().equals("C")) {
+                    sgbackupList.add(new Sgbackup(sgruser.getUno(), monthStart, sgruser.getUteam()));
+                }
+            }
             // 上月日期區間
             LocalDate lastMonthStart = monthStart.minusMonths(1);
             LocalDate lastMonthEnd = YearMonth.from(lastMonthStart).atEndOfMonth();
-            List<Sgresult> lastMonthSgresultList = sgresultRepository.findAllByDate(lastMonthStart, lastMonthEnd);
+            List<Sgbackup> lastMonthSgbackupList = sgbackupRepository.findAllByDate(lastMonthStart, lastMonthEnd);
+            List<String> lastMonthUnoList = lastMonthSgbackupList
+                .stream()
+                .filter(sgbackup -> (sgbackup.getClsno().equals("55")
+                    || sgbackup.getClsno().equals("A0")
+                    || sgbackup.getClsno().equals("A8")
+                    || sgbackup.getClsno().equals("D6"))
+                )
+                .map(sgbackup -> sgbackup.getUno())
+                .collect(Collectors.toList());
+            // 為方便本月初，接替離職人員班別的人員出勤，將上月末四天班別備份，並覆蓋接替人員上月對應日期。
+            Map<String, List<Sgresult>> lastMonthSgresultMap = new LinkedHashMap<>();
+            // 上月名單與本月名單不符時(如人員退休、離職)，清除與本月名單不符的上月人員資料，以利白班。
+            if (lastMonthUnoList.size() > 0) {
+                List<String> removeUnoList = lastMonthUnoList
+                    .stream()
+                    .filter(uno -> !allUnoList.contains(uno))
+                    .collect(Collectors.toList());
+                if(removeUnoList.size()>0){
+                    for (String uno : removeUnoList) {
+                        String clsno = lastMonthSgbackupList
+                            .stream()
+                            .filter(sgbackup -> sgbackup.getUno().equals(uno)
+                                && (sgbackup.getClsno().equals("55")
+                                || sgbackup.getClsno().equals("A0")
+                                || sgbackup.getClsno().equals("A8")
+                                || sgbackup.getClsno().equals("D6"))
+                            )
+                            .map(sgbackup -> sgbackup.getClsno())
+                            .collect(Collectors.toList())
+                            .get(0);
+                        if(clsno.equals("A0")||clsno.equals("D6")){
+                            String uteam = lastMonthSgbackupList
+                                .stream()
+                                .filter(sgbackup -> sgbackup.getUno().equals(uno)
+                                    && (sgbackup.getClsno().equals("A")
+                                    || sgbackup.getClsno().equals("B")
+                                    || sgbackup.getClsno().equals("C"))
+                                )
+                                .map(sgbackup -> sgbackup.getClsno())
+                                .collect(Collectors.toList())
+                                .get(0);
+                            String clsnoUteam = clsno + "-" + uteam;
+                            List<Sgresult> lastMonthSgresultList = sgresultRepository.findAllByUnoAndDate(uno, lastMonthEnd.minusDays(3), lastMonthEnd);
+                            lastMonthSgresultMap.put(clsnoUteam, lastMonthSgresultList);
+                        }
+                        sgresultRepository.deleteALLByUnoAndDate(uno, lastMonthStart, lastMonthEnd);
+                        lastMonthUnoList.remove(uno);
+                    }
+                }
+            }
             List<Sgbackup> unavailableList = sgbackupRepository.findAllByDate(monthStart, monthEnd)
                 .stream()
                 .filter(sgbackup -> sgbackup.getClsno().equals("OFF") || sgbackup.getClsno().equals("公休"))
@@ -1013,63 +1077,14 @@ public class SchedulingController {
                 )
                 .flatMap(x -> x.stream())
                 .collect(Collectors.toList());
-            // 獲取上月 D6、A0 名單。
-            List<Sgbackup> lastMonthSgbackupList = sgbackupRepository.findAllByDate(lastMonthStart, lastMonthStart);
-            List<String> lastMonthD6UnoAList = new ArrayList<>();
-            List<String> lastMonthD6UnoBList = new ArrayList<>();
-            List<String> lastMonthD6UnoCList = new ArrayList<>();
-            List<String> lastMonthA0UnoAList = new ArrayList<>();
-            List<String> lastMonthA0UnoBList = new ArrayList<>();
-            List<String> lastMonthA0UnoCList = new ArrayList<>();
-            for (Sgbackup sgbackup : lastMonthSgbackupList) {
-                String uteam = "";
-                for (Sgruser sgruser : sgruserList) {
-                    Boolean isCurrentUno = sgruser.getUno().equals(sgbackup.getUno());
-                    if (isCurrentUno) uteam = sgruser.getUteam();
-                }
-                Boolean isD6 = sgbackup.getClsno().equals("D6");
-                if (isD6) {
-                    if (uteam.equals("A")) lastMonthD6UnoAList.add(sgbackup.getUno());
-                    if (uteam.equals("B")) lastMonthD6UnoBList.add(sgbackup.getUno());
-                    if (uteam.equals("C")) lastMonthD6UnoCList.add(sgbackup.getUno());
-                }
-                Boolean isA0 = sgbackup.getClsno().equals("A0");
-                if (isA0) {
-                    if (uteam.equals("A")) lastMonthA0UnoAList.add(sgbackup.getUno());
-                    if (uteam.equals("B")) lastMonthA0UnoBList.add(sgbackup.getUno());
-                    if (uteam.equals("C")) lastMonthA0UnoCList.add(sgbackup.getUno());
-                }
-            }
-            lastMonthD6UnoAList = lastMonthD6UnoAList.size() > 1 ? getRandomList(lastMonthD6UnoAList, 1) : lastMonthD6UnoAList;
-            lastMonthD6UnoBList = lastMonthD6UnoBList.size() > 1 ? getRandomList(lastMonthD6UnoBList, 1) : lastMonthD6UnoBList;
-            lastMonthD6UnoCList = lastMonthD6UnoCList.size() > 1 ? getRandomList(lastMonthD6UnoCList, 1) : lastMonthD6UnoCList;
-            lastMonthA0UnoAList = lastMonthA0UnoAList.size() > 1 ? getRandomList(lastMonthA0UnoAList, 1) : lastMonthA0UnoAList;
-            lastMonthA0UnoBList = lastMonthA0UnoBList.size() > 1 ? getRandomList(lastMonthA0UnoBList, 1) : lastMonthA0UnoBList;
-            lastMonthA0UnoCList = lastMonthA0UnoCList.size() > 1 ? getRandomList(lastMonthA0UnoCList, 1) : lastMonthA0UnoCList;
-            List<String> lastMonthD6UnoList = Stream
-                .of(
-                    lastMonthD6UnoAList,
-                    lastMonthD6UnoBList,
-                    lastMonthD6UnoCList
-                )
-                .flatMap(x -> x.stream())
-                .collect(Collectors.toList());
-            List<String> lastMonthA0UnoList = Stream
-                .of(
-                    lastMonthA0UnoAList,
-                    lastMonthA0UnoBList,
-                    lastMonthA0UnoCList
-                )
-                .flatMap(x -> x.stream())
-                .collect(Collectors.toList());
             // 依組別取出各組人員名單，並排除包班、上月名單人員。
             List<String> sgruserAList = sgruserList
                 .stream()
                 .filter(sgruser -> {
                     if (rd6ScheduledList.contains(sgruser.getUno())
                         || ra0ScheduledList.contains(sgruser.getUno())
-                        || lastMonthD6UnoList.contains(sgruser.getUno())
-                        || lastMonthA0UnoList.contains(sgruser.getUno())
+//                        || lastMonthD6UnoList.contains(sgruser.getUno())
+//                        || lastMonthA0UnoList.contains(sgruser.getUno())
                     ) return false;
                     return sgruser.getUteam().equals("A");
                 })
@@ -1080,8 +1095,8 @@ public class SchedulingController {
                 .filter(sgruser -> {
                     if (rd6ScheduledList.contains(sgruser.getUno())
                         || ra0ScheduledList.contains(sgruser.getUno())
-                        || lastMonthD6UnoList.contains(sgruser.getUno())
-                        || lastMonthA0UnoList.contains(sgruser.getUno())
+//                        || lastMonthD6UnoList.contains(sgruser.getUno())
+//                        || lastMonthA0UnoList.contains(sgruser.getUno())
                     ) return false;
                     return sgruser.getUteam().equals("B");
                 })
@@ -1092,13 +1107,260 @@ public class SchedulingController {
                 .filter(sgruser -> {
                     if (rd6ScheduledList.contains(sgruser.getUno())
                         || ra0ScheduledList.contains(sgruser.getUno())
-                        || lastMonthD6UnoList.contains(sgruser.getUno())
-                        || lastMonthA0UnoList.contains(sgruser.getUno())
+//                        || lastMonthD6UnoList.contains(sgruser.getUno())
+//                        || lastMonthA0UnoList.contains(sgruser.getUno())
                     ) return false;
                     return sgruser.getUteam().equals("C");
                 })
                 .map(sgruser -> sgruser.getUno())
                 .collect(Collectors.toList());
+            // 獲取上月 D6、A0 名單。
+            List<Sgresult> lastMonthSgresultList = sgresultRepository.findAllByDate(lastMonthStart, lastMonthEnd);
+            List<String> lastMonthD6UnoAList = new ArrayList<>();
+            List<String> lastMonthD6UnoBList = new ArrayList<>();
+            List<String> lastMonthD6UnoCList = new ArrayList<>();
+            List<String> lastMonthA0UnoAList = new ArrayList<>();
+            List<String> lastMonthA0UnoBList = new ArrayList<>();
+            List<String> lastMonthA0UnoCList = new ArrayList<>();
+            if (lastMonthSgresultList.size() > 0) {
+                for (Sgbackup sgbackup : lastMonthSgbackupList) {
+                    if (allUnoList.contains(sgbackup.getUno())) {
+                        String uteam = "";
+                        for (Sgruser sgruser : sgruserList) {
+                            Boolean isCurrentUno = sgruser.getUno().equals(sgbackup.getUno());
+                            if (isCurrentUno) {
+                                uteam = sgruser.getUteam();
+                            }
+                        }
+                        Boolean isD6 = sgbackup.getClsno().equals("D6");
+                        if (isD6) {
+                            if (uteam.equals("A")) lastMonthD6UnoAList.add(sgbackup.getUno());
+                            if (uteam.equals("B")) lastMonthD6UnoBList.add(sgbackup.getUno());
+                            if (uteam.equals("C")) lastMonthD6UnoCList.add(sgbackup.getUno());
+                        }
+                        Boolean isA0 = sgbackup.getClsno().equals("A0");
+                        if (isA0) {
+                            if (uteam.equals("A")) lastMonthA0UnoAList.add(sgbackup.getUno());
+                            if (uteam.equals("B")) lastMonthA0UnoBList.add(sgbackup.getUno());
+                            if (uteam.equals("C")) lastMonthA0UnoCList.add(sgbackup.getUno());
+                        }
+                    }
+                }
+                lastMonthD6UnoAList = lastMonthD6UnoAList.size() > 1 ? getRandomList(lastMonthD6UnoAList, 1) : lastMonthD6UnoAList;
+                lastMonthD6UnoBList = lastMonthD6UnoBList.size() > 1 ? getRandomList(lastMonthD6UnoBList, 1) : lastMonthD6UnoBList;
+                lastMonthD6UnoCList = lastMonthD6UnoCList.size() > 1 ? getRandomList(lastMonthD6UnoCList, 1) : lastMonthD6UnoCList;
+                lastMonthA0UnoAList = lastMonthA0UnoAList.size() > 1 ? getRandomList(lastMonthA0UnoAList, 1) : lastMonthA0UnoAList;
+                lastMonthA0UnoBList = lastMonthA0UnoBList.size() > 1 ? getRandomList(lastMonthA0UnoBList, 1) : lastMonthA0UnoBList;
+                lastMonthA0UnoCList = lastMonthA0UnoCList.size() > 1 ? getRandomList(lastMonthA0UnoCList, 1) : lastMonthA0UnoCList;
+                lastMonthSgresultList.sort(Comparator.comparing(Sgresult::getSchdate));
+                if (lastMonthA0UnoAList.size() == 0) {
+                    List<String> availableList = new ArrayList<>();
+                    for (String uno : sgruserAList) {
+                        for (Sgresult sgresult : lastMonthSgresultList) {
+                            Boolean isCurrentUno = sgresult.getUno().equals(uno) && !lastMonthD6UnoAList.contains(uno);
+                            Boolean isCurrentClsno = sgresult.getClsno().equals("OFF");
+                            Boolean isCurrentSchdate = sgresult.getSchdate().equals(lastMonthEnd)
+                                || sgresult.getSchdate().equals(lastMonthEnd.minusDays(1))
+                                || sgresult.getSchdate().equals(lastMonthEnd.minusDays(2));
+                            if (isCurrentUno && isCurrentClsno && isCurrentSchdate && !availableList.contains(sgresult.getUno())) {
+                                availableList.add(sgresult.getUno());
+                            }
+                        }
+                    }
+                    if (availableList.size() > 0) {
+                        String currentUno = getRandomList(availableList, 1).get(0);
+                        List<Sgresult> extractSgresultList = lastMonthSgresultMap.get("A0-A");
+                        for (Sgresult extractSgresult : extractSgresultList) {
+                            for (Sgresult sgresult : lastMonthSgresultList) {
+                                Boolean isCurrentUno = sgresult.getUno().equals(currentUno);
+                                Boolean isCurrentSchdate = sgresult.getSchdate().equals(extractSgresult.getSchdate());
+                                if (isCurrentUno && isCurrentSchdate) {
+                                    sgresult.setClsno(extractSgresult.getClsno());
+                                    sgresult.setClspr(extractSgresult.getClspr());
+                                }
+                            }
+                        }
+                        lastMonthA0UnoAList.add(currentUno);
+                    }
+
+                }
+                if (lastMonthA0UnoBList.size() == 0) {
+                    List<String> availableList = new ArrayList<>();
+                    for (String uno : sgruserBList) {
+                        for (Sgresult sgresult : lastMonthSgresultList) {
+                            Boolean isCurrentUno = sgresult.getUno().equals(uno) && !lastMonthD6UnoBList.contains(uno);
+                            Boolean isCurrentClsno = sgresult.getClsno().equals("OFF");
+                            Boolean isCurrentSchdate = sgresult.getSchdate().equals(lastMonthEnd)
+                                || sgresult.getSchdate().equals(lastMonthEnd.minusDays(1))
+                                || sgresult.getSchdate().equals(lastMonthEnd.minusDays(2));
+                            if (isCurrentUno && isCurrentClsno && isCurrentSchdate && !availableList.contains(sgresult.getUno())) {
+                                availableList.add(sgresult.getUno());
+                            }
+                        }
+                    }
+                    if (availableList.size() > 0) {
+                        String currentUno = getRandomList(availableList, 1).get(0);
+                        List<Sgresult> extractSgresultList = lastMonthSgresultMap.get("A0-B");
+                        for (Sgresult extractSgresult : extractSgresultList) {
+                            for (Sgresult sgresult : lastMonthSgresultList) {
+                                Boolean isCurrentUno = sgresult.getUno().equals(currentUno);
+                                Boolean isCurrentSchdate = sgresult.getSchdate().equals(extractSgresult.getSchdate());
+                                if (isCurrentUno && isCurrentSchdate) {
+                                    sgresult.setClsno(extractSgresult.getClsno());
+                                    sgresult.setClspr(extractSgresult.getClspr());
+                                }
+                            }
+                        }
+                        lastMonthA0UnoBList.add(currentUno);
+                    }
+
+                }
+                if (lastMonthA0UnoCList.size() == 0) {
+                    List<String> availableList = new ArrayList<>();
+                    for (String uno : sgruserCList) {
+                        for (Sgresult sgresult : lastMonthSgresultList) {
+                            Boolean isCurrentUno = sgresult.getUno().equals(uno) && !lastMonthD6UnoCList.contains(uno);
+                            Boolean isCurrentClsno = sgresult.getClsno().equals("OFF");
+                            Boolean isCurrentSchdate = sgresult.getSchdate().equals(lastMonthEnd)
+                                || sgresult.getSchdate().equals(lastMonthEnd.minusDays(1))
+                                || sgresult.getSchdate().equals(lastMonthEnd.minusDays(2));
+                            if (isCurrentUno && isCurrentClsno && isCurrentSchdate && !availableList.contains(sgresult.getUno())) {
+                                availableList.add(sgresult.getUno());
+                            }
+                        }
+                    }
+                    if (availableList.size() > 0) {
+                        String currentUno = getRandomList(availableList, 1).get(0);
+                        List<Sgresult> extractSgresultList = lastMonthSgresultMap.get("A0-C");
+                        for (Sgresult extractSgresult : extractSgresultList) {
+                            for (Sgresult sgresult : lastMonthSgresultList) {
+                                Boolean isCurrentUno = sgresult.getUno().equals(currentUno);
+                                Boolean isCurrentSchdate = sgresult.getSchdate().equals(extractSgresult.getSchdate());
+                                if (isCurrentUno && isCurrentSchdate) {
+                                    sgresult.setClsno(extractSgresult.getClsno());
+                                    sgresult.setClspr(extractSgresult.getClspr());
+                                }
+                            }
+                        }
+                        lastMonthA0UnoCList.add(currentUno);
+                    }
+
+                }
+                if (lastMonthD6UnoAList.size() == 0) {
+                    List<String> availableList = new ArrayList<>();
+                    for (String uno : sgruserAList) {
+                        for (Sgresult sgresult : lastMonthSgresultList) {
+                            Boolean isCurrentUno = sgresult.getUno().equals(uno) && !lastMonthA0UnoAList.contains(uno);
+                            Boolean isCurrentClsno = sgresult.getClsno().equals("OFF");
+                            Boolean isCurrentSchdate = sgresult.getSchdate().equals(lastMonthEnd)
+                                || sgresult.getSchdate().equals(lastMonthEnd.minusDays(1))
+                                || sgresult.getSchdate().equals(lastMonthEnd.minusDays(2));
+                            if (isCurrentUno && isCurrentClsno && isCurrentSchdate && !availableList.contains(sgresult.getUno())) {
+                                availableList.add(sgresult.getUno());
+                            }
+                        }
+                    }
+                    if (availableList.size() > 0) {
+                        String currentUno = getRandomList(availableList, 1).get(0);
+                        List<Sgresult> extractSgresultList = lastMonthSgresultMap.get("D6-A");
+                        for (Sgresult extractSgresult : extractSgresultList) {
+                            for (Sgresult sgresult : lastMonthSgresultList) {
+                                Boolean isCurrentUno = sgresult.getUno().equals(currentUno);
+                                Boolean isCurrentSchdate = sgresult.getSchdate().equals(extractSgresult.getSchdate());
+                                if (isCurrentUno && isCurrentSchdate) {
+                                    sgresult.setClsno(extractSgresult.getClsno());
+                                    sgresult.setClspr(extractSgresult.getClspr());
+                                }
+                            }
+                        }
+                        lastMonthD6UnoAList.add(currentUno);
+                    }
+
+                }
+                if (lastMonthD6UnoBList.size() == 0) {
+                    List<String> availableList = new ArrayList<>();
+                    for (String uno : sgruserBList) {
+                        for (Sgresult sgresult : lastMonthSgresultList) {
+                            Boolean isCurrentUno = sgresult.getUno().equals(uno) && !lastMonthA0UnoBList.contains(uno);
+                            Boolean isCurrentClsno = sgresult.getClsno().equals("OFF");
+                            Boolean isCurrentSchdate = sgresult.getSchdate().equals(lastMonthEnd)
+                                || sgresult.getSchdate().equals(lastMonthEnd.minusDays(1))
+                                || sgresult.getSchdate().equals(lastMonthEnd.minusDays(2));
+                            if (isCurrentUno && isCurrentClsno && isCurrentSchdate && !availableList.contains(sgresult.getUno())) {
+                                availableList.add(sgresult.getUno());
+                            }
+                        }
+                    }
+                    if (availableList.size() > 0) {
+                        String currentUno = getRandomList(availableList, 1).get(0);
+                        List<Sgresult> extractSgresultList = lastMonthSgresultMap.get("D6-B");
+                        for (Sgresult extractSgresult : extractSgresultList) {
+                            for (Sgresult sgresult : lastMonthSgresultList) {
+                                Boolean isCurrentUno = sgresult.getUno().equals(currentUno);
+                                Boolean isCurrentSchdate = sgresult.getSchdate().equals(extractSgresult.getSchdate());
+                                if (isCurrentUno && isCurrentSchdate) {
+                                    sgresult.setClsno(extractSgresult.getClsno());
+                                    sgresult.setClspr(extractSgresult.getClspr());
+                                }
+                            }
+                        }
+                        lastMonthD6UnoBList.add(currentUno);
+                    }
+
+                }
+                if (lastMonthD6UnoCList.size() == 0) {
+                    List<String> availableList = new ArrayList<>();
+                    for (String uno : sgruserCList) {
+                        for (Sgresult sgresult : lastMonthSgresultList) {
+                            Boolean isCurrentUno = sgresult.getUno().equals(uno) && !lastMonthA0UnoCList.contains(uno);
+                            Boolean isCurrentClsno = sgresult.getClsno().equals("OFF");
+                            Boolean isCurrentSchdate = sgresult.getSchdate().equals(lastMonthEnd)
+                                || sgresult.getSchdate().equals(lastMonthEnd.minusDays(1))
+                                || sgresult.getSchdate().equals(lastMonthEnd.minusDays(2));
+                            if (isCurrentUno && isCurrentClsno && isCurrentSchdate && !availableList.contains(sgresult.getUno())) {
+                                availableList.add(sgresult.getUno());
+                            }
+                        }
+                    }
+                    if (availableList.size() > 0) {
+                        String currentUno = getRandomList(availableList, 1).get(0);
+                        List<Sgresult> extractSgresultList = lastMonthSgresultMap.get("D6-C");
+                        for (Sgresult extractSgresult : extractSgresultList) {
+                            for (Sgresult sgresult : lastMonthSgresultList) {
+                                Boolean isCurrentUno = sgresult.getUno().equals(currentUno);
+                                Boolean isCurrentSchdate = sgresult.getSchdate().equals(extractSgresult.getSchdate());
+                                if (isCurrentUno && isCurrentSchdate) {
+                                    sgresult.setClsno(extractSgresult.getClsno());
+                                    sgresult.setClspr(extractSgresult.getClspr());
+                                }
+                            }
+                        }
+                        lastMonthD6UnoCList.add(currentUno);
+                    }
+                }
+            }
+            List<String> lastMonthD6UnoList = Stream
+                .of(
+                    lastMonthD6UnoAList,
+                    lastMonthD6UnoBList,
+                    lastMonthD6UnoCList
+                )
+                .flatMap(x -> x.stream())
+                .collect(Collectors.toList());
+            sgruserAList.removeAll(lastMonthD6UnoList);
+            sgruserBList.removeAll(lastMonthD6UnoList);
+            sgruserCList.removeAll(lastMonthD6UnoList);
+            List<String> lastMonthA0UnoList = Stream
+                .of(
+                    lastMonthA0UnoAList,
+                    lastMonthA0UnoBList,
+                    lastMonthA0UnoCList
+                )
+                .flatMap(x -> x.stream())
+                .collect(Collectors.toList());
+            sgruserAList.removeAll(lastMonthA0UnoList);
+            sgruserBList.removeAll(lastMonthA0UnoList);
+            sgruserCList.removeAll(lastMonthA0UnoList);
             // 組別人數不足基本需求時，則從過剩的組裡取所需人數來彌補。
 //            List<String> excessManpowerList = new ArrayList<>();
 //            int minimumRequirements = 4;
@@ -1264,7 +1526,10 @@ public class SchedulingController {
                     if (currentOccupation.equals("uno2Occupation")) uno2OccupationCounter = unoOccupation;
                     if (currentOccupation.equals("uno3Occupation")) uno3OccupationCounter = unoOccupation;
                 }
-                if (uno1OccupationCounter == uno2OccupationCounter) {
+                if (uno1OccupationCounter == uno2OccupationCounter
+                    && uno1OccupationCounter > 0
+                    && uno2OccupationCounter > 0
+                ) {
                     if (lastMonthA0UnoList.contains(rd6ScheduledAList.get(0)) && rd6ScheduledList.contains(rd6ScheduledBList.get(0))) {
                         String newUno = getRandomList(sgruserAList, 1).get(0);
                         sgruserAList.add(rd6ScheduledAList.remove(0));
@@ -1276,7 +1541,10 @@ public class SchedulingController {
                         rd6ScheduledBList.add(newUno);
                     }
                 }
-                if (uno1OccupationCounter == uno3OccupationCounter) {
+                if (uno1OccupationCounter == uno3OccupationCounter
+                    && uno1OccupationCounter > 0
+                    && uno3OccupationCounter > 0
+                ) {
                     if (lastMonthA0UnoList.contains(rd6ScheduledAList.get(0)) && rd6ScheduledList.contains(rd6ScheduledCList.get(0))) {
                         String newUno = getRandomList(sgruserAList, 1).get(0);
                         sgruserAList.add(rd6ScheduledAList.remove(0));
@@ -1288,7 +1556,10 @@ public class SchedulingController {
                         rd6ScheduledCList.add(newUno);
                     }
                 }
-                if (uno2OccupationCounter == uno3OccupationCounter) {
+                if (uno2OccupationCounter == uno3OccupationCounter
+                    && uno2OccupationCounter > 0
+                    && uno3OccupationCounter > 0
+                ) {
                     if (lastMonthA0UnoList.contains(rd6ScheduledBList.get(0)) && rd6ScheduledList.contains(rd6ScheduledCList.get(0))) {
                         String newUno = getRandomList(sgruserBList, 1).get(0);
                         sgruserBList.add(rd6ScheduledBList.remove(0));
@@ -1538,14 +1809,7 @@ public class SchedulingController {
                 = WeekFields.of(DayOfWeek.MONDAY, 1);
             TemporalField weekOfWeekBasedYear
                 = weekFields.weekOfWeekBasedYear();
-            List<Sgruser> allSgruserList = Stream
-                .of(
-                    sgruserList,
-                    sgruserRegularList,
-                    sgruserBreastFeedList
-                )
-                .flatMap(x -> x.stream())
-                .collect(Collectors.toList());
+
             for (LocalDate currentDate = monthStart;
                  currentDate.isBefore(monthEnd.plusDays(1));
                  currentDate = currentDate.plusDays(1)
@@ -1755,7 +2019,10 @@ public class SchedulingController {
                     List<Sgbackup> availableList = sgbackupList
                         .stream()
                         .filter(sgbackup -> {
-                            Boolean isWorkday = !(sgbackup.getClsno().equals("OFF") || sgbackup.getClsno().equals("公休"));
+                            Boolean isWorkday = sgbackup.getClsno().equals("55")
+                                || sgbackup.getClsno().equals("A0")
+                                || sgbackup.getClsno().equals("A8")
+                                || sgbackup.getClsno().equals("D6");
                             Boolean isCurrentYear = sgbackup.getSchdate().getYear() == monthStart.getYear();
                             Boolean isCurrentMonth = sgbackup.getSchdate().getMonthValue() == monthStart.getMonthValue();
                             Boolean isCurrentUno = !(rd6ABCList.contains(sgbackup.getUno()) || ra0ABCList.contains(sgbackup.getUno()));
@@ -3010,10 +3277,10 @@ public class SchedulingController {
     @GetMapping("/solve")
     public Map<String, String> solve(LocalDate startSchdate, LocalDate endSchdate) {
         stopSolving();
-        Map<String, String> mapOfManpowerShortages = checkManpower();
-        if (!mapOfManpowerShortages.isEmpty()) return mapOfManpowerShortages;
-        Map<String, String> mapOfUteamShortages = checkUteam();
-        if (!mapOfUteamShortages.isEmpty()) return mapOfUteamShortages;
+        Map<String, String> checkManpowerResult = checkManpower();
+        if (!checkManpowerResult.isEmpty()) return checkManpowerResult;
+        Map<String, String> checkUteamResult = checkUteam();
+        if (!checkUteamResult.isEmpty()) return checkUteamResult;
         cleanSgbackupAndSgresult(startSchdate, endSchdate);
         cleanSgsch(startSchdate, endSchdate);
         backupSgsch(startSchdate, endSchdate);

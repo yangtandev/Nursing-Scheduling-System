@@ -1,20 +1,16 @@
 package com.gini.scheduling.model;
 
-import com.gini.scheduling.dao.SgresultRepository;
-import com.gini.scheduling.dao.SgruserRepository;
 import com.gini.scheduling.utils.UUIDGenerator;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.optaplanner.core.api.domain.entity.PlanningEntity;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.gini.scheduling.constraint.SchedulingDifficultyComparator;
 import javax.persistence.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
-import java.util.List;
 
 // 人員排班結果表
 @Entity
@@ -40,6 +36,7 @@ public class Sgresult {
 
     // 使用者卡號
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumns(value = {
         @JoinColumn(name = "uno", referencedColumnName = "uno", columnDefinition = "CHAR(005) NOT NULL WITH DEFAULT"),
         @JoinColumn(name = "clsnohid", referencedColumnName = "hid", columnDefinition = "CHAR(003) NOT NULL CHECK (CLSNOHID NOT IN ('   '))")
