@@ -51,9 +51,9 @@ public class SchedulingSpringBootApp extends SpringBootServletInitializer {
 //                List<Sgruser> sgruserList = sgruserRepository.findAll();
 //                List<Sgruser> newSgruserList = new ArrayList<>();
 //                for (int i = 0; i<sgruserList.size(); i++) {
-//                    if(i>=0 && i<10){
+//                    if(i>=0 && i<7){
 //                        sgruserList.get(i).setUteam("A");
-//                    }else if (i>=10 && i<20){
+//                    }else if (i>=7 && i<14){
 //                        sgruserList.get(i).setUteam("B");
 //                    }else{
 //                        sgruserList.get(i).setUteam("C");
