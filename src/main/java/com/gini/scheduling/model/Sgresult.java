@@ -51,6 +51,10 @@ public class Sgresult {
     @Column(columnDefinition = "SMALLINT NOT NULL WITH DEFAULT 0")
     private int overtime;
 
+    // 備註 YY or ZZ or 00
+    @Column(columnDefinition = "CHAR(002) NOT NULL WITH DEFAULT")
+    private String remark;
+
     // 醫院代碼
     @Id
     @Column(columnDefinition = "CHAR(003) NOT NULL CHECK (HID NOT IN ('   '))")
@@ -63,12 +67,14 @@ public class Sgresult {
         Sgruser sgruser,
         LocalDate schdate,
         int schweek,
-        String clsno
+        String clsno,
+        String remark
     ) {
         this.sgruser = sgruser;
         this.schdate = schdate;
         this.schweek = schweek;
         this.clsno = clsno;
+        this.remark = remark;
     }
 
 
@@ -148,5 +154,13 @@ public class Sgresult {
 
     public Boolean isUnAvailable() {
         return this.getClsno().equals("公休");
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

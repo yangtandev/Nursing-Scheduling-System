@@ -24,15 +24,15 @@ public class Sgruser {
     private String uname;
 
     // 使用者組別
-    @Column(columnDefinition = "CHAR(009) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(012) NOT NULL WITH DEFAULT")
     private String uteam;
 
     // 使用者角色
-    @Column(columnDefinition = "CHAR(009) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(010) NOT NULL WITH DEFAULT")
     private String urole;
 
     // 手術室號 R1~R12
-    @Column(columnDefinition = "CHAR(009) NOT NULL WITH DEFAULT")
+    @Column(columnDefinition = "CHAR(010) NOT NULL WITH DEFAULT")
     private String uopno;
 
     // 是否大夜 0 or 1

@@ -13,6 +13,11 @@ public interface SgsysRepository extends PagingAndSortingRepository<Sgsys, Strin
     @Query(value = "SELECT skey,val,hid FROM "+SchemaConfig.schema+".sgsys ORDER BY skey WITH UR",
             nativeQuery = true)
     List<Sgsys> findAll();
+
+
+    @Query(value = "SELECT val FROM "+SchemaConfig.schema+".sgsys WHERE skey like 'impVDs%' ORDER BY skey WITH UR",
+        nativeQuery = true)
+    List<String> findAllNationalHolidays();
     
     @Query(value = "SELECT COUNT(*) FROM "+SchemaConfig.schema+".sgsys WITH UR",
             nativeQuery = true)

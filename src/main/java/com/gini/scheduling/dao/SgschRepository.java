@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface SgschRepository extends PagingAndSortingRepository<Sgsch, String> {
     @Override
-    @Query(value = "SELECT uno,schdate,clsno,clspr,overtime,hid FROM "+SchemaConfig.schema+".sgsch WITH UR",
+    @Query(value = "SELECT uno,schdate,clsno,clspr,overtime,remark,hid FROM "+SchemaConfig.schema+".sgsch WITH UR",
     nativeQuery = true)
     List<Sgsch> findAll();
 
@@ -24,14 +24,14 @@ public interface SgschRepository extends PagingAndSortingRepository<Sgsch, Strin
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT uno,schdate,clsno,clspr,overtime,hid FROM "+SchemaConfig.schema+".sgsch WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate WITH UR",
+    @Query(value = "SELECT uno,schdate,clsno,clspr,overtime,remark,hid FROM "+SchemaConfig.schema+".sgsch WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate WITH UR",
             nativeQuery = true)
     List<Sgsch> findAllByDate(
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT uno,schdate,clsno,clspr,overtime,hid FROM "+ SchemaConfig.schema+".sgsch WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate WITH UR",
+    @Query(value = "SELECT uno,schdate,clsno,clspr,overtime,remark,hid FROM "+ SchemaConfig.schema+".sgsch WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate WITH UR",
             nativeQuery = true)
     List<Sgsch> findAllByUnoAndDate(
             @Param("uno") String uno,

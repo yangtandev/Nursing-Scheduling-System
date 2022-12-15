@@ -35,6 +35,10 @@ public class Sgsch {
     @Column(columnDefinition = "SMALLINT NOT NULL WITH DEFAULT 0")
     private int overtime;
 
+    // 備註 YY or ZZ or 00
+    @Column(columnDefinition = "CHAR(002) NOT NULL WITH DEFAULT")
+    private String remark;
+
     // 醫院代碼
     @Id
     @Column(columnDefinition = "CHAR(003) NOT NULL CHECK (HID NOT IN ('   '))")
@@ -48,13 +52,15 @@ public class Sgsch {
             LocalDate schdate,
             String clsno,
             int clspr,
-            int overtime
+            int overtime,
+            String remark
     ) {
         this.uno = uno;
         this.schdate = schdate;
         this.clsno = clsno.trim();
         this.clspr = clspr;
         this.overtime = overtime;
+        this.remark = remark;
     }
 
     public Sgsch(
@@ -110,5 +116,13 @@ public class Sgsch {
 
     public String getUno() {
         return uno.trim();
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

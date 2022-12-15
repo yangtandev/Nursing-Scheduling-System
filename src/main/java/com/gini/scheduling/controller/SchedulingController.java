@@ -7,7 +7,6 @@ import com.gini.scheduling.exception.RestExceptionHandler;
 import com.gini.scheduling.model.*;
 import com.gini.scheduling.service.SchedulingService;
 import com.gini.scheduling.utils.DateGenerator;
-import com.gini.scheduling.utils.VacationDayCalculate;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import net.minidev.json.JSONObject;
@@ -78,6 +77,7 @@ public class SchedulingController extends RestExceptionHandler {
     private String HID;
     @Value("${spring.apid}")
     private String APID;
+
     public static <T> List<T> getRandomList(List<T> sourceList, int total) {
         List<T> tempList = new ArrayList<T>();
         List<T> result = new ArrayList<>();
@@ -635,33 +635,35 @@ public class SchedulingController extends RestExceptionHandler {
         }
     }
 
-    public void ra8Replacement(List<Sgresult> sgresultList, List<Sgresult> lastMonthSgresultList, List<String> unoList, LocalDate currentSchdate, String clsno) {
-        LocalDate monthStart = currentSchdate;
-        LocalDate monthEnd = YearMonth.from(monthStart).atEndOfMonth();
+    public void ra8Replacement(List<LocalDate> currentMonthNationalHolidaysList, List<Sgresult> sgresultList, List<Sgresult> lastMonthSgresultList, List<String> unoList, LocalDate monthStart, LocalDate monthEnd, String clsno) {
         // 當月實際假數如大於預估假數，則隨機將平日的 OFF 班轉 A8 班。
-        int currentYear = currentSchdate.getYear();
-        String currentMonth = currentSchdate.getMonthValue() >= 10
-            ? String.valueOf(currentSchdate.getMonthValue())
-            : "0" + String.valueOf(currentSchdate.getMonthValue());
+        int currentYear = monthStart.getYear();
+        int currentMonth = monthStart.getMonthValue();
         // 獲取當月預估休假總天數以及當月實際休假總天數
-        HashMap<String, Boolean> map = new VacationDayCalculate().yearVacationDay(currentYear);
-        Set<String> keySet = map.keySet();
-        int estimateDaysOff = keySet
-            .stream()
-            .filter(key -> map.get(key) && key.startsWith(currentMonth))
-            .collect(Collectors.toList())
-            .size();
+//        HashMap<String, Boolean> map = new VacationDayCalculate().yearVacationDay(currentYear);
+//        Set<String> keySet = map.keySet();
+//        int estimateDaysOff = keySet
+//            .stream()
+//            .filter(key -> map.get(key) && key.startsWith(currentMonth))
+//            .collect(Collectors.toList())
+//            .size();
+        int totalWeekendDays = 0;
+        for (LocalDate currentDate = monthStart; currentDate.isBefore(monthEnd.plusDays(1)); currentDate = currentDate.plusDays(1)) {
+            DayOfWeek day = DayOfWeek.of(currentDate.get(ChronoField.DAY_OF_WEEK));
+            if (day == DayOfWeek.SUNDAY || day == DayOfWeek.SATURDAY) totalWeekendDays++;
+        }
+        int estimateDaysOff = totalWeekendDays + currentMonthNationalHolidaysList.size();
         for (String uno : unoList) {
             List<Sgresult> weekDayList = new ArrayList<>();
             List<LocalDate> weekEndList = new ArrayList<>();
-            int actualDaysOff = 0;
+            int actualDaysOff = sgresultList.stream().filter(sgresult -> sgresult.getUno().equals(uno) && sgresult.getClsno().equals("OFF")).collect(Collectors.toList()).size();
             // 找出本月完整假日
             for (Sgresult sgresult1 : sgresultList) {
                 for (Sgresult sgresult2 : sgresultList) {
-                    Boolean isCurrentYear = sgresult1.getSchdate().getYear() == currentSchdate.getYear()
-                        && sgresult2.getSchdate().getYear() == currentSchdate.getYear();
-                    Boolean isCurrentMonth = sgresult1.getSchdate().getMonthValue() == currentSchdate.getMonthValue()
-                        && sgresult2.getSchdate().getMonthValue() == currentSchdate.getMonthValue();
+                    Boolean isCurrentYear = sgresult1.getSchdate().getYear() == currentYear
+                        && sgresult2.getSchdate().getYear() == currentYear;
+                    Boolean isCurrentMonth = sgresult1.getSchdate().getMonthValue() == currentMonth
+                        && sgresult2.getSchdate().getMonthValue() == currentMonth;
                     Boolean isCurrentSchdate = sgresult1.getSchdate().plusDays(1).equals(sgresult2.getSchdate())
                         && sgresult1.isWeekend()
                         && sgresult2.isWeekend();
@@ -680,13 +682,12 @@ public class SchedulingController extends RestExceptionHandler {
                 }
             }
             for (Sgresult sgresult : sgresultList) {
-                Boolean isCurrentYear = sgresult.getSchdate().getYear() == currentSchdate.getYear();
-                Boolean isCurrentMonth = sgresult.getSchdate().getMonthValue() == currentSchdate.getMonthValue();
+                Boolean isCurrentYear = sgresult.getSchdate().getYear() == currentYear;
+                Boolean isCurrentMonth = sgresult.getSchdate().getMonthValue() == currentMonth;
                 Boolean isCurrentSchdate = !weekEndList.contains(sgresult.getSchdate());
                 Boolean isDayOff = sgresult.getClsno().equals("OFF");
                 Boolean isCurrentUno = sgresult.getUno().equals(uno);
                 if (isCurrentYear && isCurrentMonth && isCurrentSchdate && isDayOff && isCurrentUno) {
-                    actualDaysOff++;
                     weekDayList.add(sgresult);
                 }
             }
@@ -728,7 +729,7 @@ public class SchedulingController extends RestExceptionHandler {
             weekDayList = tempList.stream().filter(sgresult -> !sgresult.isWeekend()).collect(Collectors.toList());
             if (actualDaysOff > estimateDaysOff) {
                 int numberOfReplacements = actualDaysOff - estimateDaysOff;
-                for (int i = 0; i < numberOfReplacements; i++) {
+                while (numberOfReplacements>0) {
                     int random = new Random().nextInt(weekDayList.size());
                     LocalDate currentDate = weekDayList.remove(random).getSchdate();
                     for (Sgresult sgresult : sgresultList) {
@@ -761,9 +762,10 @@ public class SchedulingController extends RestExceptionHandler {
                                 .map(sgresult1 -> sgresult1.getUno())
                                 .collect(Collectors.toList())
                                 .size() == 0;
-                            if (isAvailable) {
+                            if (isAvailable && numberOfReplacements>0) {
                                 sgresult.setClsno("A8");
                                 sgresult.setClspr(8);
+                                numberOfReplacements--;
                             }
                         }
                     }
@@ -848,13 +850,24 @@ public class SchedulingController extends RestExceptionHandler {
             String clsno = sgresult.getClsno();
             int clspr = sgresult.getClspr();
             int overtime = sgresult.getOvertime();
-            sgschList.add(new Sgsch(uno, schdate, clsno, clspr, overtime));
+            String remark = sgresult.getRemark();
+            sgschList.add(new Sgsch(uno, schdate, clsno, clspr, overtime, remark));
         }
         sgschRepository.saveAll(sgschList);
     }
 
     // 啟動排班引擎，並將排班結果儲存至人員排班結果表。
     public void scheduling(LocalDate startSchdate, LocalDate endSchdate) {
+        // 獲取本月期所有國定假日日期。
+        List<LocalDate> nationalHolidaysList = sgsysRepository.findAllNationalHolidays()
+            .stream()
+            .map(nationalHoliday -> {
+                int year = Integer.parseInt(nationalHoliday.substring(0, 4));
+                int month = Integer.parseInt(nationalHoliday.substring(4, 6));
+                int date = Integer.parseInt(nationalHoliday.substring(6, 8));
+                return LocalDate.of(year, month, date);
+            })
+            .collect(Collectors.toList());
         // 獲取可用人力資訊，並排除不排班組。
         List<Sgruser> sgruserList = sgruserRepository.findAll();
         List<Sgruser> sgruserBreastFeedList = sgruserList
@@ -866,8 +879,9 @@ public class SchedulingController extends RestExceptionHandler {
             .stream()
             .filter(sgruser -> {
                 Boolean isCurrentUteam = sgruser.getUteam().equals("不排班");
-                Boolean isSpeicalLeave = isSpecialLeave(sgruser.getUno(), startSchdate, endSchdate);
-                return isCurrentUteam || isSpeicalLeave;
+//                Boolean isSpeicalLeave = isSpecialLeave(sgruser.getUno(), startSchdate, endSchdate);
+//                return isCurrentUteam || isSpeicalLeave;
+                return isCurrentUteam;
             })
             .collect(Collectors.toList());
         sgruserList.removeAll(sgruserRegularList);
@@ -883,6 +897,14 @@ public class SchedulingController extends RestExceptionHandler {
             .stream()
             .map(sgruser -> sgruser.getUno())
             .collect(Collectors.toList());
+        List<String> civilServantList = allUnoList
+            .stream()
+            .filter(uno -> uno.substring(0, 1).equals("P"))
+            .collect(Collectors.toList());
+        List<String> laborList = allUnoList
+            .stream()
+            .filter(uno -> !civilServantList.contains(uno))
+            .collect(Collectors.toList());
         List<Sgshift> sgshiftList = sgshiftRepository.findAll();
         List<Sgsys> sgsysList = sgsysRepository.findAll();
         long monthsBetween = ChronoUnit.MONTHS.between(LocalDate.parse(startSchdate.toString()),
@@ -893,6 +915,11 @@ public class SchedulingController extends RestExceptionHandler {
             // 本月日期區間
             LocalDate monthStart = startSchdate.plusMonths(i);
             LocalDate monthEnd = YearMonth.from(monthStart).atEndOfMonth();
+            // 獲取當月所有國定假日
+            List<LocalDate> currentMonthNationalHolidaysList = nationalHolidaysList
+                .stream()
+                .filter(NationalHoliday -> NationalHoliday.getMonthValue() == monthStart.getMonthValue())
+                .collect(Collectors.toList());
             // 本月 uteam 備份
             for (Sgruser sgruser : sgruserList) {
                 if (sgruser.getUteam().equals("A") || sgruser.getUteam().equals("B") || sgruser.getUteam().equals("C")) {
@@ -1941,11 +1968,11 @@ public class SchedulingController extends RestExceptionHandler {
                         }
                     }
                     if (isAnnualLeave) {
-                        sgresultList.add(new Sgresult(sgruser, currentDate, currentWeek, "公休"));
+                        sgresultList.add(new Sgresult(sgruser, currentDate, currentWeek, "公休", ""));
                     } else if (isDayOff) {
-                        sgresultList.add(new Sgresult(sgruser, currentDate, currentWeek, "OFF"));
+                        sgresultList.add(new Sgresult(sgruser, currentDate, currentWeek, "OFF", ""));
                     } else {
-                        sgresultList.add(new Sgresult(sgruser, currentDate, currentWeek, ""));
+                        sgresultList.add(new Sgresult(sgruser, currentDate, currentWeek, "", ""));
                     }
                 }
             }
@@ -2571,6 +2598,7 @@ public class SchedulingController extends RestExceptionHandler {
                                 .collect(Collectors.toList())
                                 .size() > 0;
                             Boolean isAvailable = !r55DayOffUnoList.contains(unavailable.getUno())
+                                && !r55HolidayABCList.contains(unavailable.getUno())
                                 && sgresultList
                                 .stream()
                                 .filter(sgresult -> {
@@ -3373,16 +3401,295 @@ public class SchedulingController extends RestExceptionHandler {
                             }
                         }
                     }
-
+                }
+                // 如遇國定假日，則各班別人力充足時，可以維持最低需求人力為前提，讓剩餘人員放假。
+                if (currentMonthNationalHolidaysList.contains(currentSchdate) && isWeekday) {
+                    LocalDate finalCurrentSchdate = currentSchdate;
+                    List<String> unavailableUnoList = sgresultList
+                        .stream()
+                        .filter(sgresult -> {
+                            Boolean isCurrentSchdate = sgresult.getSchdate().equals(finalCurrentSchdate);
+                            Boolean isA0 = sgresult.getClsno().equals("A0");
+                            Boolean isD6 = sgresult.getClsno().equals("D6");
+                            return isCurrentSchdate && (isA0 || isD6);
+                        })
+                        .map(sgresult -> sgresult.getUno())
+                        .collect(Collectors.toList());
+                    List<String> unavailable55List = getRandomList(sgresultList
+                            .stream()
+                            .filter(sgresult -> {
+                                Boolean isCurrentSchdate = sgresult.getSchdate().equals(finalCurrentSchdate);
+                                Boolean is55 = sgresult.getClsno().equals("55");
+                                return isCurrentSchdate && is55;
+                            })
+                            .map(sgresult -> sgresult.getUno())
+                            .collect(Collectors.toList())
+                        ,
+                        r55Manpower);
+                    unavailableUnoList.addAll(unavailable55List);
+                    List<String> unavailableA8List = getRandomList(sgresultList
+                            .stream()
+                            .filter(sgresult -> {
+                                Boolean isCurrentSchdate = sgresult.getSchdate().equals(finalCurrentSchdate);
+                                Boolean isA8 = sgresult.getClsno().equals("A8");
+                                return isCurrentSchdate && isA8;
+                            })
+                            .map(sgresult -> sgresult.getUno())
+                            .collect(Collectors.toList())
+                        ,
+                        2);
+                    unavailableUnoList.addAll(unavailableA8List);
+                    for (Sgresult sgresult : sgresultList) {
+                        Boolean isCurrentSchdate = sgresult.getSchdate().equals(currentSchdate);
+                        Boolean isCurrentUno = !unavailableUnoList.contains(sgresult.getUno());
+                        if (isCurrentSchdate && isCurrentUno) {
+                            sgresult.setClsno("OFF");
+                            sgresult.setClspr(0);
+                        }
+                    }
                 }
             }
-            ra8Replacement(sgresultList, lastMonthSgresultList, ra0ABCList, monthStart, "A0");
-            ra8Replacement(sgresultList, lastMonthSgresultList, rd6ABCList, monthStart, "D6");
+
+            ra8Replacement(currentMonthNationalHolidaysList, sgresultList, lastMonthSgresultList, ra0ABCList, monthStart, monthEnd, "A0");
+            ra8Replacement(currentMonthNationalHolidaysList, sgresultList, lastMonthSgresultList, rd6ABCList, monthStart, monthEnd, "D6");
             setOvertime(sgresultList, sgbackupList, monthStart, monthEnd);
+            setRemark(currentMonthNationalHolidaysList, sgresultList, civilServantList, laborList, monthStart, monthEnd);
             sgresultRepository.saveAll(sgresultList);
             sgbackupRepository.saveAll(sgbackupList);
         }
 
+    }
+
+    // 判斷 OFF 班類型，並加入備註。
+    public void setRemark(List<LocalDate> currentMonthNationalHolidaysList, List<Sgresult> sgresultList, List<String> civilServantList, List<String> laborList, LocalDate monthStart, LocalDate monthEnd) {
+        // 取得當月 YY、ZZ 總數
+        int totalYY = 0;
+        int totalZZ = 0;
+        for (LocalDate currentSchdate = monthStart; currentSchdate.isBefore(monthEnd.plusDays(1)); currentSchdate = currentSchdate.plusDays(1)) {
+            DayOfWeek day = DayOfWeek.of(currentSchdate.get(ChronoField.DAY_OF_WEEK));
+            if (day == DayOfWeek.SATURDAY) {
+                totalYY++;
+            }
+            if (day == DayOfWeek.SUNDAY) {
+                totalZZ++;
+            }
+        }
+        // 取得當月所有週
+        List<Integer> weekList = sgresultList
+            .stream()
+            .map(sgresult -> sgresult.getSchweek())
+            .distinct()
+            .collect(Collectors.toList());
+        for (Sgresult sgresult : sgresultList) {
+            Boolean isLabor = laborList.contains(sgresult.getUno());
+            Boolean isCivilServant = civilServantList.contains(sgresult.getUno());
+            Boolean isDayOff = sgresult.getClsno().equals("OFF");
+            if (isDayOff) {
+                // 公務員如為 OFF 班，則當天的備註為 00。
+                if (isCivilServant) {
+                    sgresult.setRemark("00");
+                }
+                // 勞基法人員如為 OFF 班，則當天的備註為 YY (休息日、週六)、ZZ (例假日、週日) 00 (國定假日)。
+                if (isLabor) {
+                    Boolean isNationalHoliday = currentMonthNationalHolidaysList.contains(sgresult.getSchdate());
+                    DayOfWeek day = DayOfWeek.of(sgresult.getSchdate().get(ChronoField.DAY_OF_WEEK));
+                    if (day == DayOfWeek.SATURDAY) {
+                        sgresult.setRemark("YY");
+                    }
+                    if (day == DayOfWeek.SUNDAY) {
+                        sgresult.setRemark("ZZ");
+                    }
+                    if (isNationalHoliday) {
+                        sgresult.setRemark("00");
+                    }
+                }
+            }
+        }
+        for (String uno : laborList) {
+            // 尚須補足的 YY、ZZ 數量
+            int requiredQuantityOfYY = totalYY;
+            int requiredQuantityOfZZ = totalZZ;
+            // 扣除已存在的 YY、ZZ
+            for (Sgresult sgresult : sgresultList) {
+                Boolean isLabor = laborList.contains(sgresult.getUno());
+                Boolean isCurrentUno = sgresult.getUno().equals(uno);
+                Boolean isDayOff = sgresult.getClsno().equals("OFF");
+                if (isLabor && isCurrentUno && isDayOff) {
+                    Boolean isYY = sgresult.getRemark().equals("YY");
+                    Boolean isZZ = sgresult.getRemark().equals("ZZ");
+                    if (isYY) requiredQuantityOfYY--;
+                    if (isZZ) requiredQuantityOfZZ--;
+                }
+            }
+            for (int week : weekList) {
+                // 檢查當週是否有週六、週日
+                Boolean hasYY = false;
+                Boolean hasZZ = false;
+                for (Sgresult sgresult : sgresultList) {
+                    Boolean isCurrentWeek = sgresult.getSchweek() == week;
+                    Boolean isCurrentMonth = sgresult.getSchdate().getMonthValue() == monthStart.getMonthValue();
+                    if (isCurrentMonth && isCurrentWeek) {
+                        DayOfWeek day = DayOfWeek.of(sgresult.getSchdate().get(ChronoField.DAY_OF_WEEK));
+                        if (day == DayOfWeek.SATURDAY) {
+                            hasYY = true;
+                        }
+                        if (day == DayOfWeek.SUNDAY) {
+                            hasZZ = true;
+                        }
+                    }
+                }
+                // 計算當週尚缺多少 YY、ZZ。
+                Boolean lackOfYY = hasYY ? true : false;
+                Boolean lackOfZZ = hasZZ ? true : false;
+                if (lackOfYY || lackOfZZ) {
+                    for (Sgresult sgresult : sgresultList) {
+                        Boolean isLabor = laborList.contains(sgresult.getUno());
+                        Boolean isCurrentUno = sgresult.getUno().equals(uno);
+                        Boolean isCurrentWeek = sgresult.getSchweek() == week;
+                        Boolean isDayOff = sgresult.getClsno().equals("OFF");
+                        if (isLabor && isCurrentUno && isCurrentWeek && isDayOff) {
+                            Boolean isYY = sgresult.getRemark().equals("YY");
+                            Boolean isZZ = sgresult.getRemark().equals("ZZ");
+                            if (isYY) {
+                                lackOfYY = false;
+                            }
+                            if (isZZ) {
+                                lackOfZZ = false;
+                            }
+                        }
+                    }
+                }
+                // 若當週缺少 YY 或 ZZ，則於當週其中一個備註為空的 OFF 班補上備註。
+                if (lackOfYY || lackOfZZ) {
+                    for (Sgresult sgresult : sgresultList) {
+                        Boolean isLabor = laborList.contains(sgresult.getUno());
+                        Boolean isCurrentUno = sgresult.getUno().equals(uno);
+                        Boolean isCurrentWeek = sgresult.getSchweek() == week;
+                        Boolean isDayOff = sgresult.getClsno().equals("OFF");
+                        Boolean isEmpty = sgresult.getRemark().equals("");
+                        if (isLabor && isCurrentUno && isCurrentWeek && isDayOff && isEmpty) {
+                            if (lackOfYY && requiredQuantityOfYY > 0) {
+                                sgresult.setRemark("YY");
+                                requiredQuantityOfYY--;
+                                lackOfYY = false;
+                                continue;
+                            }
+                            if (lackOfZZ && requiredQuantityOfZZ > 0) {
+                                sgresult.setRemark("ZZ");
+                                requiredQuantityOfZZ--;
+                                lackOfZZ = false;
+                                break;
+                            }
+                        }
+                    }
+                    // 若缺少的 YY、ZZ 沒有可用的日期，則再從國定假日替補。
+                    if (lackOfYY || lackOfZZ) {
+                        for (Sgresult sgresult : sgresultList) {
+                            Boolean isLabor = laborList.contains(sgresult.getUno());
+                            Boolean isCurrentUno = sgresult.getUno().equals(uno);
+                            Boolean isCurrentWeek = sgresult.getSchweek() == week;
+                            Boolean isDayOff = sgresult.getClsno().equals("OFF");
+                            Boolean isNationalHoliday = sgresult.getRemark().equals("00");
+                            if (isLabor && isCurrentUno && isCurrentWeek && isDayOff && isNationalHoliday) {
+                                if (lackOfYY && requiredQuantityOfYY > 0) {
+                                    sgresult.setRemark("YY");
+                                    requiredQuantityOfYY--;
+                                    lackOfYY = false;
+                                    continue;
+                                }
+                                if (lackOfZZ && requiredQuantityOfZZ > 0) {
+                                    sgresult.setRemark("ZZ");
+                                    requiredQuantityOfZZ--;
+                                    lackOfZZ = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // 如備註存在空值，則按 YY、ZZ 缺額補齊。
+            String lastRemark = requiredQuantityOfYY > 0 ? "YY" : "ZZ";
+            for (Sgresult sgresult : sgresultList) {
+                Boolean isLabor = laborList.contains(sgresult.getUno());
+                Boolean isCurrentUno = sgresult.getUno().equals(uno);
+                Boolean isDayOff = sgresult.getClsno().equals("OFF");
+                if (isLabor && isCurrentUno && isDayOff) {
+                    Boolean isYY = sgresult.getRemark().equals("YY");
+                    Boolean isZZ = sgresult.getRemark().equals("ZZ");
+                    Boolean isEmpty = sgresult.getRemark().equals("");
+                    if (isYY) {
+                        lastRemark = "YY";
+                    } else if (isZZ) {
+                        lastRemark = "ZZ";
+                    } else if (isEmpty) {
+                        if (lastRemark.equals("ZZ") && requiredQuantityOfYY > 0) {
+                            sgresult.setRemark("YY");
+                            requiredQuantityOfYY--;
+                            lastRemark = "YY";
+                        } else if (lastRemark.equals("YY") && requiredQuantityOfZZ > 0) {
+                            sgresult.setRemark("ZZ");
+                            requiredQuantityOfZZ--;
+                            lastRemark = "ZZ";
+                        }else if (requiredQuantityOfYY > 0){
+                            sgresult.setRemark("YY");
+                            requiredQuantityOfYY--;
+                            lastRemark = "YY";
+                        }else if (requiredQuantityOfZZ > 0){
+                            sgresult.setRemark("ZZ");
+                            requiredQuantityOfZZ--;
+                            lastRemark = "ZZ";
+                        }
+                    }
+                }
+            }
+            // 若備住還存在剩餘缺額，檢查是否有國定假日欠假，如是則利用空白備住補足。
+            int lackOfNationalHolidays = currentMonthNationalHolidaysList.size() -
+                sgresultList.stream().filter(sgresult -> {
+                    Boolean isLabor = laborList.contains(sgresult.getUno());
+                    Boolean isCurrentUno = sgresult.getUno().equals(uno);
+                    Boolean isDayOff = sgresult.getClsno().equals("OFF");
+                    Boolean is00 = sgresult.getRemark().equals("00");
+                    return isLabor && isCurrentUno && isDayOff && is00;
+                }).collect(Collectors.toList()).size();
+            for (Sgresult sgresult : sgresultList) {
+                if (lackOfNationalHolidays > 0) {
+                    Boolean isLabor = laborList.contains(sgresult.getUno());
+                    Boolean isCurrentUno = sgresult.getUno().equals(uno);
+                    Boolean isDayOff = sgresult.getClsno().equals("OFF");
+                    Boolean isEmpty = sgresult.getRemark().equals("");
+                    if (isLabor && isCurrentUno && isDayOff && isEmpty) {
+                        sgresult.setRemark("00");
+                        lackOfNationalHolidays--;
+                    }
+                }
+            }
+            // 若備住還存在剩餘缺額，應為人員因輪班而產生的多出的假，輪流在備註補上 YY、ZZ 即可。
+            lastRemark = "YY";
+            for (Sgresult sgresult : sgresultList) {
+                Boolean isLabor = laborList.contains(sgresult.getUno());
+                Boolean isCurrentUno = sgresult.getUno().equals(uno);
+                Boolean isDayOff = sgresult.getClsno().equals("OFF");
+                if (isLabor && isCurrentUno && isDayOff) {
+                    Boolean isYY = sgresult.getRemark().equals("YY");
+                    Boolean isZZ = sgresult.getRemark().equals("ZZ");
+                    Boolean isEmpty = sgresult.getRemark().equals("");
+                    if (isYY) {
+                        lastRemark = "YY";
+                    } else if (isZZ) {
+                        lastRemark = "ZZ";
+                    } else if (isEmpty) {
+                        if (lastRemark.equals("ZZ"))  {
+                            sgresult.setRemark("YY");
+                            lastRemark = "YY";
+                        } else if (lastRemark.equals("YY")) {
+                            sgresult.setRemark("ZZ");
+                            lastRemark = "ZZ";
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @GetMapping("/solve")

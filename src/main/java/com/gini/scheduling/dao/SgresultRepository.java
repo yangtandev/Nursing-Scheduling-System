@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface SgresultRepository extends PagingAndSortingRepository<Sgresult, String> {
     @Override
-    @Query(value = "SELECT schuuid,schdate,schweek,clsno,uno,clsnohid,clspr,overtime,hid FROM "+SchemaConfig.schema+".sgresult WITH UR",
+    @Query(value = "SELECT schuuid,schdate,schweek,clsno,uno,clsnohid,clspr,overtime,remark,hid FROM "+SchemaConfig.schema+".sgresult WITH UR",
     nativeQuery = true)
     List<Sgresult> findAll();
 
@@ -24,14 +24,14 @@ public interface SgresultRepository extends PagingAndSortingRepository<Sgresult,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT schuuid,schdate,schweek,clsno,uno,clsnohid,clspr,overtime,hid FROM "+SchemaConfig.schema+".sgresult WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate WITH UR",
+    @Query(value = "SELECT schuuid,schdate,schweek,clsno,uno,clsnohid,clspr,overtime,remark,hid FROM "+SchemaConfig.schema+".sgresult WHERE schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate WITH UR",
             nativeQuery = true)
     List<Sgresult> findAllByDate(
             @Param("startSchdate") LocalDate startSchdate,
             @Param("endSchdate") LocalDate endSchdate
     );
 
-    @Query(value = "SELECT schuuid,schdate,schweek,clsno,uno,clsnohid,clspr,overtime,hid FROM "+SchemaConfig.schema+".sgresult WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate WITH UR",
+    @Query(value = "SELECT schuuid,schdate,schweek,clsno,uno,clsnohid,clspr,overtime,remark,hid FROM "+SchemaConfig.schema+".sgresult WHERE uno = :uno AND schdate BETWEEN :startSchdate AND :endSchdate ORDER BY schdate WITH UR",
             nativeQuery = true)
     List<Sgresult> findAllByUnoAndDate(
             @Param("uno") String uno,
