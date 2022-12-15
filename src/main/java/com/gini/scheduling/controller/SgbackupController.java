@@ -1,6 +1,5 @@
 package com.gini.scheduling.controller;
 
-import com.gini.scheduling.dao.SgruserRepository;
 import com.gini.scheduling.dao.SgbackupRepository;
 import com.gini.scheduling.exception.EntityNotFoundException;
 import com.gini.scheduling.model.Sgbackup;
@@ -21,8 +20,6 @@ public class SgbackupController {
     @Autowired
     private SgbackupRepository sgbackupRepository;
 
-    @Autowired
-    private SgruserRepository sgruserRepository;
     public static final Logger logger = LoggerFactory.getLogger(SgbackupController.class);
     @GetMapping("/sgbackup")
     public List<Sgbackup> getSgbackup(

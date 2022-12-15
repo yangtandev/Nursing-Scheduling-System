@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gini.scheduling.dao.*;
 import com.gini.scheduling.exception.RestExceptionHandler;
 import com.gini.scheduling.model.*;
-import com.gini.scheduling.service.SchedulingService;
 import com.gini.scheduling.utils.DateGenerator;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -13,9 +12,6 @@ import net.minidev.json.JSONObject;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.optaplanner.core.api.score.ScoreManager;
-import org.optaplanner.core.api.solver.SolverManager;
-import org.optaplanner.core.api.solver.SolverStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,6 +26,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -48,10 +44,6 @@ import java.util.stream.Stream;
 public class SchedulingController extends RestExceptionHandler {
     public static final Logger logger = LoggerFactory.getLogger(SchedulingController.class);
     @Autowired
-    private SchedulingService schedulingService;
-    @Autowired
-    private Scheduling scheduling;
-    @Autowired
     private SgresultRepository sgresultRepository;
     @Autowired
     private SgshiftRepository sgshiftRepository;
@@ -63,12 +55,6 @@ public class SchedulingController extends RestExceptionHandler {
     private SgsysRepository sgsysRepository;
     @Autowired
     private SgruserRepository sgruserRepository;
-    @Autowired(required = false)
-    private SolverManager<Scheduling, String> solverManager;
-    @Autowired(required = false)
-    private ScoreManager<Scheduling> scoreManager;
-    @Value("${optaplanner.solver.termination.spent-limit}")
-    private String spentLimit;
     @Value("${spring.getoffinfo.url}")
     private String GET_OFF_INFO_URL;
     @Value("${spring.apikey}")
@@ -82,7 +68,9 @@ public class SchedulingController extends RestExceptionHandler {
         List<T> tempList = new ArrayList<T>();
         List<T> result = new ArrayList<>();
         for (int i = 0; i < total; i++) {
-            int random = new Random().nextInt(sourceList.size());
+            SecureRandom rand = new SecureRandom();
+            rand.setSeed((new Date()).getTime());
+            int random = rand.nextInt(sourceList.size());
             if (!tempList.contains(sourceList.get(random))) {
                 tempList.add(sourceList.get(random));
                 result.add(sourceList.remove(random));
@@ -93,7 +81,7 @@ public class SchedulingController extends RestExceptionHandler {
         return result;
     }
 
-    public boolean isSpecialLeave(String uno, LocalDate startSchdate, LocalDate endSchdate) {
+    public boolean checkSpecialLeave(String uno, LocalDate startSchdate, LocalDate endSchdate) {
         try {
             TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
@@ -640,13 +628,6 @@ public class SchedulingController extends RestExceptionHandler {
         int currentYear = monthStart.getYear();
         int currentMonth = monthStart.getMonthValue();
         // 獲取當月預估休假總天數以及當月實際休假總天數
-//        HashMap<String, Boolean> map = new VacationDayCalculate().yearVacationDay(currentYear);
-//        Set<String> keySet = map.keySet();
-//        int estimateDaysOff = keySet
-//            .stream()
-//            .filter(key -> map.get(key) && key.startsWith(currentMonth))
-//            .collect(Collectors.toList())
-//            .size();
         int totalWeekendDays = 0;
         for (LocalDate currentDate = monthStart; currentDate.isBefore(monthEnd.plusDays(1)); currentDate = currentDate.plusDays(1)) {
             DayOfWeek day = DayOfWeek.of(currentDate.get(ChronoField.DAY_OF_WEEK));
@@ -730,7 +711,9 @@ public class SchedulingController extends RestExceptionHandler {
             if (actualDaysOff > estimateDaysOff) {
                 int numberOfReplacements = actualDaysOff - estimateDaysOff;
                 while (numberOfReplacements>0) {
-                    int random = new Random().nextInt(weekDayList.size());
+                    SecureRandom rand = new SecureRandom();
+                    rand.setSeed((new Date()).getTime());
+                    int random = rand.nextInt(weekDayList.size());
                     LocalDate currentDate = weekDayList.remove(random).getSchdate();
                     for (Sgresult sgresult : sgresultList) {
                         Boolean isCurrentSchdate = sgresult.getSchdate().equals(currentDate) && !currentDate.equals(monthEnd);
@@ -879,9 +862,8 @@ public class SchedulingController extends RestExceptionHandler {
             .stream()
             .filter(sgruser -> {
                 Boolean isCurrentUteam = sgruser.getUteam().equals("不排班");
-//                Boolean isSpeicalLeave = isSpecialLeave(sgruser.getUno(), startSchdate, endSchdate);
-//                return isCurrentUteam || isSpeicalLeave;
-                return isCurrentUteam;
+                Boolean isSpecialLeave = checkSpecialLeave(sgruser.getUno(), startSchdate, endSchdate);
+                return isCurrentUteam || isSpecialLeave;
             })
             .collect(Collectors.toList());
         sgruserList.removeAll(sgruserRegularList);
@@ -1825,7 +1807,9 @@ public class SchedulingController extends RestExceptionHandler {
                 )
                 .flatMap(x -> x.stream())
                 .collect(Collectors.toList());
-            String firstA8Uno = totalManpowerList.get(new Random().nextInt(totalManpowerList.size()));
+            SecureRandom rand = new SecureRandom();
+            rand.setSeed((new Date()).getTime());
+            String firstA8Uno = totalManpowerList.get(rand.nextInt(totalManpowerList.size()));
             ra8ABCList.add(firstA8Uno);
             if (ra8Manpower >= 2) {
                 int numberOfShortages = ra8Manpower - 2;
@@ -1854,7 +1838,8 @@ public class SchedulingController extends RestExceptionHandler {
                         .flatMap(x -> x.stream())
                         .collect(Collectors.toList());
                 }
-                String secondA8Uno = totalManpowerList.get(new Random().nextInt(totalManpowerList.size()));
+
+                String secondA8Uno = totalManpowerList.get(rand.nextInt(totalManpowerList.size()));
                 ra8ABCList.add(secondA8Uno);
                 if (numberOfShortages > 0) {
                     totalManpowerList = Stream
@@ -2438,7 +2423,7 @@ public class SchedulingController extends RestExceptionHandler {
                                                 }
                                             }
                                         } else {
-                                            int random = new Random().nextInt(daysOffUnoList.size());
+                                            int random = rand.nextInt(daysOffUnoList.size());
                                             String alternativeUno = daysOffUnoList.get(random);
                                             for (Sgresult sgresult : sgresultList) {
                                                 Boolean isCurrentUno = sgresult.getUno().equals(currentUno);
@@ -3091,7 +3076,7 @@ public class SchedulingController extends RestExceptionHandler {
                         int numberOfA8Shortages = 2 - remainingA8;
                         for (int index = 0; index < numberOfA8Shortages; index++) {
                             if (ra8AlternativeUnoList.size() > 0) {
-                                int random = new Random().nextInt(ra8AlternativeUnoList.size());
+                                int random = rand.nextInt(ra8AlternativeUnoList.size());
                                 ra8AlternativeUnoList.remove(random);
                             }
                         }
@@ -3694,7 +3679,6 @@ public class SchedulingController extends RestExceptionHandler {
 
     @GetMapping("/solve")
     public ResponseEntity solve(LocalDate startSchdate, LocalDate endSchdate) {
-        stopSolving();
         ResponseEntity checkManpowerResponse = checkManpower();
         if (checkManpowerResponse.getStatusCode().value() == 500) return checkManpowerResponse;
         ResponseEntity checkUteamResponse = checkUteam();
@@ -3712,16 +3696,4 @@ public class SchedulingController extends RestExceptionHandler {
             .status(HttpStatus.OK)
             .body(result);
     }
-
-    public SolverStatus getSolverStatus() {
-        return solverManager.getSolverStatus(SchedulingService.PROBLEM_ID);
-    }
-
-    // 停止排班引擎。
-    @PostMapping("/stopSolving")
-    public String stopSolving() {
-        solverManager.terminateEarly(SchedulingService.PROBLEM_ID);
-        return "Success";
-    }
-
 }

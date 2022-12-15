@@ -1,10 +1,8 @@
 package com.gini.scheduling.controller;
 
-import com.gini.scheduling.dao.SgruserRepository;
 import com.gini.scheduling.dao.SgresultRepository;
 import com.gini.scheduling.exception.EntityNotFoundException;
 import com.gini.scheduling.model.Sgresult;
-import com.gini.scheduling.model.Sgshift;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +20,6 @@ public class SgresultController {
     @Autowired
     private SgresultRepository sgresultRepository;
 
-    @Autowired
-    private SgruserRepository sgruserRepository;
     public static final Logger logger = LoggerFactory.getLogger(SgresultController.class);
     @GetMapping("/sgresult")
     public List<Sgresult> getSgresult(

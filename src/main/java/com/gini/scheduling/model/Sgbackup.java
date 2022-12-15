@@ -3,7 +3,6 @@ package com.gini.scheduling.model;
 
 import javax.persistence.*;
 
-import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 import com.gini.scheduling.utils.UUIDGenerator;
 
@@ -13,7 +12,7 @@ import java.time.LocalDate;
 @Entity
 @IdClass(SgbackupId.class)
 public class Sgbackup {
-	@PlanningId
+	
     @Id
     @Column(columnDefinition = "CHAR(22) NOT NULL WITH DEFAULT")
     private String schuuid = UUIDGenerator.generateUUID22();

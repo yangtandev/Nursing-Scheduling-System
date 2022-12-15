@@ -3,10 +3,6 @@ package com.gini.scheduling.model;
 import com.gini.scheduling.utils.UUIDGenerator;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
-import org.optaplanner.core.api.domain.entity.PlanningEntity;
-import org.optaplanner.core.api.domain.lookup.PlanningId;
-import org.optaplanner.core.api.domain.variable.PlanningVariable;
-import com.gini.scheduling.constraint.SchedulingDifficultyComparator;
 import javax.persistence.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -14,10 +10,9 @@ import java.time.temporal.ChronoField;
 
 // 人員排班結果表
 @Entity
-@PlanningEntity(difficultyComparatorClass = SchedulingDifficultyComparator.class)
 @IdClass(SgresultId.class)
 public class Sgresult {
-    @PlanningId
+
     @Id
     @Column(columnDefinition = "CHAR(22) NOT NULL WITH DEFAULT")
     private String schuuid = UUIDGenerator.generateUUID22();
@@ -118,7 +113,6 @@ public class Sgresult {
         this.clsno = clsno.trim();
     }
 
-    @PlanningVariable(valueRangeProviderRefs = "sgruserRange")
     public Sgruser getSgruser() {
         return sgruser;
     }

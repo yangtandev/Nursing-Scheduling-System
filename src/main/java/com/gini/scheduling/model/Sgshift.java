@@ -2,13 +2,11 @@
 
 package com.gini.scheduling.model;
 
-import org.optaplanner.core.api.domain.lookup.PlanningId;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
-import java.time.LocalDate;
 
 // 人員排班班別表
 @Entity

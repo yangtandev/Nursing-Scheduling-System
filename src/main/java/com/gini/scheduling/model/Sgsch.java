@@ -1,7 +1,5 @@
 package com.gini.scheduling.model;
 
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 
 import javax.persistence.*;
 import java.time.LocalDate;

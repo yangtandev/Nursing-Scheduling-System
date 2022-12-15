@@ -1,11 +1,7 @@
 package com.gini.scheduling.model;
 
 
-import org.optaplanner.core.api.domain.lookup.PlanningId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.gini.scheduling.controller.SgrroomController;
 
 import javax.persistence.*;
 
@@ -14,7 +10,7 @@ import javax.persistence.*;
 @IdClass(SgruserId.class)
 public class Sgruser {
     // 使用者卡號
-    @PlanningId
+    
     @Id
     @Column(columnDefinition = "CHAR(005) NOT NULL WITH DEFAULT")
     private String uno;

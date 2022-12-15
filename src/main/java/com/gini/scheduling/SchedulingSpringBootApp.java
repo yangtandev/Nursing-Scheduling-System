@@ -1,34 +1,23 @@
 package com.gini.scheduling;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gini.scheduling.controller.SchedulingController;
-import com.gini.scheduling.controller.SgrroomController;
 import com.gini.scheduling.dao.SgruserRepository;
 import com.gini.scheduling.dao.SgshiftRepository;
 import com.gini.scheduling.dao.SgsysRepository;
-import com.gini.scheduling.model.Sgruser;
 import com.gini.scheduling.model.Sgshift;
 import com.gini.scheduling.model.Sgsys;
-import com.gini.scheduling.utils.VacationDayCalculate;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.jasypt.encryption.StringEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.core.env.Environment;
 
-import java.net.URISyntaxException;
 import java.util.*;
 
 @SpringBootApplication
@@ -37,6 +26,7 @@ public class SchedulingSpringBootApp extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication.run(SchedulingSpringBootApp.class, args);
+
     }
 
     @Override
@@ -109,6 +99,10 @@ public class SchedulingSpringBootApp extends SpringBootServletInitializer {
             }
             sgshiftRepository.saveAll(sgshiftList);
 
+
+
         };
     }
+
+
 }

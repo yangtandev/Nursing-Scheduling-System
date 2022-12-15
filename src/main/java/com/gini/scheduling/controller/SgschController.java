@@ -1,6 +1,5 @@
 package com.gini.scheduling.controller;
 
-import com.gini.scheduling.dao.*;
 import com.gini.scheduling.dao.SgschRepository;
 import com.gini.scheduling.model.*;
 import com.gini.scheduling.exception.EntityNotFoundException;
@@ -21,8 +20,6 @@ public class SgschController {
     @Autowired
     private SgschRepository sgschRepository;
 
-    @Autowired
-    private SgruserRepository sgruserRepository;
     public static final Logger logger = LoggerFactory.getLogger(SgschController.class);
     @GetMapping("/sgsch")
     public List<Sgsch> getSgsch(
