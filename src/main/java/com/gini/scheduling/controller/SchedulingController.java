@@ -1,6 +1,8 @@
 package com.gini.scheduling.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gini.scheduling.dao.*;
 import com.gini.scheduling.exception.RestExceptionHandler;
@@ -8,10 +10,15 @@ import com.gini.scheduling.model.*;
 import com.gini.scheduling.utils.DateGenerator;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import net.minidev.json.JSONObject;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +33,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.security.SecureRandom;
+import java.security.*;
 import java.security.cert.X509Certificate;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -83,24 +90,11 @@ public class SchedulingController extends RestExceptionHandler {
 
     public boolean checkSpecialLeave(String uno, LocalDate startSchdate, LocalDate endSchdate) {
         try {
-            TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                    }
-
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                    }
-                }
-            };
-            SSLContext sslcontext = SSLContext.getInstance("SSL");
-            sslcontext.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sslcontext.getSocketFactory());
-            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext);
-            CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+            SSLContext sslContext = new SSLContextBuilder()
+                .loadTrustMaterial(null, (certificate, authType) -> true).build();
+            CloseableHttpClient httpclient = HttpClients.custom().setSSLContext(sslContext)
+                .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                .build();
             Unirest.setHttpClient(httpclient);
             String url = GET_OFF_INFO_URL;
             String apiKey = API_KEY;
@@ -118,10 +112,13 @@ public class SchedulingController extends RestExceptionHandler {
                 .body(object.toString())
                 .asString();
             if (response.getStatus() == 200) {
+                logger.info("certificate status OK!");
                 ObjectMapper objectMapper = new ObjectMapper();
                 Map<String, Object> result = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {
                 });
+                logger.info("result {}", result);
                 if (result.get("success").equals("Y")) {
+                    logger.info("certificate result OK!");
                     List<Map<String, String>> resultList = (List<Map<String, String>>) result.get("resultList");
                     if (resultList.size() > 0) {
                         for (Map<String, String> resultMap : resultList) {
@@ -138,8 +135,14 @@ public class SchedulingController extends RestExceptionHandler {
                     }
                 }
             }
-        } catch (Exception e) {
-            logger.error("UnknownHostException", e);
+        } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (UnirestException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
         return false;
     }
@@ -204,7 +207,7 @@ public class SchedulingController extends RestExceptionHandler {
         int numberOfManpowerShortages = totalManpowerRequirement - totalManpower;
         Map<String, String> result = new LinkedHashMap<>();
         if (numberOfManpowerShortages > 0) {
-            result.put("httpStatusCode", "400");
+            result.put("httpStatusCode", "500");
             result.put("status", "NOT_FOUND");
             result.put("message", "總人數低於排班最低需求");
             result.put("debugMessage", "請再補 " + numberOfManpowerShortages + " 名人員");
@@ -249,7 +252,7 @@ public class SchedulingController extends RestExceptionHandler {
             debugMessage = debugMessage.concat("C 組尚缺 " + numberOfUteamCShortages + " 名人員, ");
         Map<String, String> result = new LinkedHashMap<>();
         if (!debugMessage.equals("")) {
-            result.put("httpStatusCode", "400");
+            result.put("httpStatusCode", "500");
             result.put("status", "NOT_FOUND");
             result.put("message", "組別人數低於排班最低需求");
             result.put("debugMessage", debugMessage.trim());
@@ -265,7 +268,7 @@ public class SchedulingController extends RestExceptionHandler {
     }
 
     // R6、A0 排班設置: 含四天一組、過剩假數檢查等功能。
-    public void setShift(List<Sgresult> sgresultList, List<Sgresult> lastMonthSgresultList, List<String> lastMonthUnoList, List<String> lastMonthA0AndD6UnoList, List<String> unoList, LocalDate currentSchdate, String clsno) {
+    public void setShift(List<Sgruser> allSgruserList, List<Sgresult> sgresultList, List<Sgresult> lastMonthSgresultList, List<String> lastMonthUnoList, List<String> lastMonthA0AndD6UnoList, List<String> unoList, LocalDate currentSchdate, String clsno) {
         LocalDate monthStart = currentSchdate;
         LocalDate monthEnd = YearMonth.from(monthStart).atEndOfMonth();
         LocalDate lastMonthStart = currentSchdate.minusMonths(1);
@@ -277,6 +280,9 @@ public class SchedulingController extends RestExceptionHandler {
         String lastMonthUno1 = "";
         String lastMonthUno2 = "";
         String lastMonthUno3 = "";
+        int lastMonthUno1LastShiftDate = 0;
+        int lastMonthUno2LastShiftDate = 0;
+        int lastMonthUno3LastShiftDate = 0;
         Map<String, Integer> occupationMap = new HashMap<String, Integer>();
         if (lastMonthUnoList.size() > 0) {
             lastMonthUno1 = lastMonthUnoList.get(0);
@@ -306,14 +312,21 @@ public class SchedulingController extends RestExceptionHandler {
             lastMonthUno2ShiftList.sort(Comparator.comparing(Sgresult::getSchdate));
             lastMonthUno3ShiftList.sort(Comparator.comparing(Sgresult::getSchdate));
             // 取上月最後至多四天內出勤名單
-            for (int index = lastMonthUno1ShiftList.size() - 1; index >= 0; index--) {
+            for (int index = lastMonthUno1ShiftList.size() - 1; index >= lastMonthUno1ShiftList.size() - 4; index--) {
                 if (lastMonthUno1ShiftList.get(index).getClsno().equals("OFF")
-                    || (lastMonthUno1ShiftList.get(index).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index)))
-                    || (lastMonthUno1ShiftList.get(index).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index)))
+                    || (lastMonthUno1ShiftList.get(index).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno()))
+                    || (lastMonthUno1ShiftList.get(index).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno()))
                 ) {
-                    if (!(lastMonthUno1ShiftList.get(index - 1).getClsno().equals("OFF")
-                        || (lastMonthUno1ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index)))
-                        || (lastMonthUno1ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index))))
+                    if (occupationMap.get("occupation1") == 0
+                        && (lastMonthUno1ShiftList.get(index).getClsno().equals("A8") && lastMonthUno1ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno()))
+                        || (lastMonthUno1ShiftList.get(index).getClsno().equals("55") && lastMonthUno1ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno()))
+                    ) {
+                        break;
+                    }
+                    if (occupationMap.get("occupation1") == 0
+                        && !(lastMonthUno1ShiftList.get(index - 1).getClsno().equals("OFF")
+                        || (lastMonthUno1ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno()))
+                        || (lastMonthUno1ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno())))
                     ) {
                         occupationMap.put("singleDayOff1", occupationMap.get("singleDayOff1") + 1);
                     }
@@ -322,14 +335,21 @@ public class SchedulingController extends RestExceptionHandler {
                     occupationMap.put("occupation1", occupationMap.get("occupation1") + 1);
                 }
             }
-            for (int index = lastMonthUno2ShiftList.size() - 1; index >= 0; index--) {
+            for (int index = lastMonthUno2ShiftList.size() - 1; index >= lastMonthUno2ShiftList.size() - 4; index--) {
                 if (lastMonthUno2ShiftList.get(index).getClsno().equals("OFF")
-                    || (lastMonthUno2ShiftList.get(index).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index)))
-                    || (lastMonthUno2ShiftList.get(index).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index)))
+                    || (lastMonthUno2ShiftList.get(index).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno()))
+                    || (lastMonthUno2ShiftList.get(index).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno()))
                 ) {
-                    if (!(lastMonthUno2ShiftList.get(index - 1).getClsno().equals("OFF")
-                        || (lastMonthUno2ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index)))
-                        || (lastMonthUno2ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index))))
+                    if (occupationMap.get("occupation2") == 0
+                        && (lastMonthUno2ShiftList.get(index).getClsno().equals("A8") && lastMonthUno2ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno()))
+                        || (lastMonthUno2ShiftList.get(index).getClsno().equals("55") && lastMonthUno2ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno()))
+                    ) {
+                        break;
+                    }
+                    if (occupationMap.get("occupation2") == 0
+                        && !(lastMonthUno2ShiftList.get(index - 1).getClsno().equals("OFF")
+                        || (lastMonthUno2ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno()))
+                        || (lastMonthUno2ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno())))
                     ) {
                         occupationMap.put("singleDayOff2", occupationMap.get("singleDayOff2") + 1);
                     }
@@ -338,14 +358,21 @@ public class SchedulingController extends RestExceptionHandler {
                     occupationMap.put("occupation2", occupationMap.get("occupation2") + 1);
                 }
             }
-            for (int index = lastMonthUno3ShiftList.size() - 1; index >= 0; index--) {
+            for (int index = lastMonthUno3ShiftList.size() - 1; index >= lastMonthUno3ShiftList.size() - 4; index--) {
                 if (lastMonthUno3ShiftList.get(index).getClsno().equals("OFF")
-                    || (lastMonthUno3ShiftList.get(index).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index)))
-                    || (lastMonthUno3ShiftList.get(index).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index)))
+                    || (lastMonthUno3ShiftList.get(index).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno()))
+                    || (lastMonthUno3ShiftList.get(index).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno()))
                 ) {
-                    if (!(lastMonthUno3ShiftList.get(index - 1).getClsno().equals("OFF")
-                        || (lastMonthUno3ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index)))
-                        || (lastMonthUno3ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index))))
+                    if (occupationMap.get("occupation3") == 0
+                        && (lastMonthUno3ShiftList.get(index).getClsno().equals("A8") && lastMonthUno3ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno()))
+                        || (lastMonthUno3ShiftList.get(index).getClsno().equals("55") && lastMonthUno3ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno()))
+                    ) {
+                        break;
+                    }
+                    if (occupationMap.get("occupation3") == 0
+                        && !(lastMonthUno3ShiftList.get(index - 1).getClsno().equals("OFF")
+                        || (lastMonthUno3ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno()))
+                        || (lastMonthUno3ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno())))
                     ) {
                         occupationMap.put("singleDayOff3", occupationMap.get("singleDayOff3") + 1);
                     }
@@ -355,15 +382,15 @@ public class SchedulingController extends RestExceptionHandler {
                 }
             }
             // 計算上月名單將佔本月初多少工作天，以及本月當班人員起始工作日。
-            int occupationStartSchdate1 = 0;
-            int occupationStartSchdate2 = 0;
-            int occupationStartSchdate3 = 0;
+            int numberOfOccupation1 = 0;
+            int numberOfOccupation2 = 0;
+            int numberOfOccupation3 = 0;
             int shiftStartSchdate1 = 0;
             int shiftStartSchdate2 = 0;
             int shiftStartSchdate3 = 0;
             if (occupationMap.get("occupation1") > 0) {
-                occupationStartSchdate1 = 4 - occupationMap.get("occupation1");
-                shiftStartSchdate1 = occupationStartSchdate1 + 3;
+                numberOfOccupation1 = 4 - occupationMap.get("occupation1");
+                shiftStartSchdate1 = numberOfOccupation1 + 3; // 起始日期 = 月初已被占用天數 + 默認輪休天數 2 天 + 1天(隔天)
             } else {
                 if (occupationMap.get("singleDayOff1") > 0) {
                     shiftStartSchdate1 = 2;
@@ -372,8 +399,8 @@ public class SchedulingController extends RestExceptionHandler {
                 }
             }
             if (occupationMap.get("occupation2") > 0) {
-                occupationStartSchdate2 = 4 - occupationMap.get("occupation2");
-                shiftStartSchdate2 = occupationStartSchdate2 + 3;
+                numberOfOccupation2 = 4 - occupationMap.get("occupation2");
+                shiftStartSchdate2 = numberOfOccupation2 + 3;
             } else {
                 if (occupationMap.get("singleDayOff2") > 0) {
                     shiftStartSchdate2 = 2;
@@ -382,8 +409,8 @@ public class SchedulingController extends RestExceptionHandler {
                 }
             }
             if (occupationMap.get("occupation3") > 0) {
-                occupationStartSchdate3 = 4 - occupationMap.get("occupation3");
-                shiftStartSchdate3 = occupationStartSchdate3 + 3;
+                numberOfOccupation3 = 4 - occupationMap.get("occupation3");
+                shiftStartSchdate3 = numberOfOccupation3 + 3;
             } else {
                 if (occupationMap.get("singleDayOff3") > 0) {
                     shiftStartSchdate3 = 2;
@@ -397,14 +424,17 @@ public class SchedulingController extends RestExceptionHandler {
             int shift1OffCounter = 0;
             int shift2OffCounter = 0;
             int shift3OffCounter = 0;
+
+            // 讓上月輪班週期因跨月而未結束時，優先在當月初補上。
             for (LocalDate date = monthStart; date.isBefore(monthEnd.plusDays(1)); date = date.plusDays(1)) {
-                if (occupationMap.get("occupation1") > 0 && date.getDayOfMonth() <= occupationStartSchdate1) {
+                if (occupationMap.get("occupation1") > 0 && date.getDayOfMonth() <= numberOfOccupation1) {
                     for (Sgresult sgresult : sgresultList) {
                         Boolean isCurrentSchdate = sgresult.getSchdate().equals(date);
                         Boolean isCurrentUno = sgresult.getUno().equals(lastMonthUno1);
                         if (isCurrentSchdate && isCurrentUno) {
                             sgresult.setClsno(clsno);
                             sgresult.setClspr(8);
+                            lastMonthUno1LastShiftDate = sgresult.getSchdate().getDayOfMonth();
                         }
                     }
                 } else if (date.getDayOfMonth() >= shiftStartSchdate1) {
@@ -419,13 +449,14 @@ public class SchedulingController extends RestExceptionHandler {
                         shift1OffCounter--;
                     }
                 }
-                if (occupationMap.get("occupation2") > 0 && date.getDayOfMonth() <= occupationStartSchdate2) {
+                if (occupationMap.get("occupation2") > 0 && date.getDayOfMonth() <= numberOfOccupation2) {
                     for (Sgresult sgresult : sgresultList) {
                         Boolean isCurrentSchdate = sgresult.getSchdate().equals(date);
                         Boolean isCurrentUno = sgresult.getUno().equals(lastMonthUno2);
                         if (isCurrentSchdate && isCurrentUno) {
                             sgresult.setClsno(clsno);
                             sgresult.setClspr(8);
+                            lastMonthUno2LastShiftDate = sgresult.getSchdate().getDayOfMonth();
                         }
                     }
                 } else if (date.getDayOfMonth() >= shiftStartSchdate2) {
@@ -440,13 +471,14 @@ public class SchedulingController extends RestExceptionHandler {
                         shift2OffCounter--;
                     }
                 }
-                if (occupationMap.get("occupation3") > 0 && date.getDayOfMonth() <= occupationStartSchdate3) {
+                if (occupationMap.get("occupation3") > 0 && date.getDayOfMonth() <= numberOfOccupation3) {
                     for (Sgresult sgresult : sgresultList) {
                         Boolean isCurrentSchdate = sgresult.getSchdate().equals(date);
                         Boolean isCurrentUno = sgresult.getUno().equals(lastMonthUno3);
                         if (isCurrentSchdate && isCurrentUno) {
                             sgresult.setClsno(clsno);
                             sgresult.setClspr(8);
+                            lastMonthUno3LastShiftDate = sgresult.getSchdate().getDayOfMonth();
                         }
                     }
                 } else if (date.getDayOfMonth() >= shiftStartSchdate3) {
@@ -467,94 +499,112 @@ public class SchedulingController extends RestExceptionHandler {
             shift2 = Arrays.asList(3, 4, 5, 6, 9, 10, 11, 12, 15, 16, 17, 18, 21, 22, 23, 24, 27, 28, 29, 30);
             shift3 = Arrays.asList(1, 2, 5, 6, 7, 8, 11, 12, 13, 14, 17, 18, 19, 20, 23, 24, 25, 26, 29, 30, 31);
         }
-        String uno1 = unoList.get(0);
-        String uno2 = unoList.get(1);
-        String uno3 = unoList.get(2);
-        if (lastMonthSgresultList.size() > 0) {
-            int firstDateOfShift1 = shift1.get(0);
-            int firstDateOfShift2 = shift2.get(0);
-            int firstDateOfShift3 = shift3.get(0);
-            List<Sgresult> lastMonthUno1ShiftList = new ArrayList<>();
-            List<Sgresult> lastMonthUno2ShiftList = new ArrayList<>();
-            List<Sgresult> lastMonthUno3ShiftList = new ArrayList<>();
-            for (Sgresult sgresult : lastMonthSgresultList) {
-                if (sgresult.getUno().equals(uno1)) lastMonthUno1ShiftList.add(sgresult);
-                if (sgresult.getUno().equals(uno2)) lastMonthUno2ShiftList.add(sgresult);
-                if (sgresult.getUno().equals(uno3)) lastMonthUno3ShiftList.add(sgresult);
-            }
-            // 按日期排序
-            lastMonthUno1ShiftList.sort(Comparator.comparing(Sgresult::getSchdate));
-            lastMonthUno2ShiftList.sort(Comparator.comparing(Sgresult::getSchdate));
-            lastMonthUno3ShiftList.sort(Comparator.comparing(Sgresult::getSchdate));
-            Map<String, List<Sgresult>> unoOccupationMap = new HashMap<>();
-            unoOccupationMap.put("uno1Occupation", lastMonthUno1ShiftList);
-            unoOccupationMap.put("uno2Occupation", lastMonthUno2ShiftList);
-            unoOccupationMap.put("uno3Occupation", lastMonthUno3ShiftList);
-            String tempUno1 = "";
-            String tempUno2 = "";
-            String tempUno3 = "";
-            for (Map.Entry<String, List<Sgresult>> entry : unoOccupationMap.entrySet()) {
-                List<Sgresult> lastMonthList = entry.getValue();
-                if (lastMonthList.size() > 0) {
-                    int unoOccupation = 0;
-                    if (lastMonthList.get(lastMonthList.size() - 1).getClsno().equals("D6")) {
-                        unoOccupation++;
-                        if (lastMonthList.get(lastMonthList.size() - 2).getClsno().equals("D6")) {
-                            unoOccupation++;
-                            if (lastMonthList.get(lastMonthList.size() - 3).getClsno().equals("D6")) {
-                                unoOccupation++;
-                                if (lastMonthList.get(lastMonthList.size() - 4).getClsno().equals("D6")) {
-                                    unoOccupation++;
-                                }
-                            }
-                        }
-                    }
-                    if (lastMonthList.get(lastMonthList.size() - 1).getClsno().equals("A0")) {
-                        unoOccupation++;
-                        if (lastMonthList.get(lastMonthList.size() - 2).getClsno().equals("A0")) {
-                            unoOccupation++;
-                            if (lastMonthList.get(lastMonthList.size() - 3).getClsno().equals("A0")) {
-                                unoOccupation++;
-                                if (lastMonthList.get(lastMonthList.size() - 4).getClsno().equals("A0")) {
-                                    unoOccupation++;
-                                }
-                            }
-                        }
-                    }
-                    if (unoOccupation > 0) {
-                        unoOccupation = (4 - unoOccupation) + 3;
-                        if (entry.getKey().equals("uno1Occupation")) {
-                            if (unoOccupation == firstDateOfShift1) tempUno1 = uno1;
-                            if (unoOccupation == firstDateOfShift2) tempUno2 = uno1;
-                            if (unoOccupation == firstDateOfShift3) tempUno3 = uno1;
-                        }
-                        if (entry.getKey().equals("uno2Occupation")) {
-                            if (unoOccupation == firstDateOfShift1) tempUno1 = uno2;
-                            if (unoOccupation == firstDateOfShift2) tempUno2 = uno2;
-                            if (unoOccupation == firstDateOfShift3) tempUno3 = uno2;
-                        }
-                        if (entry.getKey().equals("uno3Occupation")) {
-                            if (unoOccupation == firstDateOfShift1) tempUno1 = uno3;
-                            if (unoOccupation == firstDateOfShift2) tempUno2 = uno3;
-                            if (unoOccupation == firstDateOfShift3) tempUno3 = uno3;
-                        }
+
+        String uno1 = "";
+        String uno2 = "";
+        String uno3 = "";
+        String uno1Uteam = "";
+        String uno2Uteam = "";
+        String uno3Uteam = "";
+
+        for (Sgruser sgruser : allSgruserList) {
+            for (String uno : unoList) {
+                if (sgruser.getUno().equals(uno)) {
+                    if (sgruser.getUteam().equals("A")) {
+                        uno1 = uno;
+                        uno1Uteam = sgruser.getUteam();
+                    } else if (sgruser.getUteam().equals("B")) {
+                        uno2 = uno;
+                        uno2Uteam = sgruser.getUteam();
+                    } else if (sgruser.getUteam().equals("C")) {
+                        uno3 = uno;
+                        uno3Uteam = sgruser.getUteam();
                     }
                 }
             }
-            uno1 = tempUno1;
-            uno2 = tempUno2;
-            uno3 = tempUno3;
-            List<String> currentUnoList = new ArrayList<>(unoList);
-            currentUnoList.remove(uno1);
-            currentUnoList.remove(uno2);
-            currentUnoList.remove(uno3);
-            if (uno1.equals("")) uno1 = getRandomList(currentUnoList, 1).get(0);
-            if (uno2.equals("")) uno2 = getRandomList(currentUnoList, 1).get(0);
-            if (uno3.equals("")) uno3 = getRandomList(currentUnoList, 1).get(0);
         }
+
+        if (lastMonthSgresultList.size() > 0 && lastMonthUnoList.size() > 0) {
+            String lastMonthUno1Uteam = "";
+            String lastMonthUno2Uteam = "";
+            String lastMonthUno3Uteam = "";
+
+
+            lastMonthUno1 = lastMonthUnoList.get(0);
+            lastMonthUno2 = lastMonthUnoList.get(1);
+            lastMonthUno3 = lastMonthUnoList.get(2);
+
+            for (Sgruser sgruser : allSgruserList) {
+                if (sgruser.getUno().equals(lastMonthUno1)) lastMonthUno1Uteam = sgruser.getUteam();
+                if (sgruser.getUno().equals(lastMonthUno2)) lastMonthUno2Uteam = sgruser.getUteam();
+                if (sgruser.getUno().equals(lastMonthUno3)) lastMonthUno3Uteam = sgruser.getUteam();
+            }
+
+            int uno1FirstShiftDate = shift1.get(0);
+            int uno2FirstShiftDate = shift2.get(0);
+            int uno3FirstShiftDate = shift3.get(0);
+
+            Map<Integer, List<Integer>> shiftMap = new LinkedHashMap<>();
+            shiftMap.put(1, shift1);
+            shiftMap.put(2, shift2);
+            shiftMap.put(3, shift3);
+
+            Map<String, Integer> unsortedLastMonthMap = new HashMap<>();
+            unsortedLastMonthMap.put(lastMonthUno1Uteam, lastMonthUno1LastShiftDate);
+            unsortedLastMonthMap.put(lastMonthUno2Uteam, lastMonthUno2LastShiftDate);
+            unsortedLastMonthMap.put(lastMonthUno3Uteam, lastMonthUno3LastShiftDate);
+
+            LinkedHashMap<String, Integer> lastMonthMap = unsortedLastMonthMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+            Map<String, Integer> unsortedCurrentMap = new HashMap<>();
+            unsortedCurrentMap.put(uno1Uteam, uno1FirstShiftDate);
+            unsortedCurrentMap.put(uno2Uteam, uno2FirstShiftDate);
+            unsortedCurrentMap.put(uno3Uteam, uno3FirstShiftDate);
+
+            LinkedHashMap<String, Integer> currentMap = unsortedCurrentMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+            List<String> lastMonthList = new ArrayList<>(lastMonthMap.keySet());
+            List<Integer> currentlist = new ArrayList<>(currentMap.values());
+
+            Map<String, Integer> newMap = new HashMap<>();
+            newMap.put(lastMonthList.get(0), currentlist.get(0));
+            newMap.put(lastMonthList.get(1), currentlist.get(1));
+            newMap.put(lastMonthList.get(2), currentlist.get(2));
+
+            if (newMap.get("A").equals(uno2FirstShiftDate)) {
+                shift1 = shiftMap.get(2);
+            } else if (newMap.get("A").equals(uno3FirstShiftDate)) {
+                shift1 = shiftMap.get(3);
+            }
+            if (newMap.get("B").equals(uno1FirstShiftDate)) {
+                shift2 = shiftMap.get(1);
+            } else if (newMap.get("B").equals(uno3FirstShiftDate)) {
+                shift2 = shiftMap.get(3);
+            }
+            if (newMap.get("C").equals(uno1FirstShiftDate)) {
+                shift3 = shiftMap.get(1);
+            } else if (newMap.get("C").equals(uno2FirstShiftDate)) {
+                shift3 = shiftMap.get(2);
+            }
+
+
+        }
+
         List<LocalDate> occupationSchdate1 = new ArrayList<>();
         List<LocalDate> occupationSchdate2 = new ArrayList<>();
         List<LocalDate> occupationSchdate3 = new ArrayList<>();
+
         if (lastMonthUnoList.size() > 0) {
             for (Sgresult sgresult : sgresultList) {
                 Boolean isCurrentYear = sgresult.getSchdate().getYear() == currentSchdate.getYear();
@@ -570,6 +620,7 @@ public class SchedulingController extends RestExceptionHandler {
                 }
             }
         }
+
         for (Sgresult sgresult : sgresultList) {
             Boolean isAnnualLeave = sgresult.getClsno().equals("公休");
             if (!isAnnualLeave) {
@@ -710,7 +761,7 @@ public class SchedulingController extends RestExceptionHandler {
             weekDayList = tempList.stream().filter(sgresult -> !sgresult.isWeekend()).collect(Collectors.toList());
             if (actualDaysOff > estimateDaysOff) {
                 int numberOfReplacements = actualDaysOff - estimateDaysOff;
-                while (numberOfReplacements>0) {
+                while (numberOfReplacements > 0 && weekDayList.size() > 0) {
                     SecureRandom rand = new SecureRandom();
                     rand.setSeed((new Date()).getTime());
                     int random = rand.nextInt(weekDayList.size());
@@ -745,7 +796,7 @@ public class SchedulingController extends RestExceptionHandler {
                                 .map(sgresult1 -> sgresult1.getUno())
                                 .collect(Collectors.toList())
                                 .size() == 0;
-                            if (isAvailable && numberOfReplacements>0) {
+                            if (isAvailable && numberOfReplacements > 0) {
                                 sgresult.setClsno("A8");
                                 sgresult.setClspr(8);
                                 numberOfReplacements--;
@@ -862,7 +913,8 @@ public class SchedulingController extends RestExceptionHandler {
             .stream()
             .filter(sgruser -> {
                 Boolean isCurrentUteam = sgruser.getUteam().equals("不排班");
-                Boolean isSpecialLeave = checkSpecialLeave(sgruser.getUno(), startSchdate, endSchdate);
+//                Boolean isSpecialLeave = checkSpecialLeave(sgruser.getUno(), startSchdate, endSchdate);
+                Boolean isSpecialLeave = false;
                 return isCurrentUteam || isSpecialLeave;
             })
             .collect(Collectors.toList());
@@ -1167,15 +1219,21 @@ public class SchedulingController extends RestExceptionHandler {
                         }
                         Boolean isD6 = sgbackup.getClsno().equals("D6");
                         if (isD6) {
-                            if (uteam.equals("A")) lastMonthD6UnoAList.add(sgbackup.getUno());
-                            if (uteam.equals("B")) lastMonthD6UnoBList.add(sgbackup.getUno());
-                            if (uteam.equals("C")) lastMonthD6UnoCList.add(sgbackup.getUno());
+                            if (uteam.equals("A"))
+                                lastMonthD6UnoAList.add(sgbackup.getUno());
+                            if (uteam.equals("B"))
+                                lastMonthD6UnoBList.add(sgbackup.getUno());
+                            if (uteam.equals("C"))
+                                lastMonthD6UnoCList.add(sgbackup.getUno());
                         }
                         Boolean isA0 = sgbackup.getClsno().equals("A0");
                         if (isA0) {
-                            if (uteam.equals("A")) lastMonthA0UnoAList.add(sgbackup.getUno());
-                            if (uteam.equals("B")) lastMonthA0UnoBList.add(sgbackup.getUno());
-                            if (uteam.equals("C")) lastMonthA0UnoCList.add(sgbackup.getUno());
+                            if (uteam.equals("A"))
+                                lastMonthA0UnoAList.add(sgbackup.getUno());
+                            if (uteam.equals("B"))
+                                lastMonthA0UnoBList.add(sgbackup.getUno());
+                            if (uteam.equals("C"))
+                                lastMonthA0UnoCList.add(sgbackup.getUno());
                         }
                     }
                 }
@@ -1962,9 +2020,9 @@ public class SchedulingController extends RestExceptionHandler {
                 }
             }
             // A0 排班 (先排 A0，後排 D6)
-            setShift(sgresultList, lastMonthSgresultList, lastMonthA0UnoList, lastMonthA0AndD6UnoList, ra0ABCList, monthStart, "A0");
+            setShift(allSgruserList, sgresultList, lastMonthSgresultList, lastMonthA0UnoList, lastMonthA0AndD6UnoList, ra0ABCList, monthStart, "A0");
             // D6 排班
-            setShift(sgresultList, lastMonthSgresultList, lastMonthD6UnoList, lastMonthA0AndD6UnoList, rd6ABCList, monthStart, "D6");
+            setShift(allSgruserList, sgresultList, lastMonthSgresultList, lastMonthD6UnoList, lastMonthA0AndD6UnoList, rd6ABCList, monthStart, "D6");
             // 平日 55 班輪休暫存表
             List<String> r55DaysOffUnoList = new ArrayList<>();
             List<String> ra8BreastFeedUnoList = new ArrayList<>();
@@ -2455,6 +2513,7 @@ public class SchedulingController extends RestExceptionHandler {
                         }
                     } else {
                         // 平日 55 班
+                        // 當日輪休人員列表。
                         List<String> r55DayOffUnoList = new ArrayList<>();
                         Boolean isMonday = DayOfWeek.of(currentDate.get(ChronoField.DAY_OF_WEEK)) == DayOfWeek.MONDAY;
                         List<String> r55CompensatoryUnoList = sgresultList
@@ -2479,6 +2538,7 @@ public class SchedulingController extends RestExceptionHandler {
                                 }
                             }
                         } else {
+                            // 找出當日可出勤的平日 55 班人員，並作為母名單供隨機抽選放假。
                             List<String> r55UnoList = sgbackupList
                                 .stream()
                                 .filter(sgbackup -> {
@@ -2505,12 +2565,16 @@ public class SchedulingController extends RestExceptionHandler {
                             if (r55DaysOffUnoList.containsAll(r55UnoList)) {
                                 r55DaysOffUnoList.clear();
                             }
+
+                            // 去除母名單中，已經在本次輪休輪迴中放過假的人。
                             r55UnoList.removeAll(r55DaysOffUnoList);
+                            // 參考平日 55 班單日最多可放假人數，以決定抽選輪休人員的數量。
                             if (r55UnoList.size() >= r55Holiday) {
                                 r55DayOffUnoList = getRandomList(r55UnoList, r55Holiday);
                             } else {
                                 r55DayOffUnoList.addAll(r55UnoList);
                             }
+                            // 輪休輪迴列表中，加入本日輪休人員名單。
                             r55DaysOffUnoList.addAll(r55DayOffUnoList);
                             if (r55DayOffUnoList.size() > 0) {
                                 for (String currentUno : r55DayOffUnoList) {
@@ -3439,6 +3503,7 @@ public class SchedulingController extends RestExceptionHandler {
             ra8Replacement(currentMonthNationalHolidaysList, sgresultList, lastMonthSgresultList, rd6ABCList, monthStart, monthEnd, "D6");
             setOvertime(sgresultList, sgbackupList, monthStart, monthEnd);
             setRemark(currentMonthNationalHolidaysList, sgresultList, civilServantList, laborList, monthStart, monthEnd);
+
             sgresultRepository.saveAll(sgresultList);
             sgbackupRepository.saveAll(sgbackupList);
         }
@@ -3616,11 +3681,11 @@ public class SchedulingController extends RestExceptionHandler {
                             sgresult.setRemark("ZZ");
                             requiredQuantityOfZZ--;
                             lastRemark = "ZZ";
-                        }else if (requiredQuantityOfYY > 0){
+                        } else if (requiredQuantityOfYY > 0) {
                             sgresult.setRemark("YY");
                             requiredQuantityOfYY--;
                             lastRemark = "YY";
-                        }else if (requiredQuantityOfZZ > 0){
+                        } else if (requiredQuantityOfZZ > 0) {
                             sgresult.setRemark("ZZ");
                             requiredQuantityOfZZ--;
                             lastRemark = "ZZ";
@@ -3664,7 +3729,7 @@ public class SchedulingController extends RestExceptionHandler {
                     } else if (isZZ) {
                         lastRemark = "ZZ";
                     } else if (isEmpty) {
-                        if (lastRemark.equals("ZZ"))  {
+                        if (lastRemark.equals("ZZ")) {
                             sgresult.setRemark("YY");
                             lastRemark = "YY";
                         } else if (lastRemark.equals("YY")) {

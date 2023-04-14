@@ -3,6 +3,7 @@ package com.gini.scheduling;
 import com.gini.scheduling.dao.SgruserRepository;
 import com.gini.scheduling.dao.SgshiftRepository;
 import com.gini.scheduling.dao.SgsysRepository;
+import com.gini.scheduling.model.Sgruser;
 import com.gini.scheduling.model.Sgshift;
 import com.gini.scheduling.model.Sgsys;
 import org.jasypt.encryption.StringEncryptor;
@@ -26,7 +27,6 @@ public class SchedulingSpringBootApp extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication.run(SchedulingSpringBootApp.class, args);
-
     }
 
     @Override
@@ -37,20 +37,20 @@ public class SchedulingSpringBootApp extends SpringBootServletInitializer {
     @Bean
     public CommandLineRunner initData(SgruserRepository sgruserRepository, SgshiftRepository sgshiftRepository, SgsysRepository sgsysRepository) {
         return (args) -> {
-//            // 自動分組
-//                List<Sgruser> sgruserList = sgruserRepository.findAll();
-//                List<Sgruser> newSgruserList = new ArrayList<>();
-//                for (int i = 0; i<sgruserList.size(); i++) {
-//                    if(i>=0 && i<7){
-//                        sgruserList.get(i).setUteam("A");
-//                    }else if (i>=7 && i<14){
-//                        sgruserList.get(i).setUteam("B");
-//                    }else{
-//                        sgruserList.get(i).setUteam("C");
-//                    }
-//                    newSgruserList.add(sgruserList.get(i));
+            // 自動分組
+//            List<Sgruser> sgruserList = sgruserRepository.findAll();
+//            List<Sgruser> newSgruserList = new ArrayList<>();
+//            for (int i = 0; i < sgruserList.size(); i++) {
+//                if (i >= 0 && i < 7) {
+//                    sgruserList.get(i).setUteam("A");
+//                } else if (i >= 7 && i < 14) {
+//                    sgruserList.get(i).setUteam("B");
+//                } else {
+//                    sgruserList.get(i).setUteam("C");
 //                }
-//                sgruserRepository.saveAll(newSgruserList);
+//                newSgruserList.add(sgruserList.get(i));
+//            }
+//            sgruserRepository.saveAll(newSgruserList);
 
             // 自動帶入系統設定
             List<Sgsys> sgsysList = new ArrayList<>();
@@ -98,9 +98,6 @@ public class SchedulingSpringBootApp extends SpringBootServletInitializer {
                 sgshiftList.add(new Sgshift(clsno));
             }
             sgshiftRepository.saveAll(sgshiftList);
-
-
-
         };
     }
 
