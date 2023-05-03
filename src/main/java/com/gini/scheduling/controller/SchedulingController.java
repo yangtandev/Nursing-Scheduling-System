@@ -313,20 +313,21 @@ public class SchedulingController extends RestExceptionHandler {
             lastMonthUno3ShiftList.sort(Comparator.comparing(Sgresult::getSchdate));
             // 取上月最後至多四天內出勤名單
             for (int index = lastMonthUno1ShiftList.size() - 1; index >= lastMonthUno1ShiftList.size() - 4; index--) {
-                if (lastMonthUno1ShiftList.get(index).getClsno().equals("OFF")
-                    || (lastMonthUno1ShiftList.get(index).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno()))
-                    || (lastMonthUno1ShiftList.get(index).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno()))
+                if (lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno())
+                    && lastMonthUno1ShiftList.get(index).getClsno().equals("OFF")
+                    || lastMonthUno1ShiftList.get(index).getClsno().equals("A8")
+                    || lastMonthUno1ShiftList.get(index).getClsno().equals("55")
                 ) {
                     if (occupationMap.get("occupation1") == 0
-                        && (lastMonthUno1ShiftList.get(index).getClsno().equals("A8") && lastMonthUno1ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno()))
-                        || (lastMonthUno1ShiftList.get(index).getClsno().equals("55") && lastMonthUno1ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno()))
+                        && (lastMonthUno1ShiftList.get(index).getClsno().equals("A8") && lastMonthUno1ShiftList.get(index - 1).getClsno().equals("A8"))
+                        || (lastMonthUno1ShiftList.get(index).getClsno().equals("55") && lastMonthUno1ShiftList.get(index - 1).getClsno().equals("55"))
                     ) {
                         break;
                     }
                     if (occupationMap.get("occupation1") == 0
                         && !(lastMonthUno1ShiftList.get(index - 1).getClsno().equals("OFF")
-                        || (lastMonthUno1ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno()))
-                        || (lastMonthUno1ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno1ShiftList.get(index).getUno())))
+                        || (lastMonthUno1ShiftList.get(index - 1).getClsno().equals("A8"))
+                        || (lastMonthUno1ShiftList.get(index - 1).getClsno().equals("55")))
                     ) {
                         occupationMap.put("singleDayOff1", occupationMap.get("singleDayOff1") + 1);
                     }
@@ -336,20 +337,22 @@ public class SchedulingController extends RestExceptionHandler {
                 }
             }
             for (int index = lastMonthUno2ShiftList.size() - 1; index >= lastMonthUno2ShiftList.size() - 4; index--) {
-                if (lastMonthUno2ShiftList.get(index).getClsno().equals("OFF")
-                    || (lastMonthUno2ShiftList.get(index).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno()))
-                    || (lastMonthUno2ShiftList.get(index).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno()))
+                if (lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno())
+                    && lastMonthUno2ShiftList.get(index).getClsno().equals("OFF")
+                    || lastMonthUno2ShiftList.get(index).getClsno().equals("A8")
+                    || lastMonthUno2ShiftList.get(index).getClsno().equals("55")
                 ) {
                     if (occupationMap.get("occupation2") == 0
-                        && (lastMonthUno2ShiftList.get(index).getClsno().equals("A8") && lastMonthUno2ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno()))
-                        || (lastMonthUno2ShiftList.get(index).getClsno().equals("55") && lastMonthUno2ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno()))
+                        && (lastMonthUno2ShiftList.get(index).getClsno().equals("A8") && lastMonthUno2ShiftList.get(index - 1).getClsno().equals("A8"))
+                        || (lastMonthUno2ShiftList.get(index).getClsno().equals("55") && lastMonthUno2ShiftList.get(index - 1).getClsno().equals("55"))
                     ) {
                         break;
                     }
                     if (occupationMap.get("occupation2") == 0
+                        && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno())
                         && !(lastMonthUno2ShiftList.get(index - 1).getClsno().equals("OFF")
-                        || (lastMonthUno2ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno()))
-                        || (lastMonthUno2ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno2ShiftList.get(index).getUno())))
+                        || (lastMonthUno2ShiftList.get(index - 1).getClsno().equals("A8"))
+                        || (lastMonthUno2ShiftList.get(index - 1).getClsno().equals("55")))
                     ) {
                         occupationMap.put("singleDayOff2", occupationMap.get("singleDayOff2") + 1);
                     }
@@ -359,20 +362,22 @@ public class SchedulingController extends RestExceptionHandler {
                 }
             }
             for (int index = lastMonthUno3ShiftList.size() - 1; index >= lastMonthUno3ShiftList.size() - 4; index--) {
-                if (lastMonthUno3ShiftList.get(index).getClsno().equals("OFF")
-                    || (lastMonthUno3ShiftList.get(index).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno()))
-                    || (lastMonthUno3ShiftList.get(index).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno()))
+                if (lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno())
+                    && lastMonthUno3ShiftList.get(index).getClsno().equals("OFF")
+                    || lastMonthUno3ShiftList.get(index).getClsno().equals("A8")
+                    || lastMonthUno3ShiftList.get(index).getClsno().equals("55")
                 ) {
                     if (occupationMap.get("occupation3") == 0
-                        && (lastMonthUno3ShiftList.get(index).getClsno().equals("A8") && lastMonthUno3ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno()))
-                        || (lastMonthUno3ShiftList.get(index).getClsno().equals("55") && lastMonthUno3ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno()))
+                        && (lastMonthUno3ShiftList.get(index).getClsno().equals("A8") && lastMonthUno3ShiftList.get(index - 1).getClsno().equals("A8"))
+                        || (lastMonthUno3ShiftList.get(index).getClsno().equals("55") && lastMonthUno3ShiftList.get(index - 1).getClsno().equals("55"))
                     ) {
                         break;
                     }
                     if (occupationMap.get("occupation3") == 0
+                        && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno())
                         && !(lastMonthUno3ShiftList.get(index - 1).getClsno().equals("OFF")
-                        || (lastMonthUno3ShiftList.get(index - 1).getClsno().equals("A8") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno()))
-                        || (lastMonthUno3ShiftList.get(index - 1).getClsno().equals("55") && lastMonthA0AndD6UnoList.contains(lastMonthUno3ShiftList.get(index).getUno())))
+                        || (lastMonthUno3ShiftList.get(index - 1).getClsno().equals("A8"))
+                        || (lastMonthUno3ShiftList.get(index - 1).getClsno().equals("55")))
                     ) {
                         occupationMap.put("singleDayOff3", occupationMap.get("singleDayOff3") + 1);
                     }
