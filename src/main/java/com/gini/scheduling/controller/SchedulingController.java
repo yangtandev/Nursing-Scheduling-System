@@ -112,13 +112,10 @@ public class SchedulingController extends RestExceptionHandler {
                 .body(object.toString())
                 .asString();
             if (response.getStatus() == 200) {
-                logger.info("certificate status OK!");
                 ObjectMapper objectMapper = new ObjectMapper();
                 Map<String, Object> result = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {
                 });
-                logger.info("result {}", result);
                 if (result.get("success").equals("Y")) {
-                    logger.info("certificate result OK!");
                     List<Map<String, String>> resultList = (List<Map<String, String>>) result.get("resultList");
                     if (resultList.size() > 0) {
                         for (Map<String, String> resultMap : resultList) {
@@ -918,8 +915,8 @@ public class SchedulingController extends RestExceptionHandler {
             .stream()
             .filter(sgruser -> {
                 Boolean isCurrentUteam = sgruser.getUteam().equals("不排班");
-//                Boolean isSpecialLeave = checkSpecialLeave(sgruser.getUno(), startSchdate, endSchdate);
-                Boolean isSpecialLeave = false;
+                Boolean isSpecialLeave = checkSpecialLeave(sgruser.getUno(), startSchdate, endSchdate);
+//                Boolean isSpecialLeave = false;
                 return isCurrentUteam || isSpecialLeave;
             })
             .collect(Collectors.toList());
@@ -980,7 +977,7 @@ public class SchedulingController extends RestExceptionHandler {
                 .collect(Collectors.toList());
             // 為方便本月初，接替離職人員班別的人員出勤，將上月末四天班別備份，並覆蓋接替人員上月對應日期。
             Map<String, List<Sgresult>> lastMonthSgresultMap = new LinkedHashMap<>();
-            // 上月名單與本月名單不符時(如人員退休、離職)，清除與本月名單不符的上月人員資料，以利白班。
+            // 上月名單與本月名單不符時(如人員退休、離職)，清除與本月名單不符的上月人員資料，以利排班。
             if (lastMonthUnoList.size() > 0) {
                 List<String> removeUnoList = lastMonthUnoList
                     .stream()
