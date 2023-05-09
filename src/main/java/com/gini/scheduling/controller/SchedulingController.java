@@ -112,13 +112,10 @@ public class SchedulingController extends RestExceptionHandler {
                 .body(object.toString())
                 .asString();
             if (response.getStatus() == 200) {
-                logger.info("certificate status OK!");
                 ObjectMapper objectMapper = new ObjectMapper();
                 Map<String, Object> result = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {
                 });
-                logger.info("result {}", result);
                 if (result.get("success").equals("Y")) {
-                    logger.info("certificate result OK!");
                     List<Map<String, String>> resultList = (List<Map<String, String>>) result.get("resultList");
                     if (resultList.size() > 0) {
                         for (Map<String, String> resultMap : resultList) {
@@ -918,8 +915,8 @@ public class SchedulingController extends RestExceptionHandler {
             .stream()
             .filter(sgruser -> {
                 Boolean isCurrentUteam = sgruser.getUteam().equals("不排班");
-//                Boolean isSpecialLeave = checkSpecialLeave(sgruser.getUno(), startSchdate, endSchdate);
-                Boolean isSpecialLeave = false;
+                Boolean isSpecialLeave = checkSpecialLeave(sgruser.getUno(), startSchdate, endSchdate);
+//                Boolean isSpecialLeave = false;
                 return isCurrentUteam || isSpecialLeave;
             })
             .collect(Collectors.toList());
